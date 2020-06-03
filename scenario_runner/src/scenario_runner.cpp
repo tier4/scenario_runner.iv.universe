@@ -1,3 +1,4 @@
+#include <scenario_expression/expression.h>
 #include <scenario_logger/logger.h>
 #include <scenario_runner/scenario_runner.h>
 
@@ -48,9 +49,15 @@ try
   sequence_manager_ = std::make_shared<scenario_sequence::SequenceManager>(
     scenario_["Story"]["Act"], simulator_, entity_manager_);
 
-  SCENARIO_LOG_STREAM(CATEGORY(), "Waiting for the simulator API to be ready.");
-  simulator_->waitAPIReady();
-  SCENARIO_LOG_STREAM(CATEGORY(), "Simulator API is ready.");
+  auto success
+  {
+    scenario_expression::Expression::make<typename scenario_expression::Conditional>(
+      scenario_["Story"]["EndCondition"]["Success"])
+  };
+
+  scenario_logger::Logger::addLog(
+    scenario_logger_msgs::Level::LEVEL_LOG, {"simulator"}, "scenario runner start runnig",
+    "scenario_runner");
 
   timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
 
