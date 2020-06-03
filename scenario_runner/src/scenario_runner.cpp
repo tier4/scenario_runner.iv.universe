@@ -27,12 +27,14 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
-  call_with_essential(scenario_, "Entity", [&](const auto& node) mutable
+  auto success
   {
-    entity_manager_ =
-      std::make_shared<scenario_entities::EntityManager>(
-        node, simulator_);
-  });
+    scenario_expression::Expression::make<typename scenario_expression::Conditional>(
+      scenario_["Story"]["EndCondition"]["Experimental"])
+  };
+
+  entity_manager_ =
+    std::make_shared<scenario_entities::EntityManager>(scenario_["Entity"], simulator_);
 
   ROS_INFO_STREAM("\e[1;32mIntersection:\e[0m");
   intersection_manager_ = std::make_shared<scenario_intersection::IntersectionManager>(
@@ -48,12 +50,6 @@ try
   ROS_INFO_STREAM("\e[1;32m  Act:\e[0m");
   sequence_manager_ = std::make_shared<scenario_sequence::SequenceManager>(
     scenario_["Story"]["Act"], simulator_, entity_manager_);
-
-  auto success
-  {
-    scenario_expression::Expression::make<typename scenario_expression::Conditional>(
-      scenario_["Story"]["EndCondition"]["Success"])
-  };
 
   scenario_logger::Logger::addLog(
     scenario_logger_msgs::Level::LEVEL_LOG, {"simulator"}, "scenario runner start runnig",

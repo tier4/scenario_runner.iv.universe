@@ -116,7 +116,20 @@ class Conditional
 public:
   Conditional(const YAML::Node& node)
     : Expression { std::integral_constant<decltype(0), 0>() }
-  {}
+  {
+    if (const auto syntax { node["All"] })
+    {
+      std::cout << "AND" << std::endl;
+    }
+    else if (const auto syntax { node["Any"] })
+    {
+      std::cout << "OR" << std::endl;
+    }
+    else
+    {
+      std::cout << "SEQUENCE OF TEST" << std::endl;
+    }
+  }
 
   Conditional(const Conditional& c)
     : Expression { std::integral_constant<decltype(0), 0>() }
