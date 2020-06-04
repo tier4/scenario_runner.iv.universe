@@ -37,19 +37,15 @@ namespace scenario_expression
  *
  * -------------------------------------------------------------------------- */
 
+template <template <typename T> typename Comparator>
 class Logical;
 
-template <template <typename T> typename Operator>
-class LogicalOperator;
-
-using And = LogicalOperator<std::logical_and>;
-using Or  = LogicalOperator<std::logical_or>;
-using Not = LogicalOperator<std::logical_not>;
+using And = Logical<std::logical_and>;
+using Or  = Logical<std::logical_or>;
+using Not = Logical<std::logical_not>;
 
 class Expression
 {
-  friend Logical;
-
   friend And;
   friend Or;
   friend Not;
@@ -126,13 +122,11 @@ private:
 
 Expression make_expression(const YAML::Node&);
 
+template <template <typename T> typename Comparator>
 class Logical
   : public Expression
 {
   friend class Expression;
-
-  template <typename T>
-  using Comparator = std::function<bool (const T&, const T&)>;
 
 protected:
   Comparator<bool> compare;
@@ -145,9 +139,8 @@ protected:
     , operands { operation.operands }
   {}
 
-  Logical(const Comparator<bool>& compare, const YAML::Node& operands_node)
+  Logical(const YAML::Node& operands_node)
     : Expression { std::integral_constant<decltype(0), 0>() }
-    , compare { compare }
   {
     std::cout << "\e[1;31m(logical";
 
@@ -177,18 +170,17 @@ protected:
   }
 };
 
-template <template <typename T> typename Operator>
-class LogicalOperator
-  : public Logical
-{
-  friend Expression;
-
-  LogicalOperator(const YAML::Node& node)
-    : Logical { Operator<bool>(), node }
-  {}
-
-  virtual ~LogicalOperator() = default;
-};
+// class LogicalOperator
+//   : public Logical
+// {
+//   friend Expression;
+//
+//   LogicalOperator(const YAML::Node& node)
+//     : Logical { Operator<bool>(), node }
+//   {}
+//
+//   virtual ~LogicalOperator() = default;
+// };
 
 // TODO MOVE INTO Expression's CONSTRUCTOR!
 Expression make_expression(const YAML::Node& node)
