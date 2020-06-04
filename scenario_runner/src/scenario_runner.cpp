@@ -34,6 +34,7 @@ try
   auto e =
     scenario_expression::make_expression(
       scenario_["Story"]["EndCondition"]["Experimental"]);
+  std::cout << std::endl;
 
   terminate();
 

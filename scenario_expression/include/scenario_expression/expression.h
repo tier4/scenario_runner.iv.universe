@@ -21,7 +21,7 @@ namespace scenario_expression
  *              | <Sequential>
  *              | <Parallel>
  *
- * There is no Conditional.
+ * NOTE: There is no Conditional.
  *
  * <Logical> = <Logical Operator> [ <Test>* ]
  *
@@ -124,6 +124,8 @@ private:
   std::size_t reference_count;
 };
 
+Expression make_expression(const YAML::Node&);
+
 class Logical
   : public Expression
 {
@@ -147,17 +149,32 @@ protected:
     : Expression { std::integral_constant<decltype(0), 0>() }
     , compare { compare }
   {
+    std::cout << "\e[1;31m(logical";
+
+    if (not operands_node.IsSequence())
+    {
+      ROS_ERROR_STREAM("Operands of logical operator must be sequence.");
+    }
+
     for (const auto& each : operands_node)
     {
-      ROS_ERROR_STREAM("OPERAND " << each);
+      std::cout << " ";
+      operands.push_back(make_expression(each));
     }
+
+    std::cout << "\e[1;31m)";
   }
+
+  virtual ~Logical() = default;
+
+  // virtual operator bool()
+  // {
+  //   return evaluate();
+  // }
 
   virtual Expression evaluate()
   {
   }
-
-  virtual ~Logical() = default;
 };
 
 template <template <typename T> typename Operator>
@@ -173,6 +190,7 @@ class LogicalOperator
   virtual ~LogicalOperator() = default;
 };
 
+// TODO MOVE INTO Expression's CONSTRUCTOR!
 Expression make_expression(const YAML::Node& node)
 {
   if (node.IsScalar())
@@ -195,7 +213,7 @@ Expression make_expression(const YAML::Node& node)
     }
     else
     {
-      ROS_ERROR_STREAM("It may be procedure call " << node);
+      std::cout << "\e[1;31m(procedure)";
     }
   }
 
