@@ -1,14 +1,15 @@
 #ifndef INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 #define INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <functional>
 #include <iostream>
+#include <pluginlib/class_loader.h>
+#include <ros/ros.h>
+#include <scenario_conditions/condition_base.h>
 #include <type_traits>
 #include <utility>
-
 #include <yaml-cpp/yaml.h>
-
-#include <ros/ros.h>
 
 namespace scenario_expression
 {
@@ -42,13 +43,11 @@ class Logical;
 
 using And = Logical<std::logical_and>;
 using Or  = Logical<std::logical_or>;
-using Not = Logical<std::logical_not>;
 
 class Expression
 {
   friend And;
   friend Or;
-  friend Not;
 
 public:
   Expression()
@@ -126,13 +125,15 @@ template <template <typename T> typename Comparator>
 class Logical
   : public Expression
 {
-  friend class Expression;
+  friend Expression;
 
-protected:
   Comparator<bool> compare;
 
   std::vector<Expression> operands;
 
+  std::size_t arity;
+
+protected:
   Logical(const Logical& operation)
     : Expression { std::integral_constant<decltype(0), 0>() }
     , compare { operation.compare }
@@ -144,15 +145,13 @@ protected:
   {
     std::cout << "\e[1;31m(logical";
 
-    if (not operands_node.IsSequence())
+    if (operands_node.IsSequence())
     {
-      ROS_ERROR_STREAM("Operands of logical operator must be sequence.");
-    }
-
-    for (const auto& each : operands_node)
-    {
-      std::cout << " ";
-      operands.push_back(make_expression(each));
+      for (const auto& each : operands_node)
+      {
+        std::cout << " ";
+        operands.push_back(make_expression(each));
+      }
     }
 
     std::cout << "\e[1;31m)";
@@ -170,17 +169,68 @@ protected:
   }
 };
 
-// class LogicalOperator
-//   : public Logical
-// {
-//   friend Expression;
-//
-//   LogicalOperator(const YAML::Node& node)
-//     : Logical { Operator<bool>(), node }
-//   {}
-//
-//   virtual ~LogicalOperator() = default;
-// };
+class Procedure
+  : public Expression
+{
+  friend Expression;
+
+protected:
+  Procedure()
+    : Expression { std::integral_constant<decltype(0), 0>() }
+  {}
+
+  Procedure(const Procedure& proc)
+    : Expression { std::integral_constant<decltype(0), 0>() }
+  {}
+
+  Procedure(const YAML::Node& node)
+  {}
+};
+
+class Predicate
+  : public Procedure
+{
+  friend Procedure;
+
+  boost::shared_ptr<scenario_conditions::ConditionBase> impl;
+
+protected:
+  Predicate(const Predicate& pred)
+  {}
+
+  Predicate(const YAML::Node& node)
+  {
+  }
+
+  // TODO MOVE INTO Procedure
+  auto& loader() const
+  {
+    static pluginlib::ClassLoader<scenario_conditions::ConditionBase> loader {
+      "scenario_conditions", "scenario_conditions::ConditionBase"
+    };
+    return loader;
+  }
+
+  const auto& declarations()
+  {
+    static const auto result { loader().getDeclaredClasses() };
+    return result;
+  }
+
+  auto load(const std::string& name)
+  {
+    for (const auto& declaration : declarations())
+    {
+      if (declaration == name)
+      {
+        return loader().createInstance(declaration);
+      }
+    }
+
+    ROS_ERROR_STREAM(__FILE__ << ":" << __LINE__ << ": Failed to load Predicate " << name);
+    return boost::shared_ptr<scenario_conditions::ConditionBase>(nullptr);
+  }
+};
 
 // TODO MOVE INTO Expression's CONSTRUCTOR!
 Expression make_expression(const YAML::Node& node)
@@ -199,13 +249,24 @@ Expression make_expression(const YAML::Node& node)
     {
       return Expression::make<And>(node_and);
     }
-    if (const auto node_or { node["Any"] })
+    else if (const auto node_or { node["Any"] })
     {
       return Expression::make<Or>(node_or);
     }
+    else if (const auto node_type { node["Type"] })
+    {
+      if (const auto node_name { node["Name"] })
+      {
+        std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
+      }
+      else // NOTE: Actions has no 'Name' tag.
+      {
+        std::cout << "\e[1;31m(change " << node_type.as<std::string>() << ")";
+      }
+    }
     else
     {
-      std::cout << "\e[1;31m(procedure)";
+      std::cout << "ERROR!";
     }
   }
 

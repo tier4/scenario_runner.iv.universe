@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
   COMPONENTS
     pluginlib
     roscpp
+    scenario_conditions
   )
 
 catkin_package(
@@ -16,6 +17,7 @@ catkin_package(
   CATKIN_DEPENDS
     pluginlib
     roscpp
+    scenario_conditions
   )
 
 include_directories(
