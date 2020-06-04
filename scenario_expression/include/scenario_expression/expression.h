@@ -1,22 +1,31 @@
 #ifndef INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 #define INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 
+#include <functional>
 #include <iostream>
 #include <type_traits>
 #include <utility>
 
 #include <yaml-cpp/yaml.h>
 
+#include <ros/ros.h>
+
 namespace scenario_expression
 {
 
 /* -----------------------------------------------------------------------------
  *
- * <Expression> = <Conditional>
- *              | <Predicate>
- *              | <Action>
+ * <Expression> = <Literal>
+ *              | <Logical>
+ *              | <Procedure Call>
+ *              | <Sequential>
+ *              | <Parallel>
  *
- * <Conditional> = <Syntax> [ <Test>* ]
+ * There is no Conditional.
+ *
+ * <Logical> = <Logical Operator> [ <Test>* ]
+ *
+ * <Logical Operator> = <And> | <Or> | <Not>
  *
  * <Test> = <Expression>
  *
@@ -24,15 +33,26 @@ namespace scenario_expression
  * the expression is equal to false or not. Note that the return value of the
  * expression is not necessarily Boolean.
  *
+ * <Procedure Call> = <Action Call> | <Predicate Call>
+ *
  * -------------------------------------------------------------------------- */
 
-class Conditional;
-class Predicate;
+class Logical;
+
+template <template <typename T> typename Operator>
+class LogicalOperator;
+
+using And = LogicalOperator<std::logical_and>;
+using Or  = LogicalOperator<std::logical_or>;
+using Not = LogicalOperator<std::logical_not>;
 
 class Expression
 {
-  friend class Conditional;
-  friend class Predicate;
+  friend Logical;
+
+  friend And;
+  friend Or;
+  friend Not;
 
 public:
   Expression()
@@ -66,7 +86,7 @@ public:
     return *this;
   }
 
-  virtual Expression operator ()()
+  virtual Expression evaluate()
   {}
 
   template <typename T, typename... Ts>
@@ -104,45 +124,83 @@ private:
   std::size_t reference_count;
 };
 
-class Syntax;
-class Test;
-
-class Conditional
+class Logical
   : public Expression
 {
-  friend class Syntax;
-  friend class Test;
+  friend class Expression;
 
-public:
-  Conditional(const YAML::Node& node)
+  template <typename T>
+  using Comparator = std::function<bool (const T&, const T&)>;
+
+protected:
+  Comparator<bool> compare;
+
+  std::vector<Expression> operands;
+
+  Logical(const Logical& operation)
     : Expression { std::integral_constant<decltype(0), 0>() }
+    , compare { operation.compare }
+    , operands { operation.operands }
+  {}
+
+  Logical(const Comparator<bool>& compare, const YAML::Node& operands_node)
+    : Expression { std::integral_constant<decltype(0), 0>() }
+    , compare { compare }
   {
-    if (const auto syntax { node["All"] })
+    for (const auto& each : operands_node)
     {
-      std::cout << "AND" << std::endl;
+      ROS_ERROR_STREAM("OPERAND " << each);
     }
-    else if (const auto syntax { node["Any"] })
+  }
+
+  virtual Expression evaluate()
+  {
+  }
+
+  virtual ~Logical() = default;
+};
+
+template <template <typename T> typename Operator>
+class LogicalOperator
+  : public Logical
+{
+  friend Expression;
+
+  LogicalOperator(const YAML::Node& node)
+    : Logical { Operator<bool>(), node }
+  {}
+
+  virtual ~LogicalOperator() = default;
+};
+
+Expression make_expression(const YAML::Node& node)
+{
+  if (node.IsScalar())
+  {
+    ROS_ERROR_STREAM("IsScalar " << node);
+  }
+  else if (node.IsSequence())
+  {
+    ROS_ERROR_STREAM("IsSequence " << node);
+  }
+  else if (node.IsMap()) // NOTE: is keyword
+  {
+    if (const auto node_and { node["All"] })
     {
-      std::cout << "OR" << std::endl;
+      return Expression::make<And>(node_and);
+    }
+    if (const auto node_or { node["Any"] })
+    {
+      return Expression::make<Or>(node_or);
     }
     else
     {
-      std::cout << "SEQUENCE OF TEST" << std::endl;
+      ROS_ERROR_STREAM("It may be procedure call " << node);
     }
   }
 
-  Conditional(const Conditional& c)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-  {}
-
-  virtual ~Conditional()
-  {
-    std::cout << "Conditional::~Conditional" << std::endl;
-  }
-
-  virtual Expression operator ()()
-  {}
-};
+  return {};
+}
 
 } // namespace scenario_expression
 

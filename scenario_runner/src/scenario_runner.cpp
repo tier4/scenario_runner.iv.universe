@@ -27,11 +27,15 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
-  auto success
-  {
-    scenario_expression::Expression::make<typename scenario_expression::Conditional>(
-      scenario_["Story"]["EndCondition"]["Experimental"])
-  };
+  // auto success =
+  //   scenario_expression::Expression::make<scenario_expression::Conditional>(
+  //     scenario_["Story"]["EndCondition"]["Experimental"]);
+
+  auto e =
+    scenario_expression::make_expression(
+      scenario_["Story"]["EndCondition"]["Experimental"]);
+
+  terminate();
 
   entity_manager_ =
     std::make_shared<scenario_entities::EntityManager>(scenario_["Entity"], simulator_);
