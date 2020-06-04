@@ -204,4 +204,16 @@ Expression make_expression(const YAML::Node& node)
 
 } // namespace scenario_expression
 
+namespace std
+{
+
+template <>
+void swap(scenario_expression::Expression& lhs,
+          scenario_expression::Expression& rhs)
+{
+  lhs.swap(rhs);
+}
+
+} // namespace std
+
 #endif // INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
