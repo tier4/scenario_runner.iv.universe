@@ -169,6 +169,7 @@ protected:
   }
 };
 
+template <typename PluginBase>
 class Procedure
   : public Expression
 {
@@ -184,32 +185,12 @@ protected:
   {}
 
   Procedure(const YAML::Node& node)
-  {}
-};
-
-class Predicate
-  : public Procedure
-{
-  friend Procedure;
-
-  boost::shared_ptr<scenario_conditions::ConditionBase> impl;
-
-protected:
-  Predicate(const Predicate& pred)
+    : Expression { std::integral_constant<decltype(0), 0>() }
   {}
 
-  Predicate(const YAML::Node& node)
-  {
-  }
+  boost::shared_ptr<PluginBase> call;
 
-  // TODO MOVE INTO Procedure
-  auto& loader() const
-  {
-    static pluginlib::ClassLoader<scenario_conditions::ConditionBase> loader {
-      "scenario_conditions", "scenario_conditions::ConditionBase"
-    };
-    return loader;
-  }
+  virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;
 
   const auto& declarations()
   {
@@ -228,7 +209,24 @@ protected:
     }
 
     ROS_ERROR_STREAM(__FILE__ << ":" << __LINE__ << ": Failed to load Predicate " << name);
-    return boost::shared_ptr<scenario_conditions::ConditionBase>(nullptr);
+    return boost::shared_ptr<PluginBase>(nullptr);
+  }
+};
+
+class Predicate
+  : public Procedure<scenario_conditions::ConditionBase>
+{
+  friend Procedure;
+
+protected:
+  using Procedure::Procedure;
+
+  pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const override
+  {
+    static pluginlib::ClassLoader<scenario_conditions::ConditionBase> loader {
+      "scenario_conditions", "scenario_conditions::ConditionBase"
+    };
+    return loader;
   }
 };
 
@@ -255,13 +253,14 @@ Expression make_expression(const YAML::Node& node)
     }
     else if (const auto node_type { node["Type"] })
     {
-      if (const auto node_name { node["Name"] })
-      {
-        std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
-      }
-      else // NOTE: Actions has no 'Name' tag.
+      if (const auto node_params { node["Params"] })
       {
         std::cout << "\e[1;31m(change " << node_type.as<std::string>() << ")";
+      }
+      else
+      {
+        std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
+        return Expression::make<Predicate>(node);
       }
     }
     else
