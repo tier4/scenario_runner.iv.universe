@@ -5,14 +5,14 @@
     <description>Acceleration</description>
   </class>
 
-  <class name="test_conditions/AlwaysTrueCondition"
-         type="test_conditions::AlwaysTrueCondition"
+  <class name="condition_plugins/AlwaysTrueCondition"
+         type="condition_plugins::AlwaysTrueCondition"
          base_class_type="scenario_conditions::ConditionBase">
     <description>AlwaysTrue</description>
   </class>
 
-  <class name="test_conditions/AlwaysFalseCondition"
-         type="test_conditions::AlwaysFalseCondition"
+  <class name="condition_plugins/AlwaysFalseCondition"
+         type="condition_plugins::AlwaysFalseCondition"
          base_class_type="scenario_conditions::ConditionBase">
     <description>AlwaysFalse</description>
   </class>

@@ -1,6 +1,6 @@
 #include <condition_plugins/always_false_condition.h>
 
-namespace test_conditions
+namespace condition_plugins
 {
 
 AlwaysFalseCondition::AlwaysFalseCondition()
@@ -28,7 +28,7 @@ bool AlwaysFalseCondition::update(
   return false;
 }
 
-} // namespace test_conditions
+} // namespace condition_plugins
 
-PLUGINLIB_EXPORT_CLASS(test_conditions::AlwaysFalseCondition, scenario_conditions::ConditionBase)
+PLUGINLIB_EXPORT_CLASS(condition_plugins::AlwaysFalseCondition, scenario_conditions::ConditionBase)
 

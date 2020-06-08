@@ -63,9 +63,18 @@ using Boolean = Literal<bool>;
 class And;
 class Or;
 
+template <typename PluginBase>
+class Procedure;
+
+class Predicate;
+// class Action;
+
 class Expression
 {
   friend Boolean;
+
+  friend Predicate;
+  // friend Action;
 
   friend And;
   friend Or;
@@ -267,7 +276,7 @@ class Procedure
 protected:
   using plugin_type = boost::shared_ptr<PluginBase>;
 
-  plugin_type impl;
+  plugin_type plugin;
 
   Procedure()
     : Expression { std::integral_constant<decltype(0), 0>() }
@@ -275,43 +284,21 @@ protected:
 
   Procedure(const Procedure& proc)
     : Expression { std::integral_constant<decltype(0), 0>() }
-    , impl { proc.impl }
+    , plugin { proc.plugin }
   {}
-
-  Procedure(const YAML::Node& node)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-    , impl { read(node) }
-  {
-    if (impl)
-    {
-      impl->configure(node, api);
-    }
-  }
-
-  virtual plugin_type read(const YAML::Node& node)
-  {
-    return { nullptr };
-  };
 
   std::ostream& write(std::ostream& os) const override
   {
-    // return os << "(" << impl->getType() << ")";
-    return os << "(Procedure)";
+    return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
   }
 
   virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;
 
-  const auto& declarations()
-  {
-    static const auto result { loader().getDeclaredClasses() };
-    return result;
-  }
-
   auto load(const std::string& name)
   {
-    for (const auto& declaration : declarations())
+    for (const auto& declaration : loader().getDeclaredClasses())
     {
-      if (declaration == name)
+      if (loader().getName(declaration) == name)
       {
         return loader().createInstance(declaration);
       }
@@ -325,12 +312,21 @@ protected:
 class Predicate
   : public Procedure<scenario_conditions::ConditionBase>
 {
-  friend Procedure;
+  friend Expression;
 
 protected:
   using Procedure::Procedure;
 
-  plugin_type read(const YAML::Node& node) override
+  Predicate(const YAML::Node& node)
+    : Procedure {}
+  {
+    if (plugin = read(node))
+    {
+      ROS_ERROR_STREAM("Configure " << node["Type"] << " => " << std::boolalpha << plugin->configure(node, api));
+    }
+  }
+
+  plugin_type read(const YAML::Node& node)
   {
     if (const auto type { node["Type"] })
     {
@@ -338,11 +334,11 @@ protected:
     }
     else
     {
-      return load("(type unspecified)");
+      return { nullptr };
     }
   }
 
-  pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const override
+  pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const
   {
     static pluginlib::ClassLoader<scenario_conditions::ConditionBase> loader {
       "scenario_conditions", "scenario_conditions::ConditionBase"
@@ -386,7 +382,7 @@ Expression read(const YAML::Node& node)
     }
     else
     {
-      std::cout << "ERROR!";
+      ROS_ERROR_STREAM("ERROR!");
     }
   }
   else

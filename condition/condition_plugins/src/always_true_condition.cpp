@@ -1,6 +1,6 @@
 #include <condition_plugins/always_true_condition.h>
 
-namespace test_conditions
+namespace condition_plugins
 {
 
 AlwaysTrueCondition::AlwaysTrueCondition()
@@ -28,7 +28,7 @@ bool AlwaysTrueCondition::update(
   return true;
 }
 
-} // namespace test_conditions
+} // namespace condition_plugins
 
-PLUGINLIB_EXPORT_CLASS(test_conditions::AlwaysTrueCondition, scenario_conditions::ConditionBase)
+PLUGINLIB_EXPORT_CLASS(condition_plugins::AlwaysTrueCondition, scenario_conditions::ConditionBase)
 

@@ -7,7 +7,7 @@
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_utility/scenario_utility.h>
 
-namespace test_conditions
+namespace condition_plugins
 {
 
 class AlwaysTrueCondition
@@ -21,7 +21,7 @@ public:
   bool configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr) override;
 };
 
-} // namespace test_conditions
+} // namespace condition_plugins
 
 #endif // TEST_CONDITIONS_ALWAYS_TRUE_CONDITION_H_INCLUDED
 
