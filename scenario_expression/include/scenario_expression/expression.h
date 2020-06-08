@@ -3,6 +3,7 @@
 
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <functional>
+#include <ios>
 #include <iostream>
 #include <pluginlib/class_loader.h>
 #include <ros/ros.h>
@@ -31,9 +32,11 @@ namespace scenario_expression
  *   <Number> = <Double Float>
  *
  * LOGICAL EXPRESSION
- *   <Logical> = <Logical Operator> [ <Test>* ]
+ *   <Logical> = <N-Ary Logical Operator> [ <Test>* ]
+ *             | <Unary Logical Operator> { <Test> }
  *
- *   <Logical Operator> = <And> | <Or> | <Not>
+ *   <N-Ary Logical Operator> = <And> | <Or>
+ *   <Unary Logical Operator> = <Not>
  *
  *   <Test> = <Expression>
  *
@@ -52,18 +55,20 @@ namespace scenario_expression
  *
  * -------------------------------------------------------------------------- */
 
-template <template <typename T> typename Comparator>
-class Logical;
+template <typename T>
+class Literal;
 
-using And = Logical<std::logical_and>;
-using Or  = Logical<std::logical_or>;
+using Boolean = Literal<bool>;
+
+class And;
+class Or;
 
 class Expression
 {
+  friend Boolean;
+
   friend And;
   friend Or;
-
-  static std::shared_ptr<ScenarioAPI> api;
 
 public:
   Expression()
@@ -118,11 +123,23 @@ public:
     Expression::api = api;
   }
 
+  virtual std::ostream& write(std::ostream& os) const
+  {
+    return os << "<Expression>";
+  }
+
+  friend std::ostream& operator <<(std::ostream& os, const Expression& expression)
+  {
+    return expression.data ? expression.data->write(os) : (os << "()");
+  }
+
 protected:
   Expression(std::integral_constant<decltype(0), 0>)
     : data { nullptr }
     , reference_count { 1 }
   {}
+
+  static std::shared_ptr<ScenarioAPI> api;
 
 private:
   void remake(Expression* e)
@@ -161,6 +178,11 @@ class Literal
   value_type value;
 
 protected:
+  Literal(const value_type& value)
+    : Expression { std::integral_constant<decltype(0), 0>() }
+    , value { value }
+  {}
+
   Literal(const Literal& rhs)
     : Expression { std::integral_constant<decltype(0), 0>() }
     , value { rhs.value }
@@ -173,59 +195,68 @@ protected:
 
   virtual ~Literal() = default;
 
-  value_type evaluate() const noexcept override
+  std::ostream& write(std::ostream& os) const override
   {
-    return value;
+    return os << std::boolalpha << value;
+  }
+
+  Expression evaluate() override
+  {
+    return *this;
   }
 };
 
-template <template <typename T> typename Comparator>
-class Logical
-  : public Expression
-{
-  friend Expression;
+#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR)                        \
+class NAME                                                                     \
+  : public Expression                                                          \
+{                                                                              \
+  friend Expression;                                                           \
+                                                                               \
+  OPERATOR<Boolean> compare;                                                   \
+                                                                               \
+  std::vector<Expression> operands;                                            \
+                                                                               \
+protected:                                                                     \
+  NAME(const NAME& rhs)                                                        \
+    : Expression { std::integral_constant<decltype(0), 0>() }                  \
+    , operands { rhs.operands }                                                \
+  {}                                                                           \
+                                                                               \
+  NAME(const YAML::Node& node)                                                 \
+    : Expression { std::integral_constant<decltype(0), 0>() }                  \
+  {                                                                            \
+    if (node.IsSequence())                                                     \
+    {                                                                          \
+      for (const auto& each : node)                                            \
+      {                                                                        \
+        std::cout << " ";                                                      \
+        operands.push_back(read(each));                                        \
+      }                                                                        \
+    }                                                                          \
+  }                                                                            \
+                                                                               \
+  virtual ~NAME() = default;                                                   \
+                                                                               \
+  Expression evaluate() override                                               \
+  {                                                                            \
+    return Expression::make<Boolean>(true);                                    \
+  }                                                                            \
+                                                                               \
+  std::ostream& write(std::ostream& os) const override                         \
+  {                                                                            \
+    os << "(" #NAME;                                                           \
+                                                                               \
+    for (const auto& each : operands)                                          \
+    {                                                                          \
+      os << " " << each;                                                       \
+    }                                                                          \
+                                                                               \
+    return os << ")";                                                          \
+  }                                                                            \
+}
 
-  Comparator<bool> compare;
-
-  std::vector<Expression> operands;
-
-  std::size_t arity;
-
-protected:
-  Logical(const Logical& operation)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-    , compare { operation.compare }
-    , operands { operation.operands }
-  {}
-
-  Logical(const YAML::Node& operands_node)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-  {
-    std::cout << "\e[1;31m(logical";
-
-    if (operands_node.IsSequence())
-    {
-      for (const auto& each : operands_node)
-      {
-        std::cout << " ";
-        operands.push_back(read(each));
-      }
-    }
-
-    std::cout << "\e[1;31m)";
-  }
-
-  virtual ~Logical() = default;
-
-  // virtual operator bool()
-  // {
-  //   return evaluate();
-  // }
-
-  virtual Expression evaluate()
-  {
-  }
-};
+DEFINE_N_ARY_LOGICAL_EXPRESSION(And, std::logical_and);
+DEFINE_N_ARY_LOGICAL_EXPRESSION(Or, std::logical_or);
 
 template <typename PluginBase>
 class Procedure
@@ -261,6 +292,12 @@ protected:
   {
     return { nullptr };
   };
+
+  std::ostream& write(std::ostream& os) const override
+  {
+    // return os << "(" << impl->getType() << ")";
+    return os << "(Procedure)";
+  }
 
   virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;
 
@@ -339,11 +376,11 @@ Expression read(const YAML::Node& node)
     {
       if (const auto node_params { node["Params"] }) // <action call>
       {
-        std::cout << "\e[1;31m(change " << node_type.as<std::string>() << ")";
+        // std::cout << "\e[1;31m(change " << node_type.as<std::string>() << ")";
       }
       else // <predicate call>
       {
-        std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
+        // std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
         return Expression::make<Predicate>(node);
       }
     }

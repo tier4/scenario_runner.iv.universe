@@ -34,7 +34,9 @@ try
   auto e =
     scenario_expression::read(
       scenario_["Story"]["EndCondition"]["Experimental"]);
-  std::cout << std::endl;
+
+  ROS_ERROR_STREAM(e);
+  // ROS_ERROR_STREAM(e.evaluate());
 
   terminate();
 
