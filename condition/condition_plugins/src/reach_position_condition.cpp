@@ -44,18 +44,20 @@ bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection:
   {
     if (not configured_)
     {
-      SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
+      scenario_logger::log.addLog(scenario_logger_msgs::Level::LEVEL_ERROR, {"simulator"}, "condition : " + name_ + "does not configured.", name_);
+      return result_ = false;
     }
 
     if (target_pose_->header.frame_id == "/map")
     {
       if ((*api_ptr_).isObjectInArea(trigger_, target_pose_->pose, tolerance_, boost::math::constants::two_pi<double>()))
       {
-        SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT();
+        scenario_logger::log.addLog(scenario_logger_msgs::Level::LEVEL_LOG, {"condition"}, "reached to the target position", name_);
         return result_ = true;
       }
       else
       {
+        scenario_logger::log.addLog(scenario_logger_msgs::Level::LEVEL_LOG, {"condition"}, "not reached to the target position", name_);
         return result_ = false;
       }
     }
@@ -72,11 +74,12 @@ bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection:
 
       if ((*api_ptr_).isObjectInArea(trigger_, p, tolerance_, boost::math::constants::two_pi<double>()))
       {
-        SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT();
+        scenario_logger::log.addLog(scenario_logger_msgs::Level::LEVEL_LOG, {"condition"}, "reached to the target position", name_);
         return result_ = true;
       }
       else
       {
+        scenario_logger::log.addLog(scenario_logger_msgs::Level::LEVEL_LOG, {"condition"}, "not reached to the target position", name_);
         return result_ = false;
       }
     }

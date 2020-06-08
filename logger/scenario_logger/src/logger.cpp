@@ -69,12 +69,12 @@ void Logger::write()
   }
 }
 
-void Logger::append(const scenario_logger_msgs::Log& log)
+void Logger::addLog(const scenario_logger_msgs::Log& log)
 {
   data_.log.push_back(log);
 }
 
-void Logger::append(int level,
+void Logger::addLog(int level,
                     const std::vector<std::string>& categories,
                     const std::string& description,
                     const std::string& from)
@@ -87,7 +87,7 @@ void Logger::append(int level,
   log.description = description;
   log.from = from;
 
-  append(log);
+  addLog(log);
 }
 
 std::size_t Logger::getNumberOfLog() const

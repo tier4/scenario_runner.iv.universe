@@ -7,7 +7,9 @@
 #include <scenario_runner/scenario_terminater.h>
 
 
-static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
+namespace scenario_runner
+{
+static void failureCallback() { scenario_logger::log.write(); }
 
 static void failureCallback() { scenario_logger::log.write(); }
 
@@ -35,7 +37,19 @@ int main(int argc, char * argv[]) try
    * setup scenario runner
    */
   scenario_runner::ScenarioRunner runner(nh, pnh);
-  SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner instantiated.");
+
+  /**
+   * setup scenario logger
+   */
+  scenario_logger::log.setStartDatetime(ros::Time::now());
+
+  std::string scenario_id;
+  pnh.getParam("scenario_id", scenario_id);
+  scenario_logger::log.setScenarioID(scenario_id);
+
+  std::string log_output_path;
+  pnh.getParam("log_output_path", log_output_path);
+  scenario_logger::log.setLogOutputPath(log_output_path);
 
   /**
    * start simulation
@@ -46,17 +60,24 @@ int main(int argc, char * argv[]) try
       if (previously != runner.currently) {
         switch (previously = runner.currently) {
           case simulation_is::succeeded:
-            SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
-            terminator.sendTerminateRequest(boost::exit_success);
+            scenario_logger::log.addLog(
+              scenario_logger_msgs::Level::LEVEL_INFO, {"simulator", "endcondition"},
+              "simulation succeeded", "scenario_runner");
+            runner.terminate();
             break;
 
           case simulation_is::failed:
-            SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
-            terminator.sendTerminateRequest(boost::exit_failure);
+            scenario_logger::log.addLog(
+              scenario_logger_msgs::Level::LEVEL_INFO, {"simulator", "endcondition"},
+              "simulation failed", "scenario_runner");
+            runner.terminate();
             break;
 
           default:
           case simulation_is::ongoing:
+            scenario_logger::log.addLog(
+              scenario_logger_msgs::Level::LEVEL_LOG, {"simulator", "endcondition"},
+              "simulation ongoing", "scenario_runner");
             break;
         }
       }

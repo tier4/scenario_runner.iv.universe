@@ -53,9 +53,37 @@ auto AccelerationAction::run(
   {
     if (not std::isnan(min_) and not (*api_ptr_).changeNPCAccelMin(actor, min_))
     {
-      SCENARIO_ERROR_THROW(CATEGORY(),
-        type_ << "Action failed to change " << actor << "'s minimum acceleration (Note: This action cannot be used for Ego Type entities).");
-    }
+      if (not std::isnan(min_))
+      {
+        if (not (*api_ptr_).changeNPCAccelMin(actor, min_))
+        {
+          std::stringstream ss {};
+
+          ss << type_ << "Action failed to change " << actor << "'s minimum acceleration (Note: This action cannot be used for Ego Type entities).";
+
+          scenario_logger::log.addLog(
+            scenario_logger_msgs::Level::LEVEL_ERROR,
+            {"simulator"},
+            ss.str(),
+            name_);
+
+          throw std::runtime_error {ss.str()};
+        }
+      }
+
+      if (not std::isnan(max_))
+      {
+        if (not (*api_ptr_).changeNPCAccelMax(actor, max_))
+        {
+          std::stringstream ss {};
+
+          ss << type_ << "Action failed to change " << actor << "'s maximum acceleration (Note: This action cannot be used for Ego Type entities).";
+
+          scenario_logger::log.addLog(
+            scenario_logger_msgs::Level::LEVEL_ERROR,
+            {"simulator"},
+            ss.str(),
+            name_);
 
     if (not std::isnan(max_) and not (*api_ptr_).changeNPCAccelMax(actor, max_))
     {

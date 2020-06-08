@@ -17,10 +17,12 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
   try
   {
     scenario_ = YAML::LoadFile(scenario_path_);
-  }
-  catch (...)
-  {
-    SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to load YAML file \"" << scenario_path_ << "\".");
+  } catch (const std::exception & e) {
+    ROS_ERROR_STREAM(e.what());
+
+    scenario_logger::log.addLog(
+      scenario_logger_msgs::Level::LEVEL_ERROR, {"simulator"},
+      "failed to parse scenario : " + scenario_path_, "scenario_runner");
   }
 }
 
@@ -56,7 +58,7 @@ try
   sequence_manager_ = std::make_shared<scenario_sequence::SequenceManager>(
     scenario_["Story"]["Act"], simulator_, entity_manager_);
 
-  scenario_logger::Logger::addLog(
+  scenario_logger::log.addLog(
     scenario_logger_msgs::Level::LEVEL_LOG, {"simulator"}, "scenario runner start runnig",
     "scenario_runner");
 
