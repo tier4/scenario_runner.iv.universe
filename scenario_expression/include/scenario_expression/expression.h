@@ -6,7 +6,9 @@
 #include <iostream>
 #include <pluginlib/class_loader.h>
 #include <ros/ros.h>
+#include <scenario_api/scenario_api_core.h>
 #include <scenario_conditions/condition_base.h>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <yaml-cpp/yaml.h>
@@ -61,6 +63,8 @@ class Expression
   friend And;
   friend Or;
 
+  static std::shared_ptr<ScenarioAPI> api;
+
 public:
   Expression()
     : data { nullptr }
@@ -109,6 +113,11 @@ public:
     std::swap(data, e.data);
   }
 
+  static void define(const std::shared_ptr<ScenarioAPI>& api)
+  {
+    Expression::api = api;
+  }
+
 protected:
   Expression(std::integral_constant<decltype(0), 0>)
     : data { nullptr }
@@ -130,6 +139,14 @@ private:
 
   std::size_t reference_count;
 };
+
+std::shared_ptr<ScenarioAPI> Expression::api = nullptr;
+
+template <typename... Ts>
+decltype(auto) define(Ts&&... xs)
+{
+  return Expression::define(std::forward<decltype(xs)>(xs)...);
+}
 
 Expression read(const YAML::Node&);
 
@@ -217,19 +234,33 @@ class Procedure
   friend Expression;
 
 protected:
+  using plugin_type = boost::shared_ptr<PluginBase>;
+
+  plugin_type impl;
+
   Procedure()
     : Expression { std::integral_constant<decltype(0), 0>() }
   {}
 
   Procedure(const Procedure& proc)
     : Expression { std::integral_constant<decltype(0), 0>() }
+    , impl { proc.impl }
   {}
 
   Procedure(const YAML::Node& node)
     : Expression { std::integral_constant<decltype(0), 0>() }
-  {}
+    , impl { read(node) }
+  {
+    if (impl)
+    {
+      impl->configure(node, api);
+    }
+  }
 
-  boost::shared_ptr<PluginBase> call;
+  virtual plugin_type read(const YAML::Node& node)
+  {
+    return { nullptr };
+  };
 
   virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;
 
@@ -249,7 +280,7 @@ protected:
       }
     }
 
-    ROS_ERROR_STREAM(__FILE__ << ":" << __LINE__ << ": Failed to load Predicate " << name);
+    ROS_ERROR_STREAM(__FILE__ << ":" << __LINE__ << ": Failed to load Procedure " << name);
     return boost::shared_ptr<PluginBase>(nullptr);
   }
 };
@@ -261,6 +292,18 @@ class Predicate
 
 protected:
   using Procedure::Procedure;
+
+  plugin_type read(const YAML::Node& node) override
+  {
+    if (const auto type { node["Type"] })
+    {
+      return load(type.as<std::string>() + "Condition");
+    }
+    else
+    {
+      return load("(type unspecified)");
+    }
+  }
 
   pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const override
   {
@@ -309,8 +352,10 @@ Expression read(const YAML::Node& node)
       std::cout << "ERROR!";
     }
   }
-
-  return {};
+  else
+  {
+    return {};
+  }
 }
 
 } // namespace scenario_expression

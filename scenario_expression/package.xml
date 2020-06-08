@@ -13,6 +13,7 @@
 
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <depend>scenario_api</depend>
   <depend>scenario_conditions</depend>
   <depend>yaml-cpp</depend>
 </package>

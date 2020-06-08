@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
   COMPONENTS
     pluginlib
     roscpp
+    scenario_api
     scenario_conditions
   )
 
@@ -17,6 +18,7 @@ catkin_package(
   CATKIN_DEPENDS
     pluginlib
     roscpp
+    scenario_api
     scenario_conditions
   )
 

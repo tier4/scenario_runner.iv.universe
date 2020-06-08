@@ -29,6 +29,8 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
+  scenario_expression::define(simulator_);
+
   auto e =
     scenario_expression::read(
       scenario_["Story"]["EndCondition"]["Experimental"]);
