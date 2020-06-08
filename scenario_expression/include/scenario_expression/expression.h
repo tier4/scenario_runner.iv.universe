@@ -99,7 +99,6 @@ public:
   {
     if (data && --(data->reference_count) == 0)
     {
-      std::cout << "Expression::~Expression deleting data" << std::endl;
       delete data;
     }
   }
@@ -112,7 +111,9 @@ public:
   }
 
   virtual Expression evaluate()
-  {}
+  {
+    return data ? data->evaluate() : *this;
+  }
 
   template <typename T, typename... Ts>
   static auto make(Ts&&... xs)
@@ -134,7 +135,7 @@ public:
 
   virtual std::ostream& write(std::ostream& os) const
   {
-    return os << "<Expression>";
+    return os << "Nil";
   }
 
   friend std::ostream& operator <<(std::ostream& os, const Expression& expression)
@@ -344,6 +345,11 @@ protected:
       "scenario_conditions", "scenario_conditions::ConditionBase"
     };
     return loader;
+  }
+
+  Expression evaluate() override
+  {
+    return Expression::make<Boolean>(false);
   }
 };
 

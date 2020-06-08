@@ -36,7 +36,7 @@ try
       scenario_["Story"]["EndCondition"]["Experimental"]);
 
   ROS_ERROR_STREAM(e);
-  // ROS_ERROR_STREAM(e.evaluate());
+  ROS_ERROR_STREAM(e.evaluate());
 
   terminate();
 
