@@ -16,25 +16,37 @@ namespace scenario_expression
 
 /* -----------------------------------------------------------------------------
  *
- * <Expression> = <Literal>
- *              | <Logical>
- *              | <Procedure Call>
- *              | <Sequential>
- *              | <Parallel>
+ * EXPRESSION
+ *   <Expression> = <Literal>
+ *                | <Logical>
+ *                | <Procedure Call>
+ *                | <Sequential>
+ *                | <Parallel>
  *
- * NOTE: There is no Conditional.
+ * LITERAL EXPRESSION
+ *   <Literal> = <Boolean> | <Number>
  *
- * <Logical> = <Logical Operator> [ <Test>* ]
+ *   <Number> = <Double Float>
  *
- * <Logical Operator> = <And> | <Or> | <Not>
+ * LOGICAL EXPRESSION
+ *   <Logical> = <Logical Operator> [ <Test>* ]
  *
- * <Test> = <Expression>
+ *   <Logical Operator> = <And> | <Or> | <Not>
+ *
+ *   <Test> = <Expression>
+ *
+ * PROCEDURE CALL
+ *   <Procedure Call> = <Action Call> | <Predicate Call>
+ *
+ * SEQUENTIAL EXPRESSION
+ *   <Sequential>
+ *
+ * PARALLEL EXPRESSION
+ *   <Parallel>
  *
  * The value of the test is Boolean, which returns whether the return value of
  * the expression is equal to false or not. Note that the return value of the
  * expression is not necessarily Boolean.
- *
- * <Procedure Call> = <Action Call> | <Predicate Call>
  *
  * -------------------------------------------------------------------------- */
 
@@ -119,7 +131,36 @@ private:
   std::size_t reference_count;
 };
 
-Expression make_expression(const YAML::Node&);
+Expression read(const YAML::Node&);
+
+template <typename T>
+class Literal
+  : public Expression
+{
+  friend Expression;
+
+  using value_type = T;
+
+  value_type value;
+
+protected:
+  Literal(const Literal& rhs)
+    : Expression { std::integral_constant<decltype(0), 0>() }
+    , value { rhs.value }
+  {}
+
+  Literal(const YAML::Node& node)
+    : Expression { std::integral_constant<decltype(0), 0>() }
+  {
+  }
+
+  virtual ~Literal() = default;
+
+  value_type evaluate() const noexcept override
+  {
+    return value;
+  }
+};
 
 template <template <typename T> typename Comparator>
 class Logical
@@ -150,7 +191,7 @@ protected:
       for (const auto& each : operands_node)
       {
         std::cout << " ";
-        operands.push_back(make_expression(each));
+        operands.push_back(read(each));
       }
     }
 
@@ -231,7 +272,7 @@ protected:
 };
 
 // TODO MOVE INTO Expression's CONSTRUCTOR!
-Expression make_expression(const YAML::Node& node)
+Expression read(const YAML::Node& node)
 {
   if (node.IsScalar())
   {
@@ -243,21 +284,21 @@ Expression make_expression(const YAML::Node& node)
   }
   else if (node.IsMap()) // NOTE: is keyword
   {
-    if (const auto node_and { node["All"] })
+    if (const auto node_and { node["All"] }) // NOTE: should be 'and'
     {
       return Expression::make<And>(node_and);
     }
-    else if (const auto node_or { node["Any"] })
+    else if (const auto node_or { node["Any"] }) // NOTE: should be 'or'
     {
       return Expression::make<Or>(node_or);
     }
-    else if (const auto node_type { node["Type"] })
+    else if (const auto node_type { node["Type"] }) // <procedure call>
     {
-      if (const auto node_params { node["Params"] })
+      if (const auto node_params { node["Params"] }) // <action call>
       {
         std::cout << "\e[1;31m(change " << node_type.as<std::string>() << ")";
       }
-      else
+      else // <predicate call>
       {
         std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
         return Expression::make<Predicate>(node);

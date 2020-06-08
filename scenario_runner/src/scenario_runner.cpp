@@ -29,12 +29,8 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
-  // auto success =
-  //   scenario_expression::Expression::make<scenario_expression::Conditional>(
-  //     scenario_["Story"]["EndCondition"]["Experimental"]);
-
   auto e =
-    scenario_expression::make_expression(
+    scenario_expression::read(
       scenario_["Story"]["EndCondition"]["Experimental"]);
   std::cout << std::endl;
 
