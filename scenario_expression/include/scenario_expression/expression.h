@@ -1,6 +1,7 @@
 #ifndef INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 #define INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 
+#include <algorithm>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <functional>
 #include <ios>
@@ -9,6 +10,7 @@
 #include <ros/ros.h>
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_conditions/condition_base.h>
+#include <scenario_entities/entity_manager.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <tuple>
 #include <type_traits>
@@ -25,6 +27,7 @@ struct Environment
   std::shared_ptr<TYPE> NAME
 
   DEFINE_LAYER(ScenarioAPI, api);
+  DEFINE_LAYER(scenario_entities::EntityManager, entities);
   DEFINE_LAYER(scenario_intersection::IntersectionManager, intersections);
 
   #undef DEFINE_LAYER
@@ -123,9 +126,9 @@ public:
     return *this;
   }
 
-  virtual Expression evaluate()
+  virtual Expression evaluate(Environment& env)
   {
-    return data ? data->evaluate() : *this;
+    return data ? data->evaluate(env) : *this;
   }
 
   template <typename T, typename... Ts>
@@ -213,7 +216,7 @@ protected:
     return os << std::boolalpha << value;
   }
 
-  Expression evaluate() override
+  Expression evaluate(Environment&) override
   {
     return *this;
   }
@@ -224,13 +227,13 @@ protected:
   }
 };
 
-#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR)                        \
+#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR, BASE_CASE)             \
 class NAME                                                                     \
   : public Expression                                                          \
 {                                                                              \
   friend Expression;                                                           \
                                                                                \
-  OPERATOR<Boolean> compare;                                                   \
+  OPERATOR<bool> combine;                                                      \
                                                                                \
   std::vector<Expression> operands;                                            \
                                                                                \
@@ -255,9 +258,16 @@ protected:                                                                     \
                                                                                \
   virtual ~NAME() = default;                                                   \
                                                                                \
-  Expression evaluate() override                                               \
+  Expression evaluate(Environment& env) override                               \
   {                                                                            \
-    return Expression::make<Boolean>(true);                                    \
+    return                                                                     \
+      Expression::make<Boolean>(                                               \
+      std::accumulate(                                                         \
+        operands.begin(), operands.end(), BASE_CASE,                           \
+        [&](const auto& lhs, auto&& rhs)                                       \
+        {                                                                      \
+          return combine(lhs, rhs.evaluate(env));                              \
+        }));                                                                   \
   }                                                                            \
                                                                                \
   std::ostream& write(std::ostream& os) const override                         \
@@ -273,8 +283,8 @@ protected:                                                                     \
   }                                                                            \
 }
 
-DEFINE_N_ARY_LOGICAL_EXPRESSION(And, std::logical_and);
-DEFINE_N_ARY_LOGICAL_EXPRESSION(Or, std::logical_or);
+DEFINE_N_ARY_LOGICAL_EXPRESSION(And, std::logical_and, true);
+DEFINE_N_ARY_LOGICAL_EXPRESSION(Or, std::logical_or, false);
 
 template <typename PluginBase>
 class Procedure
@@ -316,6 +326,11 @@ protected:
     ROS_ERROR_STREAM(__FILE__ << ":" << __LINE__ << ": Failed to load Procedure " << name);
     return boost::shared_ptr<PluginBase>(nullptr);
   }
+
+  Expression evaluate(Environment& env) override
+  {
+    return Expression::make<Boolean>(plugin->update(env.intersections));
+  }
 };
 
 class Predicate
@@ -336,7 +351,7 @@ protected:
 
     if (plugin)
     {
-      ROS_ERROR_STREAM("Procedure::condigure " << node["Type"] << " => " << std::boolalpha << plugin->configure(node, env.api));
+      plugin->configure(node, env.api);
     }
   }
 
@@ -358,11 +373,6 @@ protected:
       "scenario_conditions", "scenario_conditions::ConditionBase"
     };
     return loader;
-  }
-
-  Expression evaluate() override
-  {
-    return Expression::make<Boolean>(false);
   }
 };
 
@@ -394,7 +404,6 @@ Expression read(Environment& env, const YAML::Node& node)
       }
       else // <predicate call>
       {
-        // std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
         return Expression::make<Predicate>(env, node);
       }
     }

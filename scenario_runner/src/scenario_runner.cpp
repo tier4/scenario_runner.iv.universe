@@ -33,8 +33,10 @@ try
 
   env.define(simulator_);
 
-  entity_manager_ =
-    std::make_shared<scenario_entities::EntityManager>(scenario_["Entity"], simulator_);
+  env.define(
+    entity_manager_ =
+      std::make_shared<scenario_entities::EntityManager>(
+        scenario_["Entity"], simulator_));
 
   ROS_INFO_STREAM("\e[1;32mIntersection:\e[0m");
   env.define(
@@ -67,7 +69,7 @@ try
         scenario_["Story"]["EndCondition"]["Experimental"]);
 
     ROS_ERROR_STREAM(e);
-    ROS_ERROR_STREAM(e.evaluate());
+    ROS_ERROR_STREAM(e.evaluate(env));
 
     terminate();
   }
