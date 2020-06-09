@@ -15,5 +15,6 @@
   <depend>roscpp</depend>
   <depend>scenario_api</depend>
   <depend>scenario_conditions</depend>
+  <depend>scenario_intersection</depend>
   <depend>yaml-cpp</depend>
 </package>

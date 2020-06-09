@@ -29,23 +29,18 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
-  scenario_expression::define(simulator_);
+  scenario_expression::Environment env {};
 
-  auto e =
-    scenario_expression::read(
-      scenario_["Story"]["EndCondition"]["Experimental"]);
-
-  ROS_ERROR_STREAM(e);
-  ROS_ERROR_STREAM(e.evaluate());
-
-  terminate();
+  env.define(simulator_);
 
   entity_manager_ =
     std::make_shared<scenario_entities::EntityManager>(scenario_["Entity"], simulator_);
 
   ROS_INFO_STREAM("\e[1;32mIntersection:\e[0m");
-  intersection_manager_ = std::make_shared<scenario_intersection::IntersectionManager>(
-    scenario_["Intersection"], simulator_);
+  env.define(
+    intersection_manager_ =
+      std::make_shared<scenario_intersection::IntersectionManager>(
+        scenario_["Intersection"], simulator_));
 
   ROS_INFO_STREAM("\e[1;32mStory:\e[0m");
   entity_manager_->setStory(scenario_["Story"]);
@@ -63,6 +58,21 @@ try
     "scenario_runner");
 
   timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
+
+  if (true) // TEST CODE
+  {
+    auto e =
+      scenario_expression::read(
+        env,
+        scenario_["Story"]["EndCondition"]["Experimental"]);
+
+    ROS_ERROR_STREAM(e);
+    ROS_ERROR_STREAM(e.evaluate());
+
+    terminate();
+  }
+
+}
 
   simulator_->sendEngage(true);
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner engaged Autoware.");

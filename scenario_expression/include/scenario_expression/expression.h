@@ -9,6 +9,7 @@
 #include <ros/ros.h>
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_conditions/condition_base.h>
+#include <scenario_intersection/intersection_manager.h>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -16,6 +17,18 @@
 
 namespace scenario_expression
 {
+
+struct Environment
+{
+  #define DEFINE_LAYER(TYPE, NAME) \
+  void define(const std::shared_ptr<TYPE>& NAME) { (*this).NAME = NAME; } \
+  std::shared_ptr<TYPE> NAME
+
+  DEFINE_LAYER(ScenarioAPI, api);
+  DEFINE_LAYER(scenario_intersection::IntersectionManager, intersections);
+
+  #undef DEFINE_LAYER
+};
 
 /* -----------------------------------------------------------------------------
  *
@@ -128,14 +141,9 @@ public:
     std::swap(data, e.data);
   }
 
-  static void define(const std::shared_ptr<ScenarioAPI>& api)
-  {
-    Expression::api = api;
-  }
-
   virtual std::ostream& write(std::ostream& os) const
   {
-    return os << "Nil";
+    return os << "Null";
   }
 
   friend std::ostream& operator <<(std::ostream& os, const Expression& expression)
@@ -154,8 +162,6 @@ protected:
     , reference_count { 1 }
   {}
 
-  static std::shared_ptr<ScenarioAPI> api;
-
 private:
   void remake(Expression* e)
   {
@@ -172,15 +178,7 @@ private:
   std::size_t reference_count;
 };
 
-std::shared_ptr<ScenarioAPI> Expression::api = nullptr;
-
-template <typename... Ts>
-decltype(auto) define(Ts&&... xs)
-{
-  return Expression::define(std::forward<decltype(xs)>(xs)...);
-}
-
-Expression read(const YAML::Node&);
+Expression read(Environment&, const YAML::Node&);
 
 template <typename T>
 class Literal
@@ -242,7 +240,7 @@ protected:                                                                     \
     , operands { rhs.operands }                                                \
   {}                                                                           \
                                                                                \
-  NAME(const YAML::Node& node)                                                 \
+  NAME(Environment& env, const YAML::Node& node)                               \
     : Expression { std::integral_constant<decltype(0), 0>() }                  \
   {                                                                            \
     if (node.IsSequence())                                                     \
@@ -250,7 +248,7 @@ protected:                                                                     \
       for (const auto& each : node)                                            \
       {                                                                        \
         std::cout << " ";                                                      \
-        operands.push_back(read(each));                                        \
+        operands.push_back(read(env, each));                                   \
       }                                                                        \
     }                                                                          \
   }                                                                            \
@@ -328,26 +326,31 @@ class Predicate
 protected:
   using Procedure::Procedure;
 
-  Predicate(const YAML::Node& node)
+  Predicate(const Environment& env, const YAML::Node& node)
     : Procedure {}
-  {
-    if (plugin = read(node))
-    {
-      ROS_ERROR_STREAM("Configure " << node["Type"] << " => " << std::boolalpha << plugin->configure(node, api));
-    }
-  }
-
-  plugin_type read(const YAML::Node& node)
   {
     if (const auto type { node["Type"] })
     {
-      return load(type.as<std::string>() + "Condition");
+      plugin = load(type.as<std::string>() + "Condition");
     }
-    else
+
+    if (plugin)
     {
-      return { nullptr };
+      ROS_ERROR_STREAM("Procedure::condigure " << node["Type"] << " => " << std::boolalpha << plugin->configure(node, env.api));
     }
   }
+
+  // plugin_type read(const YAML::Node& node)
+  // {
+  //   if (const auto type { node["Type"] })
+  //   {
+  //     return load(type.as<std::string>() + "Condition");
+  //   }
+  //   else
+  //   {
+  //     return { nullptr };
+  //   }
+  // }
 
   pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const
   {
@@ -363,8 +366,7 @@ protected:
   }
 };
 
-// TODO MOVE INTO Expression's CONSTRUCTOR!
-Expression read(const YAML::Node& node)
+Expression read(Environment& env, const YAML::Node& node)
 {
   if (node.IsScalar())
   {
@@ -374,26 +376,26 @@ Expression read(const YAML::Node& node)
   {
     ROS_ERROR_STREAM("IsSequence " << node);
   }
-  else if (node.IsMap()) // NOTE: is keyword
+  else if (node.IsMap()) // is <keyword>
   {
-    if (const auto node_and { node["All"] }) // NOTE: should be 'and'
+    if (const auto all { node["All"] }) // NOTE: should be 'and'
     {
-      return Expression::make<And>(node_and);
+      return Expression::make<And>(env, all);
     }
-    else if (const auto node_or { node["Any"] }) // NOTE: should be 'or'
+    else if (const auto any { node["Any"] }) // NOTE: should be 'or'
     {
-      return Expression::make<Or>(node_or);
+      return Expression::make<Or>(env, any);
     }
-    else if (const auto node_type { node["Type"] }) // <procedure call>
+    else if (const auto type { node["Type"] }) // <procedure call>
     {
-      if (const auto node_params { node["Params"] }) // <action call>
+      if (const auto params { node["Params"] }) // <action call>
       {
         // std::cout << "\e[1;31m(change " << node_type.as<std::string>() << ")";
       }
       else // <predicate call>
       {
         // std::cout << "\e[1;31m(if " << node_type.as<std::string>() << ")";
-        return Expression::make<Predicate>(node);
+        return Expression::make<Predicate>(env, node);
       }
     }
     else

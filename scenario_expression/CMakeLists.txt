@@ -10,6 +10,7 @@ find_package(catkin REQUIRED
     roscpp
     scenario_api
     scenario_conditions
+    scenario_intersection
   )
 
 catkin_package(
@@ -20,6 +21,7 @@ catkin_package(
     roscpp
     scenario_api
     scenario_conditions
+    scenario_intersection
   )
 
 include_directories(
