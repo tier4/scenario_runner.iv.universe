@@ -6,7 +6,6 @@ add_compile_options(-std=c++14)
 find_package(catkin REQUIRED COMPONENTS
   pluginlib
   scenario_actions
-  scenario_conditions
   scenario_entities
   scenario_logger
   scenario_utility
@@ -17,7 +16,6 @@ catkin_package(
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS pluginlib
                  scenario_actions
-                 scenario_conditions
                  scenario_entities
                  scenario_logger
                  scenario_utility

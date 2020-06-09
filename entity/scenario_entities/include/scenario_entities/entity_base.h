@@ -13,7 +13,6 @@
 
 #include <scenario_actions/action_manager.h>
 #include <scenario_api/scenario_api_core.h>
-#include <scenario_conditions/condition_manager.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_logger/logger.h>
 #include <scenario_utility/scenario_utility.h>
@@ -60,8 +59,7 @@ protected:
 
   std::shared_ptr<ScenarioAPI> api_;
 
-  std::shared_ptr<scenario_actions::ActionManager>          action_manager_;
-  std::shared_ptr<scenario_conditions::ConditionManager> condition_manager_;
+  std::shared_ptr<scenario_actions::ActionManager> action_manager_;
 
   geometry_msgs::PoseStamped pose_stamped_;
 

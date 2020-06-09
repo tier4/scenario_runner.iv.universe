@@ -44,11 +44,6 @@ try
     ROS_INFO_STREAM("\e[1;32m          Speed: 0 (Unspecified, will be ignored)\e[0m");
   }
 
-  // condition_manager_
-  //   = std::make_shared<scenario_conditions::ConditionManager>(
-  //       end_condition_,
-  //       api_);
-
   if (const auto pose_node = init_entity_["InitialStates"]["Pose"])
   {
     api_->sendStartVelocity(0);

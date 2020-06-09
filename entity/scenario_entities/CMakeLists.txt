@@ -8,7 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   scenario_actions
   scenario_api
-  scenario_conditions
   scenario_intersection
   scenario_logger
   scenario_utility
@@ -22,7 +21,6 @@ catkin_package(
   CATKIN_DEPENDS roscpp
                  scenario_actions
                  scenario_api
-                 scenario_conditions
                  scenario_logger
                  scenario_utility
                  pluginlib

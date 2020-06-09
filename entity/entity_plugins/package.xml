@@ -13,7 +13,6 @@
 
   <depend>pluginlib</depend>
   <depend>scenario_actions</depend>
-  <depend>scenario_conditions</depend>
   <depend>scenario_entities</depend>
   <depend>scenario_logger</depend>
   <depend>scenario_utility</depend>

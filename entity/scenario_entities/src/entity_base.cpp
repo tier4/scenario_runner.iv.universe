@@ -165,10 +165,11 @@ catch (...)
     "Failed to initialize entity named '" << name_ << "' of type " << type_ << ".");
 }
 
+[[deprecated]]
 simulation_is EntityBase::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
 {
-  return condition_manager_ ? (*condition_manager_).update(intersection_manager) : simulation_is::succeeded;
+  return simulation_is::succeeded;
 }
 
 } // namespace scenario_entities
