@@ -8,6 +8,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <scenario_entities/entity_manager.h>
+#include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_sequence/sequence.h>
 #include <scenario_utility/scenario_utility.h>
@@ -17,18 +18,12 @@ namespace scenario_sequence
 
 class SequenceManager
 {
-  const YAML::Node sequences_definition_;
-
-  const std::shared_ptr<ScenarioAPI> simulator_;
-  const std::shared_ptr<scenario_entities::EntityManager> entity_manager_;
-
   std::queue<scenario_sequence::Sequence> sequences_;
 
+  scenario_expression::Environment env_;
+
 public:
-  SequenceManager(
-    const YAML::Node&,
-    const std::shared_ptr<ScenarioAPI>&,
-    const std::shared_ptr<scenario_entities::EntityManager>&);
+  SequenceManager(const scenario_expression::Environment&, const YAML::Node&);
 
   simulation_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);

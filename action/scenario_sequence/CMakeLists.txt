@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   scenario_api
   scenario_conditions
   scenario_entities
+  scenario_expression
   scenario_intersection
   scenario_logger
   scenario_logger_msgs
@@ -25,6 +26,7 @@ catkin_package(
                  scenario_api
                  scenario_conditions
                  scenario_entities
+                 scenario_expression
                  scenario_intersection
                  scenario_logger
                  scenario_logger_msgs

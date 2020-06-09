@@ -4,27 +4,23 @@ namespace scenario_sequence
 {
 
 SequenceManager::SequenceManager(
-  const YAML::Node& sequences,
-  const std::shared_ptr<ScenarioAPI>& simulator,
-  const std::shared_ptr<scenario_entities::EntityManager>& entity_manager)
-  : sequences_definition_ {sequences}
-  , simulator_ {simulator}
-  , entity_manager_ {entity_manager}
+  const scenario_expression::Environment& env, const YAML::Node& sequences)
+  : env_ { env }
 {
-  for (const auto& each : sequences_definition_)
+  for (const auto& each : sequences)
   {
-    sequences_.emplace(each["Sequence"], simulator_, entity_manager_);
+    sequences_.emplace(each["Sequence"], env_.api, env_.entities);
   }
 }
 
 simulation_is SequenceManager::update(
-  const std::shared_ptr<scenario_intersection::IntersectionManager>& intersection_manager)
+  const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
   if (not sequences_.empty())
   {
     ROS_INFO_STREAM("\e[1;32m  Act:\e[0m");
 
-    switch (const auto result {sequences_.front().update(intersection_manager)})
+    switch (const auto result {sequences_.front().update(env_.intersections)})
     {
     case simulation_is::succeeded:
       sequences_.pop();

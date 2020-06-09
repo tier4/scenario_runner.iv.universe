@@ -48,8 +48,9 @@ try
   intersection_manager_->initialize(scenario_["Story"]["Init"]["Intersection"]);
 
   ROS_INFO_STREAM("\e[1;32m  Act:\e[0m");
-  sequence_manager_ = std::make_shared<scenario_sequence::SequenceManager>(
-    scenario_["Story"]["Act"], simulator_, entity_manager_);
+  sequence_manager_ =
+    std::make_shared<scenario_sequence::SequenceManager>(
+      env, scenario_["Story"]["Act"]);
 
   success = scenario_expression::read(env, scenario_["Story"]["EndCondition"]["Success"]);
   failure = scenario_expression::read(env, scenario_["Story"]["EndCondition"]["Failure"]);
