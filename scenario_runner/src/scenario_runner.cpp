@@ -1,5 +1,3 @@
-#include <scenario_expression/expression.h>
-#include <scenario_logger/logger.h>
 #include <scenario_runner/scenario_runner.h>
 
 namespace scenario_runner
@@ -29,8 +27,6 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
-  scenario_expression::Environment env {};
-
   env.define(simulator_);
 
   env.define(
@@ -55,13 +51,16 @@ try
   sequence_manager_ = std::make_shared<scenario_sequence::SequenceManager>(
     scenario_["Story"]["Act"], simulator_, entity_manager_);
 
+  success = scenario_expression::read(env, scenario_["Story"]["EndCondition"]["Success"]);
+  failure = scenario_expression::read(env, scenario_["Story"]["EndCondition"]["Failure"]);
+
   scenario_logger::log.addLog(
     scenario_logger_msgs::Level::LEVEL_LOG, {"simulator"}, "scenario runner start runnig",
     "scenario_runner");
 
   timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
 
-  if (true) // TEST CODE
+  if (false) // TEST CODE
   {
     auto e =
       scenario_expression::read(
@@ -73,7 +72,6 @@ try
 
     terminate();
   }
-
 }
 
   simulator_->sendEngage(true);
@@ -92,7 +90,20 @@ void ScenarioRunner::update(const ros::TimerEvent & event)
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
   (*sequence_manager_).update(intersection_manager_);
 
-  currently = (*entity_manager_).update(intersection_manager_);
+  // currently = (*entity_manager_).update(intersection_manager_);
+
+  if (failure.evaluate(env))
+  {
+    currently = simulation_is::failed;
+  }
+  else if (success.evaluate(env))
+  {
+    currently = simulation_is::succeeded;
+  }
+  else
+  {
+    currently = simulation_is::ongoing;
+  }
 
   ROS_INFO_STREAM("\e[1;36m  SimulationIs: " << currently << "\n");
 }
