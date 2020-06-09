@@ -143,6 +143,11 @@ public:
     return expression.data ? expression.data->write(os) : (os << "()");
   }
 
+  virtual operator bool() const noexcept
+  {
+    return data ? static_cast<bool>(*data) : true;
+  }
+
 protected:
   Expression(std::integral_constant<decltype(0), 0>)
     : data { nullptr }
@@ -213,6 +218,11 @@ protected:
   Expression evaluate() override
   {
     return *this;
+  }
+
+  operator bool() const noexcept override
+  {
+    return value;
   }
 };
 
