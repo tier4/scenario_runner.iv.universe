@@ -9,7 +9,7 @@ SequenceManager::SequenceManager(
 {
   for (const auto& each : sequences)
   {
-    sequences_.emplace(each["Sequence"], context_.api, context_.entities);
+    sequences_.emplace(context, each["Sequence"]);
   }
 }
 

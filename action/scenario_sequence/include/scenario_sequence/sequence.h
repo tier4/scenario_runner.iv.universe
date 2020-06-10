@@ -7,6 +7,7 @@
 
 #include <scenario_conditions/condition_manager.h>
 #include <scenario_entities/entity_manager.h>
+#include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_sequence/event_manager.h>
 #include <scenario_utility/scenario_utility.h>
@@ -35,10 +36,7 @@ class Sequence
   condition_pointer load(const YAML::Node& node) const;
 
 public:
-  Sequence(
-    const YAML::Node&,
-    const std::shared_ptr<ScenarioAPI>&,
-    const std::shared_ptr<scenario_entities::EntityManager>&);
+  Sequence(const scenario_expression::Context&, const YAML::Node&);
 
   simulation_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);

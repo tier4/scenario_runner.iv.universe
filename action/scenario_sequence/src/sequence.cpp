@@ -4,12 +4,11 @@ namespace scenario_sequence
 {
 
 Sequence::Sequence(
-  const YAML::Node& sequence_definition,
-  const std::shared_ptr<ScenarioAPI>& simulator,
-  const std::shared_ptr<scenario_entities::EntityManager>& entity_manager)
+  const scenario_expression::Context& context,
+  const YAML::Node& sequence_definition)
   : sequence_definition_ {sequence_definition}
-  , simulator_ {simulator}
-  , entity_manager_ {entity_manager}
+  , simulator_ { context.api }
+  , entity_manager_ { context.entities }
   , name_ {sequence_definition_["Name"].as<std::string>()}
   , ignited_ {false}
 {
