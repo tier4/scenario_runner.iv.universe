@@ -6,10 +6,8 @@ namespace scenario_sequence
 Sequence::Sequence(
   const scenario_expression::Context& context,
   const YAML::Node& sequence_definition)
-  : sequence_definition_ {sequence_definition}
-  , simulator_ { context.api }
-  , entity_manager_ { context.entities }
-  , name_ {sequence_definition_["Name"].as<std::string>()}
+  : context_ { context }
+  , name_ {sequence_definition["Name"].as<std::string>()}
   , ignited_ {false}
 {
   ROS_INFO_STREAM("\e[1;32m    - Sequence:\e[0m");
@@ -18,26 +16,30 @@ Sequence::Sequence(
   ROS_INFO_STREAM("\e[1;32m        Events:\e[0m");
   event_manager_
     = std::make_shared<scenario_sequence::EventManager>(
-        sequence_definition_["Events"],
-        simulator_,
-        entity_manager_);
+        sequence_definition["Events"],
+        context_.api,
+        context_.entities);
 
   ROS_INFO_STREAM("\e[1;32m        StartCondition:\e[0m");
   {
-    if (const auto conjunctional_definitions_ {sequence_definition_["StartCondition"]["All"]})
+    if (const auto start_condition { sequence_definition["StartCondition"] })
     {
-      for (const auto& each : conjunctional_definitions_)
-      {
-        conjunctional_conditions_.push_back(load(each));
-      }
+      start_condition_ = scenario_expression::read(context_, start_condition);
     }
-    else if (const auto disjunctional_definitions_ {sequence_definition_["StartCondition"]["Any"]})
-    {
-      for (const auto& each : disjunctional_definitions_)
-      {
-        disjunctional_conditions_.push_back(load(each));
-      }
-    }
+    // if (const auto conjunctional_definitions_ {sequence_definition["StartCondition"]["All"]})
+    // {
+    //   for (const auto& each : conjunctional_definitions_)
+    //   {
+    //     conjunctional_conditions_.push_back(load(each));
+    //   }
+    // }
+    // else if (const auto disjunctional_definitions_ {sequence_definition["StartCondition"]["Any"]})
+    // {
+    //   for (const auto& each : disjunctional_definitions_)
+    //   {
+    //     disjunctional_conditions_.push_back(load(each));
+    //   }
+    // }
     else // NOTE: If StartCondition unspecified, the sequence starts unconditionally.
     {
       ignited_ = true;
@@ -67,7 +69,7 @@ Sequence::condition_pointer Sequence::load(const YAML::Node& node) const
   if (iter != declared_classes.end())
   {
     auto instance {loader.createInstance(*iter)};
-    (*instance).configure(node, simulator_);
+    (*instance).configure(node, context_.api);
     return instance;
   }
 
@@ -81,50 +83,50 @@ simulation_is Sequence::update(
   ROS_INFO_STREAM("\e[1;32m        Name: " << name_ << "\e[0m");
   ROS_INFO_STREAM("\e[1;32m        StartCondition:\e[0m");
 
-  if (not ignited_ and not conjunctional_conditions_.empty())
-  {
-    ROS_INFO_STREAM("\e[1;32m          All:\e[0m");
+  // if (not ignited_ and not conjunctional_conditions_.empty())
+  // {
+  //   ROS_INFO_STREAM("\e[1;32m          All:\e[0m");
+  //
+  //   ignited_
+  //     = std::accumulate(
+  //         conjunctional_conditions_.begin(), conjunctional_conditions_.end(),
+  //         true,
+  //         [&](const auto& lhs, const auto& rhs)
+  //         {
+  //           // NOTE: return lhs and (rhs ? (*rhs).update(intersection_manager) : false);
+  //
+  //           const auto result {rhs ? (*rhs).update(intersection_manager) : false};
+  //
+  //           ROS_INFO_STREAM("\e[1;32m            - Type: " << (rhs ? (*rhs).getType() : "Error"));
+  //           ROS_INFO_STREAM("\e[1;32m              Name: " << (rhs ? (*rhs).getName() : "Error"));
+  //           ROS_INFO_STREAM("\e[1;32m              Currently: " << std::boolalpha << result << "\e[0m");
+  //
+  //           return lhs and result;
+  //         });
+  // }
+  // else if (not ignited_ and not disjunctional_conditions_.empty())
+  // {
+  //   ROS_INFO_STREAM("\e[1;32m          Any:\e[0m");
+  //
+  //   ignited_
+  //     = std::accumulate(
+  //         disjunctional_conditions_.begin(), disjunctional_conditions_.end(),
+  //         false,
+  //         [&](const auto& lhs, const auto& rhs)
+  //         {
+  //           // NOTE: return lhs or (rhs ? (*rhs).update(intersection_manager) : false);
+  //
+  //           const auto result {rhs ? (*rhs).update(intersection_manager) : false};
+  //
+  //           ROS_INFO_STREAM("\e[1;32m            - Type: " << (rhs ? (*rhs).getType() : "Error"));
+  //           ROS_INFO_STREAM("\e[1;32m              Name: " << (rhs ? (*rhs).getName() : "Error"));
+  //           ROS_INFO_STREAM("\e[1;32m              Currently: " << std::boolalpha << result << "\e[0m");
+  //
+  //           return lhs or result;
+  //         });
+  // }
 
-    ignited_
-      = std::accumulate(
-          conjunctional_conditions_.begin(), conjunctional_conditions_.end(),
-          true,
-          [&](const auto& lhs, const auto& rhs)
-          {
-            // NOTE: return lhs and (rhs ? (*rhs).update(intersection_manager) : false);
-
-            const auto result {rhs ? (*rhs).update(intersection_manager) : false};
-
-            ROS_INFO_STREAM("\e[1;32m            - Type: " << (rhs ? (*rhs).getType() : "Error"));
-            ROS_INFO_STREAM("\e[1;32m              Name: " << (rhs ? (*rhs).getName() : "Error"));
-            ROS_INFO_STREAM("\e[1;32m              Currently: " << std::boolalpha << result << "\e[0m");
-
-            return lhs and result;
-          });
-  }
-  else if (not ignited_ and not disjunctional_conditions_.empty())
-  {
-    ROS_INFO_STREAM("\e[1;32m          Any:\e[0m");
-
-    ignited_
-      = std::accumulate(
-          disjunctional_conditions_.begin(), disjunctional_conditions_.end(),
-          false,
-          [&](const auto& lhs, const auto& rhs)
-          {
-            // NOTE: return lhs or (rhs ? (*rhs).update(intersection_manager) : false);
-
-            const auto result {rhs ? (*rhs).update(intersection_manager) : false};
-
-            ROS_INFO_STREAM("\e[1;32m            - Type: " << (rhs ? (*rhs).getType() : "Error"));
-            ROS_INFO_STREAM("\e[1;32m              Name: " << (rhs ? (*rhs).getName() : "Error"));
-            ROS_INFO_STREAM("\e[1;32m              Currently: " << std::boolalpha << result << "\e[0m");
-
-            return lhs or result;
-          });
-  }
-
-  if (ignited_)
+  if (ignited_ = start_condition_.evaluate(context_))
   {
     ROS_INFO_STREAM("\e[1;32m          Ignited\e[0m");
     ROS_INFO_STREAM("\e[1;32m        Events:\e[0m");

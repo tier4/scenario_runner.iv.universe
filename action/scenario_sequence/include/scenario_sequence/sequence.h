@@ -17,10 +17,7 @@ namespace scenario_sequence
 
 class Sequence
 {
-  const YAML::Node sequence_definition_;
-
-  const std::shared_ptr<ScenarioAPI> simulator_;
-  const std::shared_ptr<scenario_entities::EntityManager> entity_manager_;
+  scenario_expression::Context context_;
 
   const std::string name_;
 
@@ -29,8 +26,9 @@ class Sequence
   using condition_pointer
     = boost::shared_ptr<scenario_conditions::ConditionBase>;
 
-  std::vector<condition_pointer> conjunctional_conditions_,
-                                 disjunctional_conditions_;
+  scenario_expression::Expression start_condition_;
+  // std::vector<condition_pointer> conjunctional_conditions_,
+  //                                disjunctional_conditions_;
   bool ignited_;
 
   condition_pointer load(const YAML::Node& node) const;
