@@ -17,7 +17,6 @@
   <depend>roscpp</depend>
   <depend>scenario_actions</depend>
   <depend>scenario_api</depend>
-  <depend>scenario_conditions</depend>
   <depend>scenario_entities</depend>
   <depend>scenario_expression</depend>
   <depend>scenario_intersection</depend>

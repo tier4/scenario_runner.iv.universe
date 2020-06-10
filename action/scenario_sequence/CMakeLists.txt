@@ -7,7 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   scenario_actions
   scenario_api
-  scenario_conditions
   scenario_entities
   scenario_expression
   scenario_intersection
@@ -24,7 +23,6 @@ catkin_package(
   CATKIN_DEPENDS roscpp
                  scenario_actions
                  scenario_api
-                 scenario_conditions
                  scenario_entities
                  scenario_expression
                  scenario_intersection

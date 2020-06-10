@@ -10,7 +10,6 @@ add_compile_options(-std=c++14)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   scenario_api
-  scenario_conditions
   scenario_entities
   scenario_expression
   scenario_intersection
@@ -27,7 +26,6 @@ catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS roscpp
                  scenario_api
-                 scenario_conditions
                  scenario_entities
                  scenario_expression
                  scenario_intersection

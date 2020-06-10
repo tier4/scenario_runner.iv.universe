@@ -2,7 +2,6 @@
 #define SCENARIO_SEQUENCE_EVENT_H_INCLUDED
 
 #include <scenario_actions/action_manager.h>
-#include <scenario_conditions/condition_manager.h>
 #include <scenario_entities/entity_manager.h>
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
@@ -23,14 +22,7 @@ class Event
 
   scenario_expression::Expression condition_;
 
-  using condition_pointer
-    = boost::shared_ptr<scenario_conditions::ConditionBase>;
-
-  // std::vector<condition_pointer> conjunctional_conditions_,
-  //                                disjunctional_conditions_;
   bool ignited_;
-
-  condition_pointer load(const YAML::Node& node) const;
 
 public:
   Event(const scenario_expression::Context&, const YAML::Node&);
