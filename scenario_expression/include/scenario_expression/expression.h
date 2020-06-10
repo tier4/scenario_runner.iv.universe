@@ -20,7 +20,7 @@
 namespace scenario_expression
 {
 
-struct Environment
+struct Context
 {
   #define DEFINE_LAYER(TYPE, NAME) \
   void define(const std::shared_ptr<TYPE>& NAME) { (*this).NAME = NAME; } \
@@ -126,9 +126,9 @@ public:
     return *this;
   }
 
-  virtual Expression evaluate(Environment& env)
+  virtual Expression evaluate(Context& context)
   {
-    return data ? data->evaluate(env) : *this;
+    return data ? data->evaluate(context) : *this;
   }
 
   template <typename T, typename... Ts>
@@ -181,7 +181,7 @@ private:
   std::size_t reference_count;
 };
 
-Expression read(Environment&, const YAML::Node&);
+Expression read(Context&, const YAML::Node&);
 
 template <typename T>
 class Literal
@@ -216,7 +216,7 @@ protected:
     return os << std::boolalpha << value;
   }
 
-  Expression evaluate(Environment&) override
+  Expression evaluate(Context&) override
   {
     return *this;
   }
@@ -243,7 +243,7 @@ protected:                                                                     \
     , operands { rhs.operands }                                                \
   {}                                                                           \
                                                                                \
-  NAME(Environment& env, const YAML::Node& node)                               \
+  NAME(Context& context, const YAML::Node& node)                               \
     : Expression { std::integral_constant<decltype(0), 0>() }                  \
   {                                                                            \
     if (node.IsSequence())                                                     \
@@ -251,14 +251,14 @@ protected:                                                                     \
       for (const auto& each : node)                                            \
       {                                                                        \
         std::cout << " ";                                                      \
-        operands.push_back(read(env, each));                                   \
+        operands.push_back(read(context, each));                               \
       }                                                                        \
     }                                                                          \
   }                                                                            \
                                                                                \
   virtual ~NAME() = default;                                                   \
                                                                                \
-  Expression evaluate(Environment& env) override                               \
+  Expression evaluate(Context& context) override                               \
   {                                                                            \
     return                                                                     \
       Expression::make<Boolean>(                                               \
@@ -266,7 +266,7 @@ protected:                                                                     \
         operands.begin(), operands.end(), BASE_CASE,                           \
         [&](const auto& lhs, auto&& rhs)                                       \
         {                                                                      \
-          return combine(lhs, rhs.evaluate(env));                              \
+          return combine(lhs, rhs.evaluate(context));                          \
         }));                                                                   \
   }                                                                            \
                                                                                \
@@ -327,9 +327,9 @@ protected:
     return boost::shared_ptr<PluginBase>(nullptr);
   }
 
-  Expression evaluate(Environment& env) override
+  Expression evaluate(Context& context) override
   {
-    return Expression::make<Boolean>(plugin->update(env.intersections));
+    return Expression::make<Boolean>(plugin->update(context.intersections));
   }
 };
 
@@ -341,7 +341,7 @@ class Predicate
 protected:
   using Procedure::Procedure;
 
-  Predicate(const Environment& env, const YAML::Node& node)
+  Predicate(const Context& context, const YAML::Node& node)
     : Procedure {}
   {
     if (const auto type { node["Type"] })
@@ -351,7 +351,7 @@ protected:
 
     if (plugin)
     {
-      plugin->configure(node, env.api);
+      plugin->configure(node, context.api);
     }
   }
 
@@ -376,7 +376,7 @@ protected:
   }
 };
 
-Expression read(Environment& env, const YAML::Node& node)
+Expression read(Context& context, const YAML::Node& node)
 {
   if (node.IsScalar())
   {
@@ -390,11 +390,11 @@ Expression read(Environment& env, const YAML::Node& node)
   {
     if (const auto all { node["All"] }) // NOTE: should be 'and'
     {
-      return Expression::make<And>(env, all);
+      return Expression::make<And>(context, all);
     }
     else if (const auto any { node["Any"] }) // NOTE: should be 'or'
     {
-      return Expression::make<Or>(env, any);
+      return Expression::make<Or>(context, any);
     }
     else if (const auto type { node["Type"] }) // <procedure call>
     {
@@ -404,7 +404,7 @@ Expression read(Environment& env, const YAML::Node& node)
       }
       else // <predicate call>
       {
-        return Expression::make<Predicate>(env, node);
+        return Expression::make<Predicate>(context, node);
       }
     }
     else

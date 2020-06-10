@@ -20,10 +20,10 @@ class SequenceManager
 {
   std::queue<scenario_sequence::Sequence> sequences_;
 
-  scenario_expression::Environment env_;
+  scenario_expression::Context context_;
 
 public:
-  SequenceManager(const scenario_expression::Environment&, const YAML::Node&);
+  SequenceManager(const scenario_expression::Context&, const YAML::Node&);
 
   simulation_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);

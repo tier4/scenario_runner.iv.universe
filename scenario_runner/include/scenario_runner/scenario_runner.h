@@ -33,10 +33,9 @@ private:
 
   const std::shared_ptr<ScenarioAPI> simulator_;
 
-  scenario_expression::Environment env;
+  scenario_expression::Context context;
 
-  scenario_expression::Expression success,
-                                  failure;
+  scenario_expression::Expression success, failure;
 
   std::shared_ptr<scenario_entities::EntityManager> entity_manager_;
   std::shared_ptr<scenario_sequence::SequenceManager> sequence_manager_;

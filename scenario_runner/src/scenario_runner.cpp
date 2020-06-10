@@ -27,15 +27,15 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
-  env.define(simulator_);
+  context.define(simulator_);
 
-  env.define(
+  context.define(
     entity_manager_ =
       std::make_shared<scenario_entities::EntityManager>(
         scenario_["Entity"], simulator_));
 
   ROS_INFO_STREAM("\e[1;32mIntersection:\e[0m");
-  env.define(
+  context.define(
     intersection_manager_ =
       std::make_shared<scenario_intersection::IntersectionManager>(
         scenario_["Intersection"], simulator_));
@@ -50,10 +50,10 @@ try
   ROS_INFO_STREAM("\e[1;32m  Act:\e[0m");
   sequence_manager_ =
     std::make_shared<scenario_sequence::SequenceManager>(
-      env, scenario_["Story"]["Act"]);
+      context, scenario_["Story"]["Act"]);
 
-  success = scenario_expression::read(env, scenario_["Story"]["EndCondition"]["Success"]);
-  failure = scenario_expression::read(env, scenario_["Story"]["EndCondition"]["Failure"]);
+  success = scenario_expression::read(context, scenario_["Story"]["EndCondition"]["Success"]);
+  failure = scenario_expression::read(context, scenario_["Story"]["EndCondition"]["Failure"]);
 
   scenario_logger::log.addLog(
     scenario_logger_msgs::Level::LEVEL_LOG, {"simulator"}, "scenario runner start runnig",
@@ -65,11 +65,11 @@ try
   {
     auto e =
       scenario_expression::read(
-        env,
+        context,
         scenario_["Story"]["EndCondition"]["Experimental"]);
 
     ROS_ERROR_STREAM(e);
-    ROS_ERROR_STREAM(e.evaluate(env));
+    ROS_ERROR_STREAM(e.evaluate(context));
 
     terminate();
   }
@@ -93,11 +93,11 @@ void ScenarioRunner::update(const ros::TimerEvent & event)
 
   // currently = (*entity_manager_).update(intersection_manager_);
 
-  if (failure.evaluate(env))
+  if (failure.evaluate(context))
   {
     currently = simulation_is::failed;
   }
-  else if (success.evaluate(env))
+  else if (success.evaluate(context))
   {
     currently = simulation_is::succeeded;
   }

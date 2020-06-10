@@ -4,12 +4,12 @@ namespace scenario_sequence
 {
 
 SequenceManager::SequenceManager(
-  const scenario_expression::Environment& env, const YAML::Node& sequences)
-  : env_ { env }
+  const scenario_expression::Context& context, const YAML::Node& sequences)
+  : context_ { context }
 {
   for (const auto& each : sequences)
   {
-    sequences_.emplace(each["Sequence"], env_.api, env_.entities);
+    sequences_.emplace(each["Sequence"], context_.api, context_.entities);
   }
 }
 
@@ -20,7 +20,7 @@ simulation_is SequenceManager::update(
   {
     ROS_INFO_STREAM("\e[1;32m  Act:\e[0m");
 
-    switch (const auto result {sequences_.front().update(env_.intersections)})
+    switch (const auto result {sequences_.front().update(context_.intersections)})
     {
     case simulation_is::succeeded:
       sequences_.pop();
