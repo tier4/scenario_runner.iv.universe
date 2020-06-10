@@ -20,9 +20,6 @@ class EventManager
 {
   scenario_expression::Context context_;
 
-  const std::shared_ptr<ScenarioAPI> simulator_;
-  const std::shared_ptr<scenario_entities::EntityManager> entity_manager_;
-
   std::queue<scenario_sequence::Event> events_;
 
 public:

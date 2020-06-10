@@ -32,7 +32,7 @@ Sequence::Sequence(
 }
 
 simulation_is Sequence::update(
-  const std::shared_ptr<scenario_intersection::IntersectionManager>& intersection_manager)
+  const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
   ROS_INFO_STREAM("\e[1;32m    - Sequence:\e[0m");
   ROS_INFO_STREAM("\e[1;32m        Name: " << name_ << "\e[0m");
@@ -42,7 +42,7 @@ simulation_is Sequence::update(
   {
     ROS_INFO_STREAM("\e[1;32m          Ignited\e[0m");
     ROS_INFO_STREAM("\e[1;32m        Events:\e[0m");
-    return (*event_manager_).update(intersection_manager);
+    return (*event_manager_).update(context_.intersections);
   }
   else
   {

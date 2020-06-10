@@ -6,12 +6,11 @@ namespace scenario_sequence
 EventManager::EventManager(
   const scenario_expression::Context& context,
   const YAML::Node& events_definition)
-  : simulator_ { context.api }
-  , entity_manager_ { context.entities }
+  : context_ { context }
 {
   for (const auto& each : events_definition)
   {
-    events_.emplace(each, simulator_, entity_manager_);
+    events_.emplace(each, context.api, context.entities);
   }
 }
 
