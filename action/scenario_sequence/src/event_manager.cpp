@@ -4,25 +4,23 @@ namespace scenario_sequence
 {
 
 EventManager::EventManager(
-  const YAML::Node& events_definition,
-  const std::shared_ptr<ScenarioAPI>& simulator,
-  const std::shared_ptr<scenario_entities::EntityManager>& entity_manager)
-  : events_definition_ {events_definition}
-  , simulator_ {simulator}
-  , entity_manager_ {entity_manager}
+  const scenario_expression::Context& context,
+  const YAML::Node& events_definition)
+  : simulator_ { context.api }
+  , entity_manager_ { context.entities }
 {
-  for (const auto& each : events_definition_)
+  for (const auto& each : events_definition)
   {
     events_.emplace(each, simulator_, entity_manager_);
   }
 }
 
 simulation_is EventManager::update(
-  const std::shared_ptr<scenario_intersection::IntersectionManager>& intersection_manager)
+  const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
   if (not events_.empty())
   {
-    switch (const auto result {events_.front().update(intersection_manager)})
+    switch (const auto result {events_.front().update(context_.intersections)})
     {
     case simulation_is::succeeded:
       events_.pop();

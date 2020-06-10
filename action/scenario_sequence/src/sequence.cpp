@@ -14,11 +14,9 @@ Sequence::Sequence(
   ROS_INFO_STREAM("\e[1;32m        Name: " << name_ << "\e[0m");
 
   ROS_INFO_STREAM("\e[1;32m        Events:\e[0m");
-  event_manager_
-    = std::make_shared<scenario_sequence::EventManager>(
-        sequence_definition["Events"],
-        context_.api,
-        context_.entities);
+  event_manager_ =
+    std::make_shared<scenario_sequence::EventManager>(
+      context, sequence_definition["Events"]);
 
   ROS_INFO_STREAM("\e[1;32m        StartCondition:\e[0m");
   {
