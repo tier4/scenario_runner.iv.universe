@@ -10,7 +10,7 @@ EventManager::EventManager(
 {
   for (const auto& each : events_definition)
   {
-    events_.emplace(each, context.api, context.entities);
+    events_.emplace(context, each);
   }
 }
 

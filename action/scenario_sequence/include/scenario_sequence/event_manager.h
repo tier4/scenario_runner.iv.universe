@@ -7,7 +7,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <scenario_entities/entity_manager.h>
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_sequence/event.h>
