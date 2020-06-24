@@ -44,6 +44,16 @@ try
     ROS_INFO_STREAM("\e[1;32m          Speed: 0 (Unspecified, will be ignored)\e[0m");
   }
 
+  if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
+  {
+    ROS_INFO_STREAM("\e[1;32m          Speed: " << initial_speed << " \e[0m");
+    api_->sendStartVelocity(initial_speed.as<float>());
+  }
+  else
+  {
+    api_->sendStartVelocity(0);
+  }
+
   if (const auto pose_node = init_entity_["InitialStates"]["Pose"])
   {
     api_->sendStartVelocity(0);

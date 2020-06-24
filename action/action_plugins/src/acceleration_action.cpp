@@ -3,11 +3,14 @@
 namespace action_plugins
 {
 
+AccelerationAction::AccelerationAction()
+  : EntityActionBase {"Acceleration"}
+{}
+
 void AccelerationAction::configure(
   const YAML::Node& node,
   const std::vector<std::string> actors,
-  const std::shared_ptr<ScenarioAPI>& api_ptr)
-try
+  const std::shared_ptr<ScenarioAPI>& simulator)
 {
   node_ = node;
   actors_ = actors;
@@ -20,18 +23,40 @@ try
 
   name_ = read_optional<std::string>(node_, "Name", name_);
 
-  call_with_essential(node_, "Params", [&](const auto& node) mutable
+  if (const auto min {node_["Params"]["Min"]})
+  {
+    const auto value { min.as<float>() };
+
+    if (0 < value)
+    {
+      ROS_WARN_STREAM("'Min' value of Acceleration Action should be negative (You specified positive value " << value << ")");
+    }
+
+    min_ = value;
+  }
+  else
   {
     static_assert(std::numeric_limits<float>::has_signaling_NaN);
 
     min_ = read_optional<float>(node, "Min", std::numeric_limits<float>::signaling_NaN());
     max_ = read_optional<float>(node, "Max", std::numeric_limits<float>::signaling_NaN());
 
-    if (0 < min_)
+  if (const auto max {node_["Params"]["Max"]})
+  {
+    const auto value { max.as<float>() };
+
+    if (value < 0)
     {
-      SCENARIO_WARN_STREAM(CATEGORY(),
-        "'Min' value of Acceleration Action should be negative (You specified positive value " << min_ << ")");
+      ROS_WARN_STREAM("'Max' value of Acceleration Action should be positive (You specified negative value " << value << ")");
     }
+
+    max_ = value;
+  }
+  else
+  {
+    static_assert(std::numeric_limits<float>::has_signaling_NaN);
+    max_ = std::numeric_limits<float>::signaling_NaN();
+  }
 
     if (max_ < 0)
     {

@@ -12,7 +12,8 @@
     <remap from="~output/initial_velocity" to="/initialtwist" />
     <remap from="~output/goal_point" to="/planning/mission_planning/goal" />
     <remap from="~output/check_point" to="/planning/mission_planning/checkpoint" />
-    <remap from="~output/engage" to="/autoware/engage" />
+    <remap from="~output/autoware_engage" to="/autoware/engage" />
+    <remap from="~output/simulator_engage" to="/vehicle/engage" />
     <remap from="~output/limit_velocity" to="/planning/scenario_planning/max_velocity" />
     <remap from="~output/object_info" to="/simulation/npc_simulator/object_info" />
     <remap from="~output/traffic_detection_result" to="/perception/traffic_light_recognition/traffic_light_states" />

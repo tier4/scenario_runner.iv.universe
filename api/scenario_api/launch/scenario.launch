@@ -14,19 +14,19 @@
     <arg name="sensor_model" value="$(arg sensor_model)"/>
   </include>
 
-  <!-- Simulation -->
-  <include file="$(find simple_planning_simulator)/launch/simple_planning_simulator.launch">
-    <arg name="initial_engage_state" value="$(arg initial_engage_state)" />
-  </include>
-
-  <!-- System -->
+  <!-- Monitor -->
   <include file="$(find system_launch)/launch/system.launch">
-    <arg name="run_mode" value="planning_simulation"/>
+    <arg name="run_mode" value="planning_simulation" />
   </include>
 
   <!-- Map -->
   <include file="$(find map_launch)/launch/map.launch">
     <arg name="map_path" value="$(arg map_path)"/>
+  </include>
+
+  <!-- Planning Simulator -->
+  <include file="$(find simple_planning_simulator)/launch/simple_planning_simulator.launch">
+    <arg name="initial_engage_state" value="false" />
   </include>
 
   <!-- Dummy Perception -->

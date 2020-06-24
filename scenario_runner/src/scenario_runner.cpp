@@ -1,3 +1,4 @@
+#include <scenario_logger/logger.h>
 #include <scenario_runner/scenario_runner.h>
 
 namespace scenario_runner
