@@ -41,13 +41,13 @@ T read_essential(const YAML::Node& node, const std::string& key)
     catch (...)
     {
       SCENARIO_ERROR_THROW(CATEGORY(),
-        "Syntax error: unmatched type.\n\n" << node[key] << "\n");
+        "syntax-error: unexpected type appeared.\n\n" << node[key] << "\n");
     }
   }
   else
   {
     SCENARIO_ERROR_THROW(CATEGORY(),
-      "Syntax error: missing essential clause " << key << ".\n\n" << node << "\n");
+      "syntax-error: missing essential clause " << key << ".\n\n" << node << "\n");
   }
 }
 
@@ -74,13 +74,13 @@ T read_optional(
     catch (...)
     {
       SCENARIO_ERROR_THROW(CATEGORY(),
-        "Syntax error: unmatched type.\n\n" << node[key] << "\n");
+        "syntax-error: unmatched type.\n\n" << node[key] << "\n");
     }
   }
   else
   {
     SCENARIO_WARN_STREAM(CATEGORY(),
-      "Syntax warning: missing optional clause " << key << ". Use default value " << value << "\n\n" << node << "\n");
+      "syntax-warning: missing optional clause " << key << ". Use default value " << value << "\n\n" << node << "\n");
     return value;
   }
 }
@@ -103,13 +103,13 @@ T read_optional(const YAML::Node& node, const std::string& key, F&& f)
     catch (...)
     {
       SCENARIO_ERROR_THROW(CATEGORY(),
-        "Syntax error: unmatched type.\n\n" << node[key] << "\n");
+        "syntax-error: unmatched type.\n\n" << node[key] << "\n");
     }
   }
   else
   {
     SCENARIO_WARN_STREAM(CATEGORY(),
-      "Syntax warning: missing essential clause " << key << ". Use default value.\n\n" << node << "\n");
+      "syntax-warning: missing optional clause " << key << ". Use default value.\n\n" << node << "\n");
     return f();
   }
 }
@@ -125,7 +125,7 @@ decltype(auto) call_with_essential(
   else
   {
     SCENARIO_ERROR_THROW(CATEGORY(),
-      "Syntax error: missing essential clause " << key << ".\n\n" << node << "\n");
+      "syntax-error: missing essential clause " << key << ".\n\n" << node << "\n");
   }
 }
 
@@ -136,6 +136,11 @@ void call_with_optional(
   if (const auto x { node[key] })
   {
     return f(x);
+  }
+  else
+  {
+    SCENARIO_WARN_STREAM(CATEGORY(),
+      "syntax-warning: missing optional clause " << key << ".\n\n" << node << "\n");
   }
 }
 

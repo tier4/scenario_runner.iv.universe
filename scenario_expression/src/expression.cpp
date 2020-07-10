@@ -7,11 +7,13 @@ Expression read(Context& context, const YAML::Node& node)
 {
   if (node.IsScalar())
   {
-    ROS_ERROR_STREAM("IsScalar " << node);
+    SCENARIO_ERROR_THROW(CATEGORY(),
+      "syntax-error: Scalar cannot appear in this context.\n\n" << node << "\n");
   }
   else if (node.IsSequence())
   {
-    ROS_ERROR_STREAM("IsSequence " << node);
+    SCENARIO_ERROR_THROW(CATEGORY(),
+      "syntax-error: Sequence cannot appear in this context.\n\n" << node << "\n");
   }
   else if (node.IsMap()) // is <keyword>
   {
@@ -27,7 +29,8 @@ Expression read(Context& context, const YAML::Node& node)
     {
       if (const auto params { node["Params"] }) // <action call>
       {
-        // std::cout << "\e[1;31m(change " << node_type.as<std::string>() << ")";
+        SCENARIO_ERROR_THROW(CATEGORY(),
+          "syntax-error: Procedure-call cannot appear in this context.\n\n" << node << "\n");
       }
       else // <predicate call>
       {
@@ -36,11 +39,14 @@ Expression read(Context& context, const YAML::Node& node)
     }
     else
     {
-      ROS_ERROR_STREAM("ERROR!");
+      SCENARIO_ERROR_THROW(CATEGORY(),
+        "syntax-error: Malformed clause.\n\n" << node << "\n");
     }
   }
   else
   {
+    SCENARIO_WARN_STREAM(CATEGORY(),
+      "syntax-error: An unexpected expression has appeared. It is treated as an empty expression.\n\n" << node << "\n");
     return {};
   }
 }

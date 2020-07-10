@@ -244,7 +244,6 @@ protected:                                                                     \
     {                                                                          \
       for (const auto& each : node)                                            \
       {                                                                        \
-        std::cout << " ";                                                      \
         operands.push_back(read(context, each));                               \
       }                                                                        \
     }                                                                          \

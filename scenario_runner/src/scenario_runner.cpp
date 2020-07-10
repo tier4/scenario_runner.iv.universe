@@ -80,9 +80,9 @@ try
     });
   });
 
-  SCENARIO_LOG_STREAM(CATEGORY(), "Waiting for the simulator API to be ready.");
+  SCENARIO_INFO_STREAM(CATEGORY(), "Waiting for the simulator API to be ready.");
   simulator_->waitAPIReady();
-  SCENARIO_LOG_STREAM(CATEGORY(), "Simulator API is ready.");
+  SCENARIO_INFO_STREAM(CATEGORY(), "Simulator API is ready.");
 
   timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
 
@@ -90,7 +90,7 @@ try
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner engaged Autoware.");
 
   scenario_logger::log.begin(); // NOTE: initialize logger's clock here.
-  SCENARIO_LOG_STREAM(CATEGORY("simulation", "progress"), "Simulation started.");
+  SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "Simulation started.");
 }
 catch (...)
 {
