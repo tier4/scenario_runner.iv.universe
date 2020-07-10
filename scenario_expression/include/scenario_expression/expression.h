@@ -80,14 +80,12 @@ class And;
 class Or;
 
 class Predicate;
-// class Action;
 
 class Expression
 {
   friend Boolean;
 
   friend Predicate;
-  // friend Action;
 
   friend And;
   friend Or;
@@ -198,10 +196,6 @@ protected:
     : Expression { std::integral_constant<decltype(0), 0>() }
     , value { rhs.value }
   {}
-
-  // Literal(const YAML::Node& node)
-  //   : Expression { std::integral_constant<decltype(0), 0>() }
-  // {}
 
   virtual ~Literal() = default;
 

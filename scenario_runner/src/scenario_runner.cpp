@@ -57,12 +57,16 @@ try
       });
     });
 
-    call_with_optional(node, "Act", [&](const auto& node) mutable
-    {
-      sequence_manager_ =
-        std::make_shared<scenario_sequence::SequenceManager>(
-          context, node);
-    });
+    // call_with_essential(node, "Act", [&](const auto& node) mutable
+    // {
+    //   sequence_manager_ =
+    //     std::make_shared<scenario_sequence::SequenceManager>(
+    //       context, node);
+    // });
+
+    sequence_manager_ =
+      std::make_shared<scenario_sequence::SequenceManager>(
+        context, node["Act"]);
 
     call_with_essential(node, "EndCondition", [&](const auto& node) mutable
     {
