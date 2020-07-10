@@ -79,9 +79,6 @@ using Boolean = Literal<bool>;
 class And;
 class Or;
 
-template <typename PluginBase>
-class Procedure;
-
 class Predicate;
 // class Action;
 
@@ -98,22 +95,22 @@ class Expression
 public:
   Expression()
     : data { nullptr }
-    , reference_count { 0 }
+    , count { 0 }
   {}
 
   Expression(const Expression& expression)
     : data { expression.data }
-    , reference_count { 0 }
+    , count { 0 }
   {
     if (data)
     {
-      ++(data->reference_count);
+      ++(data->count);
     }
   }
 
   virtual ~Expression()
   {
-    if (data && --(data->reference_count) == 0)
+    if (data && --(data->count) == 0)
     {
       delete data;
     }
@@ -162,13 +159,13 @@ public:
 protected:
   Expression(std::integral_constant<decltype(0), 0>)
     : data { nullptr }
-    , reference_count { 1 }
+    , count { 1 }
   {}
 
 private:
   void remake(Expression* e)
   {
-    if (data && --(data->reference_count) == 0)
+    if (data && --(data->count) == 0)
     {
       delete data;
     }
@@ -178,7 +175,7 @@ private:
 
   Expression* data;
 
-  std::size_t reference_count;
+  std::size_t count;
 };
 
 Expression read(Context&, const YAML::Node&);
@@ -189,12 +186,10 @@ class Literal
 {
   friend Expression;
 
-  using value_type = T;
-
-  value_type value;
+  T value;
 
 protected:
-  Literal(const value_type& value)
+  Literal(const T& value)
     : Expression { std::integral_constant<decltype(0), 0>() }
     , value { value }
   {}
@@ -204,10 +199,9 @@ protected:
     , value { rhs.value }
   {}
 
-  Literal(const YAML::Node& node)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-  {
-  }
+  // Literal(const YAML::Node& node)
+  //   : Expression { std::integral_constant<decltype(0), 0>() }
+  // {}
 
   virtual ~Literal() = default;
 
@@ -293,9 +287,7 @@ class Procedure
   friend Expression;
 
 protected:
-  using plugin_type = boost::shared_ptr<PluginBase>;
-
-  plugin_type plugin;
+  boost::shared_ptr<PluginBase> plugin;
 
   Procedure()
     : Expression { std::integral_constant<decltype(0), 0>() }
@@ -323,8 +315,7 @@ protected:
       }
     }
 
-    ROS_ERROR_STREAM(__FILE__ << ":" << __LINE__ << ": Failed to load Procedure " << name);
-    return boost::shared_ptr<PluginBase>(nullptr);
+    SCENARIO_ERROR_THROW(CATEGORY(), "Failed to load Procedure " << name);
   }
 
   Expression evaluate(Context& context) override
@@ -342,30 +333,22 @@ protected:
   using Procedure::Procedure;
 
   Predicate(const Context& context, const YAML::Node& node)
+  try
     : Procedure {}
   {
-    if (const auto type { node["Type"] })
-    {
-      plugin = load(type.as<std::string>() + "Condition");
-    }
-
-    if (plugin)
+    if (plugin = load(read_essential<std::string>(node, "Type") + "Condition"))
     {
       plugin->configure(node, context.api);
     }
+    else
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to load procedure of type " << read_essential<std::string>(node, "Type"));
+    }
   }
-
-  // plugin_type read(const YAML::Node& node)
-  // {
-  //   if (const auto type { node["Type"] })
-  //   {
-  //     return load(type.as<std::string>() + "Condition");
-  //   }
-  //   else
-  //   {
-  //     return { nullptr };
-  //   }
-  // }
+  catch (...)
+  {
+    SCENARIO_ERROR_RETHROW(CATEGORY(), "Syntax error: malformed predicate.\n\n" << node << "\n");
+  }
 
   pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const
   {
