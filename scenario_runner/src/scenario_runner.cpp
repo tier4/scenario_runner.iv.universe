@@ -36,26 +36,49 @@ try
           node, simulator_));
   });
 
-  ROS_INFO_STREAM("\e[1;32mIntersection:\e[0m");
-  context.define(
-    intersection_manager_ =
-      std::make_shared<scenario_intersection::IntersectionManager>(
-        scenario_["Intersection"], simulator_));
+  call_with_optional(scenario_, "Intersection", [&](const auto& node) mutable
+  {
+    context.define(
+      intersection_manager_ =
+        std::make_shared<scenario_intersection::IntersectionManager>(
+          node, simulator_));
+  });
 
-  ROS_INFO_STREAM("\e[1;32mStory:\e[0m");
-  entity_manager_->setStory(scenario_["Story"]);
+  call_with_essential(scenario_, "Story", [&](const auto& node) mutable
+  {
+    context.entities->setStory(node);
+    context.entities->initialize();
 
-  ROS_INFO_STREAM("\e[1;32m  Init:\e[0m");
-  entity_manager_->initialize();
-  intersection_manager_->initialize(scenario_["Story"]["Init"]["Intersection"]);
+    call_with_essential(node, "Init", [&](const auto& node) mutable
+    {
+      call_with_optional(node, "Intersection", [&](const auto& node) mutable
+      {
+        context.intersections->initialize(node);
+      });
+    });
 
-  ROS_INFO_STREAM("\e[1;32m  Act:\e[0m");
-  sequence_manager_ =
-    std::make_shared<scenario_sequence::SequenceManager>(
-      context, scenario_["Story"]["Act"]);
+    call_with_optional(node, "Act", [&](const auto& node) mutable
+    {
+      sequence_manager_ =
+        std::make_shared<scenario_sequence::SequenceManager>(
+          context, node);
+    });
 
-  success = scenario_expression::read(context, scenario_["Story"]["EndCondition"]["Success"]);
-  failure = scenario_expression::read(context, scenario_["Story"]["EndCondition"]["Failure"]);
+    call_with_essential(node, "EndCondition", [&](const auto& node) mutable
+    {
+      call_with_optional(node, "Success", [&](const auto& node) mutable
+      {
+        success = scenario_expression::read(context, node);
+        SCENARIO_INFO_STREAM(CATEGORY(), "Loaded success condition: " << success);
+      });
+
+      call_with_optional(node, "Failure", [&](const auto& node) mutable
+      {
+        failure = scenario_expression::read(context, node);
+        SCENARIO_INFO_STREAM(CATEGORY(), "Loaded failure condition: " << failure);
+      });
+    });
+  });
 
   SCENARIO_LOG_STREAM(CATEGORY(), "Waiting for the simulator API to be ready.");
   simulator_->waitAPIReady();

@@ -146,7 +146,7 @@ public:
 
   virtual std::ostream& write(std::ostream& os) const
   {
-    return os << "Null";
+    return os << "()";
   }
 
   friend std::ostream& operator <<(std::ostream& os, const Expression& expression)
