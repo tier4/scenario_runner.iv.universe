@@ -16,12 +16,10 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
   try
   {
     scenario_ = YAML::LoadFile(scenario_path_);
-  } catch (const std::exception & e) {
-    ROS_ERROR_STREAM(e.what());
-
-    scenario_logger::log.addLog(
-      scenario_logger_msgs::Level::LEVEL_ERROR, {"simulator"},
-      "failed to parse scenario : " + scenario_path_, "scenario_runner");
+  }
+  catch (...)
+  {
+    SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to load YAML file \"" << scenario_path_ << "\".");
   }
 }
 
@@ -30,10 +28,13 @@ try
 {
   context.define(simulator_);
 
-  context.define(
-    entity_manager_ =
-      std::make_shared<scenario_entities::EntityManager>(
-        scenario_["Entity"], simulator_));
+  call_with_essential(scenario_, "Entity", [&](const auto& node) mutable
+  {
+    context.define(
+      entity_manager_ =
+        std::make_shared<scenario_entities::EntityManager>(
+          node, simulator_));
+  });
 
   ROS_INFO_STREAM("\e[1;32mIntersection:\e[0m");
   context.define(
@@ -56,25 +57,11 @@ try
   success = scenario_expression::read(context, scenario_["Story"]["EndCondition"]["Success"]);
   failure = scenario_expression::read(context, scenario_["Story"]["EndCondition"]["Failure"]);
 
-  scenario_logger::log.addLog(
-    scenario_logger_msgs::Level::LEVEL_LOG, {"simulator"}, "scenario runner start runnig",
-    "scenario_runner");
+  SCENARIO_LOG_STREAM(CATEGORY(), "Waiting for the simulator API to be ready.");
+  simulator_->waitAPIReady();
+  SCENARIO_LOG_STREAM(CATEGORY(), "Simulator API is ready.");
 
   timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
-
-  if (false) // TEST CODE
-  {
-    auto e =
-      scenario_expression::read(
-        context,
-        scenario_["Story"]["EndCondition"]["Experimental"]);
-
-    ROS_ERROR_STREAM(e);
-    ROS_ERROR_STREAM(e.evaluate(context));
-
-    terminate();
-  }
-}
 
   simulator_->sendEngage(true);
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner engaged Autoware.");

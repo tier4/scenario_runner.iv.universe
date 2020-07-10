@@ -43,40 +43,16 @@ void SpeedAction::run(
     {
       if (not (*api_ptr_).changeNPCVelocity(actor, value_))
       {
-        if (not (*api_ptr_).changeNPCVelocity(actor, value_))
-        {
-          std::stringstream ss {};
-
-          ss << type_ << "Action failed to change " << actor << "'s speed.";
-
-          scenario_logger::log.addLog(
-            scenario_logger_msgs::Level::LEVEL_ERROR,
-            {"simulator"},
-            ss.str(),
-            name_);
-
-          throw std::runtime_error {ss.str()};
-        }
+        SCENARIO_ERROR_THROW(CATEGORY(),
+          type_ << "Action failed to change " << actor << "'s speed.");
       }
     }
     else
     {
       if (not api_ptr_->setMaxSpeed(value_))
       {
-        if (not api_ptr_->setMaxSpeed(value_))
-        {
-          std::stringstream ss {};
-
-          ss << type_ << "Action failed to change " << actor << "'s max-speed (Note: This action implicitly acts as a maximum speed setting for Type: Ego entities.";
-
-          scenario_logger::log.addLog(
-            scenario_logger_msgs::Level::LEVEL_ERROR,
-            {"simulator"},
-            ss.str(),
-            name_);
-
-          throw std::runtime_error {ss.str()};
-        }
+        SCENARIO_ERROR_THROW(CATEGORY(),
+          type_ << "Action failed to change " << actor << "'s max-speed (Note: This action implicitly acts as a maximum speed setting for Type: Ego entities.");
       }
     }
   }

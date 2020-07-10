@@ -6,23 +6,105 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <cstdio>
-#include <cxxabi.h>
 #include <new>
 #include <ros/ros.h>
 #include <scenario_logger_msgs/LoggedData.h>
 #include <sstream>
 
-#define ADD_LOG(level, categories, description) do {                          \
-  std::stringstream ss;                                                       \
-  int failed;                                                                 \
-  ss << __FILE__　<< ":" << __LINE__ << ": ";                                 \
-  ss << abi::__cxa_demangle(typeid(*this).name(), nullptr, nullptr, &failed)  \
-     << "::" << __func__;                                                     \
-  ss << " LINE : " << __LINE__;                                               \
-  scenario_logger::log.addLog(level, categories, description, ss.str());  \
-  } while(0)
+#define SCENARIO_LOG_FROM \
+  std::string(__FILE__) + ":" + std::to_string(__LINE__)
 
-#define STR(var) #var
+#define SCENARIO_LOG_APPEND(LEVEL, CATEGORY, ...)                              \
+  do                                                                           \
+  {                                                                            \
+    std::stringstream ss {};                                                   \
+    ss << __VA_ARGS__;                                                         \
+    scenario_logger::log.append(LEVEL, CATEGORY, ss.str(), SCENARIO_LOG_FROM); \
+  }                                                                            \
+  while (false)
+
+#define CATEGORY(...) \
+  std::vector<std::string>(std::initializer_list<std::string> {__VA_ARGS__})
+
+#define SCENARIO_LOG_STREAM(CATEGORY, ...) \
+  SCENARIO_LOG_APPEND( \
+    scenario_logger_msgs::Level::LEVEL_LOG, CATEGORY, __VA_ARGS__)
+
+#define SCENARIO_INFO_STREAM(CATEGORY, ...) \
+  SCENARIO_LOG_APPEND( \
+    scenario_logger_msgs::Level::LEVEL_INFO, CATEGORY, __VA_ARGS__); \
+  ROS_INFO_STREAM(__VA_ARGS__)
+
+#define SCENARIO_WARN_STREAM(CATEGORY, ...) \
+  SCENARIO_LOG_APPEND( \
+    scenario_logger_msgs::Level::LEVEL_WARN, CATEGORY, __VA_ARGS__); \
+  ROS_WARN_STREAM(__VA_ARGS__)
+
+#define SCENARIO_ERROR_STREAM(CATEGORY, ...) \
+  SCENARIO_LOG_APPEND( \
+    scenario_logger_msgs::Level::LEVEL_ERROR, CATEGORY, __VA_ARGS__); \
+  ROS_ERROR_STREAM(__VA_ARGS__)
+
+#define SCENARIO_ERROR_THROW(CATEGORY, ...)                                    \
+  do                                                                           \
+  {                                                                            \
+    std::stringstream ss {};                                                   \
+                                                                               \
+    ss << __VA_ARGS__;                                                         \
+                                                                               \
+    scenario_logger::log.append(                                               \
+      scenario_logger_msgs::Level::LEVEL_ERROR,                                \
+      CATEGORY,                                                                \
+      ss.str(),                                                                \
+      SCENARIO_LOG_FROM);                                                      \
+                                                                               \
+    ROS_ERROR_STREAM(ss.str());                                                \
+                                                                               \
+    throw std::runtime_error { ss.str() };                                     \
+  }                                                                            \
+  while (false)
+
+#define SCENARIO_ERROR_RETHROW(CATEGORY, ...)                                  \
+  do                                                                           \
+  {                                                                            \
+    std::stringstream ss {};                                                   \
+                                                                               \
+    ss << __VA_ARGS__;                                                         \
+                                                                               \
+    scenario_logger::log.append(                                               \
+      scenario_logger_msgs::Level::LEVEL_ERROR,                                \
+      CATEGORY,                                                                \
+      ss.str(),                                                                \
+      SCENARIO_LOG_FROM);                                                      \
+                                                                               \
+    ROS_ERROR_STREAM(ss.str());                                                \
+                                                                               \
+    throw;                                                                     \
+  }                                                                            \
+  while (false)
+
+#define SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION() \
+  SCENARIO_ERROR_THROW(CATEGORY(), \
+    "Failed to configure condition named '" << name_ << "' of type " << type_ << ".")
+
+#define SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT() \
+  SCENARIO_LOG_STREAM(CATEGORY(), \
+    "Changed value from " << std::boolalpha << result_ \
+                << " to " << std::boolalpha << (not result_) \
+                << " (Condition named '" << name_ << "' of type " << type_ << ").")
+
+#define SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION() \
+  SCENARIO_ERROR_RETHROW(CATEGORY(), \
+    "Failed to configure Condition named '" << name_ << "' of type " << type_ << ".")
+
+#define SCENARIO_RETHROW_ERROR_FROM_ACTION_CONFIGURATION() \
+  SCENARIO_ERROR_RETHROW(CATEGORY(), \
+    "Failed to configure Action named '" << name_ << "' of type " << type_ << ".")
+
+#define SCENARIO_WARNING_ABOUT_NO_ACTORS_SPECIFIED() \
+  SCENARIO_WARN_STREAM(CATEGORY(), \
+    "No actors specified for Action named '" << name_ << "' of type " << type_ << ". " \
+    "The action will cause no effects.\n\n" << node_ << "\n")
 
 namespace scenario_logger
 {
@@ -52,8 +134,8 @@ public:
 
   void write();
 
-  void addLog(const scenario_logger_msgs::Log&);
-  void addLog(int level,
+  void append(const scenario_logger_msgs::Log&);
+  void append(int level,
               const std::vector<std::string>& categories,
               const std::string& description,
               const std::string& from);

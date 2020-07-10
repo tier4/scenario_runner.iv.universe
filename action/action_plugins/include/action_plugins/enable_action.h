@@ -14,6 +14,8 @@ class EnableAction
 {
   std::string name_;
 
+  boost::optional<bool> automatic_emergency_braking_;
+
 public:
   EnableAction();
 

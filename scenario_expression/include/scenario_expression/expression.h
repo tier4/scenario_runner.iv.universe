@@ -156,7 +156,7 @@ public:
 
   virtual operator bool() const noexcept
   {
-    return data ? static_cast<bool>(*data) : true;
+    return data ? static_cast<bool>(*data) : false;
   }
 
 protected:

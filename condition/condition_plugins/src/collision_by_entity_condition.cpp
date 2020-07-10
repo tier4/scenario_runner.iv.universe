@@ -40,13 +40,7 @@ bool CollisionByEntityCondition::update(
 {
   if (!configured_)
   {
-    scenario_logger::log.addLog(scenario_logger_msgs::Level::LEVEL_ERROR, {"simulator"}, "condition : " + name_ + " does not configured.", name_);
-
-    ROS_ERROR_STREAM(
-      getType() << " Condition named \"" << getName() << "\" has incomplete configuration. "
-      "The condition always returns false.");
-
-    return result_ = false;
+    SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
   }
 
   if (keep_ && result_)

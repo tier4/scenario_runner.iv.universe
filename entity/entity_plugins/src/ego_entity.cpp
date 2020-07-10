@@ -54,15 +54,6 @@ try
     api_->sendStartVelocity(0);
   }
 
-  if (const auto pose_node = init_entity_["InitialStates"]["Pose"])
-  {
-    api_->sendStartVelocity(0);
-  }
-
-  condition_manager_ =
-    std::make_shared<scenario_conditions::ConditionManager>(
-      end_condition_, api_);
-
   call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
   {
     const auto pose { read_essential<geometry_msgs::Pose>(node, "Pose") };
