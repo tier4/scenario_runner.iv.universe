@@ -93,7 +93,7 @@ try
   simulator_->sendEngage(true);
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner engaged Autoware.");
 
-  scenario_logger::log.begin(); // NOTE: initialize logger's clock here.
+  scenario_logger::log.initialize(ros::Time::now()); // NOTE: initialize logger's clock here.
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "Simulation started.");
 }
 catch (...)

@@ -45,10 +45,14 @@ void Logger::setLogOutputPath(const std::string& directory)
   log_output_path_ = directory;
 }
 
+const ros::Time& Logger::initialize(const ros::Time& time)
+{
+  return time_ = time;
+}
+
 const ros::Time& Logger::begin() const
 {
-  static const auto time { ros::Time::now() };
-  return time;
+  return time_;
 }
 
 std::string toIso6801(const ros::Time& stamp)

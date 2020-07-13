@@ -123,6 +123,8 @@ class Logger
 
   boost::optional<std::string> log_output_path_;
 
+  ros::Time time_;
+
 public:
   Logger();
 
@@ -130,6 +132,7 @@ public:
   void setScenarioID(const std::string&);
   void setLogOutputPath(const std::string& directory);
 
+  const ros::Time& initialize(const ros::Time&);
   const ros::Time& begin() const;
 
   void write();
