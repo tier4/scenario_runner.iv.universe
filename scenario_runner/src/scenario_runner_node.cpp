@@ -1,3 +1,4 @@
+#include <thread>
 #include <boost/cstdlib.hpp>
 #include <exception>
 #include <glog/logging.h>
@@ -30,6 +31,10 @@ int main(int argc, char * argv[]) try
   std::string log_output_path;
   pnh.getParam("log_output_path", log_output_path);
   scenario_logger::log.setLogOutputPath(log_output_path);
+
+  SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
+  std::this_thread::sleep_for(std::chrono::seconds { 10 });
+  SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
 
   /**
    * setup scenario runner
