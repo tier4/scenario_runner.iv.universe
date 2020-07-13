@@ -53,7 +53,11 @@ void FollowRouteAction::run(
 {
   for (const auto& each : actors_)
   {
-    api_ptr_->sendGoalPoint(each, goal_, true, shift_);
+    if (not api_ptr_->sendGoalPoint(each, goal_, true, shift_))
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(),
+        type_ << "Action failed to send goal-pose to " << each << ".");
+    }
   }
 }
 

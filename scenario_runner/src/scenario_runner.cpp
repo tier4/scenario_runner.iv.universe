@@ -11,7 +11,10 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 {
   pnh_.getParam("scenario_path", scenario_path_);
 
-  (*simulator_).waitAutowareInitialize();
+  if (not (*simulator_).waitAutowareInitialize())
+  {
+    SCENARIO_ERROR_THROW(CATEGORY(), "Failed to initialize Autoware.");
+  }
 
   try
   {
@@ -90,7 +93,10 @@ try
 
   timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
 
-  simulator_->sendEngage(true);
+  if (not simulator_->sendEngage(true))
+  {
+    SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send engage.");
+  }
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner engaged Autoware.");
 
   scenario_logger::log.initialize(ros::Time::now()); // NOTE: initialize logger's clock here.

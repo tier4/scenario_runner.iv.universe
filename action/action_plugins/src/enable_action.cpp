@@ -42,7 +42,11 @@ void EnableAction::run(
   {
     for (const auto& each : actors_)
     {
-      (*api_ptr_).changeNPCConsiderVehicle(each, *automatic_emergency_braking_);
+      if (not (*api_ptr_).changeNPCConsiderVehicle(each, *automatic_emergency_braking_))
+      {
+        SCENARIO_ERROR_THROW(CATEGORY(),
+          type_ << "Action failed to change " << each << "'s feature.");
+      }
     }
   }
 }

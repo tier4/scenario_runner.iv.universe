@@ -34,13 +34,16 @@ catch (...)
   SCENARIO_RETHROW_ERROR_FROM_ACTION_CONFIGURATION();
 }
 
-auto LaneChangeAction::run(
+void LaneChangeAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
-  -> void
 {
   for (const auto& each : actors_)
   {
-    (*api_ptr_).changeNPCLaneChange(each, target_lanelet_);
+    if (not (*api_ptr_).changeNPCLaneChange(each, target_lanelet_))
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(),
+        type_ << "Action failed to change lane of " << each << ".");
+    }
   }
 }
 

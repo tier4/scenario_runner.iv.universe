@@ -68,4 +68,3 @@ auto AccelerationAction::run(
 } // namespace action_plugins
 
 PLUGINLIB_EXPORT_CLASS(action_plugins::AccelerationAction, scenario_actions::EntityActionBase)
-
