@@ -20,7 +20,10 @@ try
     read_optional<std::string>(
       entity, "InitialFrameId", "ego-initial-pose");
 
-  return (*api_).setEgoCarName(name_);
+  if (not (*api_).setEgoCarName(name_))
+  {
+    SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set ego-car-name.");
+  }
 }
 catch (...)
 {
@@ -34,26 +37,40 @@ try
   if (const auto speed_node {init_entity_["InitialStates"]["Speed"]})
   {
     const auto speed {speed_node.as<float>()};
-    api_->setMaxSpeed(speed);
+    if (not api_->setMaxSpeed(speed))
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set max-speed.");
+    }
   }
 
   if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
   {
-    api_->sendStartVelocity(initial_speed.as<float>());
+    if (not api_->sendStartVelocity(initial_speed.as<float>()))
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
+    }
   }
   else
   {
-    api_->sendStartVelocity(0);
+    if (not api_->sendStartVelocity(0))
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
+    }
   }
 
   call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
   {
     const auto pose { read_essential<geometry_msgs::Pose>(node, "Pose") };
 
-    api_->sendStartPoint(
-      pose, true, read_optional<std::string>(node, "Shift", "Center"));
+    if (not api_->sendStartPoint(pose, true, read_optional<std::string>(node, "Shift", "Center")))
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-point.");
+    }
 
-    api_->setFrameId(initial_frame_id_, pose);
+    if (not api_->setFrameId(initial_frame_id_, pose))
+    {
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set frame-id.");
+    }
   });
 
   call_with_optional(init_entity_, "Actions", [&](const auto& node) mutable
