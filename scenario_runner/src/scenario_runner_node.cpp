@@ -10,7 +10,11 @@
 
 static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
 
-static void failureCallback() { scenario_logger::log.write(); }
+static void failureCallback()
+{
+  SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly.");
+  scenario_logger::log.write();
+}
 
 int main(int argc, char * argv[]) try
 {
@@ -57,7 +61,7 @@ int main(int argc, char * argv[]) try
 
           case simulation_is::failed:
             SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
-            terminator.sendTerminateRequest(boost::exit_failure);
+            terminator.sendTerminateRequest(boost::exit_test_failure);
             break;
 
           default:
@@ -67,9 +71,23 @@ int main(int argc, char * argv[]) try
       }
     }
 
-  scenario_logger::log.write();
+  switch (runner.currently)
+  {
+  case simulation_is::succeeded:
+    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation succeeded.");
+    scenario_logger::log.write();
+    return boost::exit_success;
 
-  return boost::exit_success;
+  case simulation_is::failed:
+    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation failed.");
+    scenario_logger::log.write();
+    return boost::exit_test_failure;
+
+  case simulation_is::ongoing:
+    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
+    scenario_logger::log.write();
+    return boost::exit_failure;
+  }
 }
 
 catch (const std::exception& e)
