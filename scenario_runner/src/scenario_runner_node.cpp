@@ -49,27 +49,29 @@ int main(int argc, char * argv[]) try
   /**
    * start simulation
    */
-  for (runner.run(); ros::ok(); ros::spinOnce()) {
-      static auto previously{runner.currently};
+  for (runner.run(); ros::ok(); ros::spinOnce())
+  {
+    static auto previously{runner.currently};
 
-      if (previously != runner.currently) {
-        switch (previously = runner.currently) {
-          case simulation_is::succeeded:
-            SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
-            terminator.sendTerminateRequest(boost::exit_success);
-            break;
+    if (previously != runner.currently)
+    {
+      switch (previously = runner.currently)
+      {
+      case simulation_is::succeeded:
+        SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
+        terminator.sendTerminateRequest(boost::exit_success);
+        break;
 
-          case simulation_is::failed:
-            SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
-            terminator.sendTerminateRequest(boost::exit_test_failure);
-            break;
+      case simulation_is::failed:
+        SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
+        terminator.sendTerminateRequest(boost::exit_test_failure);
+        break;
 
-          default:
-          case simulation_is::ongoing:
-            break;
-        }
+      case simulation_is::ongoing:
+        break;
       }
     }
+  }
 
   switch (runner.currently)
   {
