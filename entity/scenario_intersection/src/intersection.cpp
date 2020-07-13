@@ -11,11 +11,8 @@ Intersection::Intersection(
 {
   if (const auto ids {script_["TrafficLightId"]})
   {
-    ROS_INFO_STREAM("\e[1;32m    TrafficLightId:\e[0m");
-
     for (const auto& each : ids)
     {
-      ROS_INFO_STREAM("\e[1;32m      - " << each.as<std::size_t>() << "\e[0m");
       ids_.emplace_back(each.as<std::size_t>());
     }
   }
@@ -26,13 +23,10 @@ Intersection::Intersection(
 
   if (const auto controls {script_["Control"]})
   {
-    ROS_INFO_STREAM("\e[1;32m    Control:\e[0m");
-
     for (const auto& each : controls)
     {
       if (const auto& state_name {each["StateName"]})
       {
-        ROS_INFO_STREAM("\e[1;32m      - StateName: " << state_name << "\e[0m");
         change_to_.emplace(state_name.as<std::string>(), each);
       }
       else
@@ -64,4 +58,3 @@ simulation_is Intersection::update(const ros::Time&)
 }
 
 } // namespace scenario_intersection
-

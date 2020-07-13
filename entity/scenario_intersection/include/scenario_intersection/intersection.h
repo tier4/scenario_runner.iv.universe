@@ -43,9 +43,6 @@ class Intersection
         : target_ {target.as<int>()}
         , color_ {color ? convert<Color>(color.as<std::string>()) : Color::Blank}
       {
-        ROS_INFO_STREAM("\e[1;32m          - Id: " << target_ << "\e[0m");
-        ROS_INFO_STREAM("\e[1;32m            Color: " << color_ << "\e[0m");
-
         if (arrows and not arrows.IsNull())
         {
           if (arrows.IsScalar()) // NOTE: deperecated behavior
@@ -65,12 +62,6 @@ class Intersection
             {
               arrows_.emplace_back(value);
             }
-          }
-
-          ROS_INFO_STREAM("\e[1;32m            Arrows:\e[0m");
-          for (const auto& each : arrows_)
-          {
-            ROS_INFO_STREAM("\e[1;32m            - " << each << "\e[0m");
           }
         }
       }
@@ -123,8 +114,6 @@ class Intersection
     {
       if (const auto traffic_lights {node["TrafficLight"]})
       {
-        ROS_INFO_STREAM("\e[1;32m        TrafficLight:\e[0m");
-
         for (const auto& each : traffic_lights)
         {
           if (const auto arrow { each["Arrow"] })

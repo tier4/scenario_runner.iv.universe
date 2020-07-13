@@ -10,8 +10,6 @@ EntityManager::EntityManager(
 try
   : api_ptr_(api_ptr)
 {
-  ROS_INFO_STREAM("\e[1;32mEntity:\e[0m");
-
   for (auto entity_node : node)
   {
     loadPlugin(entity_node, api_ptr_);
@@ -41,8 +39,6 @@ simulation_is EntityManager::update(
     const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
 try
 {
-  ROS_INFO_STREAM("\e[1;32m  EndCondition:\e[0m");
-
   return
     std::accumulate(
       entities_.begin(), entities_.end(),
@@ -60,8 +56,6 @@ catch (...)
 bool EntityManager::initialize()
 try
 {
-  ROS_INFO_STREAM("\e[1;32m    Entity:\e[0m");
-
   return
     std::all_of(
       entities_.begin(), entities_.end(),

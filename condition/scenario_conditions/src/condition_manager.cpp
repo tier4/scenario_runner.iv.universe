@@ -69,28 +69,17 @@ namespace scenario_conditions
   {
     visualizer.publishMarker(*this);
 
-    ROS_INFO_STREAM("\e[1;32m    Failure:\e[0m");
-    ROS_INFO_STREAM("\e[1;32m      Any:\e[0m");
-
     if (std::accumulate(
           failure_conditions_.begin(), failure_conditions_.end(),
           false,
           [&](const auto& lhs, const auto& rhs)
           {
             const auto result {rhs ? (*rhs).update(intersection_manager) : false};
-
-            ROS_INFO_STREAM("\e[1;32m        - Type: " << (rhs ? (*rhs).getType() : "\x1B[31mError\x1B[0m"));
-            ROS_INFO_STREAM("\e[1;32m          Name: " << (rhs ? (*rhs).getName() : "\x1B[31mError\x1B[0m"));
-            ROS_INFO_STREAM("\e[1;32m          Currently: " << std::boolalpha << result << "\e[0m");
-
             return lhs or result;
           }))
     {
       return simulation_is::failed;
     }
-
-    ROS_INFO_STREAM("\e[1;32m    Success:\e[0m");
-    ROS_INFO_STREAM("\e[1;32m      All:\e[0m");
 
     if (std::accumulate(
           success_conditions_.begin(), success_conditions_.end(),
@@ -98,11 +87,6 @@ namespace scenario_conditions
           [&](const auto& lhs, const auto& rhs)
           {
             const auto result {rhs ? (*rhs).update(intersection_manager) : false};
-
-            ROS_INFO_STREAM("\e[1;32m        - Type: " << (rhs ? (*rhs).getType() : "\x1B[31mError\x1B[0m"));
-            ROS_INFO_STREAM("\e[1;32m          Name: " << (rhs ? (*rhs).getName() : "\x1B[31mError\x1B[0m"));
-            ROS_INFO_STREAM("\e[1;32m          Currently: " << std::boolalpha << result << "\e[0m");
-
             return lhs and result;
           }))
     {

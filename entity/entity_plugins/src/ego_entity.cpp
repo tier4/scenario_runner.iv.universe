@@ -31,22 +31,14 @@ catch (...)
 bool EgoEntity::init()
 try
 {
-  ROS_INFO_STREAM("\e[1;32m      - Name: " << name_ << "\e[0m");
-
   if (const auto speed_node {init_entity_["InitialStates"]["Speed"]})
   {
     const auto speed {speed_node.as<float>()};
-    ROS_INFO_STREAM("\e[1;32m          Speed: " << speed << " (Will be treated as max-speed)\e[0m");
     api_->setMaxSpeed(speed);
-  }
-  else
-  {
-    ROS_INFO_STREAM("\e[1;32m          Speed: 0 (Unspecified, will be ignored)\e[0m");
   }
 
   if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
   {
-    ROS_INFO_STREAM("\e[1;32m          Speed: " << initial_speed << " \e[0m");
     api_->sendStartVelocity(initial_speed.as<float>());
   }
   else

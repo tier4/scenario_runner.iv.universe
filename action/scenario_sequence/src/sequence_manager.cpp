@@ -18,8 +18,6 @@ simulation_is SequenceManager::update(
 {
   if (not sequences_.empty())
   {
-    ROS_INFO_STREAM("\e[1;32m  Act:\e[0m");
-
     switch (const auto result {sequences_.front().update(context_.intersections)})
     {
     case simulation_is::succeeded:
@@ -32,7 +30,6 @@ simulation_is SequenceManager::update(
   }
   else
   {
-    ROS_INFO_STREAM("\e[1;32m  Act: \e[1;36mExhausted\e[0m");
     return simulation_is::succeeded;
   }
 }

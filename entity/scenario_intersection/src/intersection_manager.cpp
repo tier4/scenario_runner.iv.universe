@@ -13,8 +13,6 @@ IntersectionManager::IntersectionManager(
   {
     if (const auto name {intersection["Name"]})
     {
-      ROS_INFO_STREAM("\e[1;32m  - Name: " << name << "\e[0m");
-
       intersections_.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(name.as<std::string>()),
@@ -31,10 +29,6 @@ bool IntersectionManager::initialize(const YAML::Node& intersections)
 {
   if (intersections)
   {
-    //                       Story:
-    //                         Init:
-    ROS_INFO_STREAM("\e[1;32m    Intersection:\e[0m");
-
     return
       std::all_of(
         intersections.begin(), intersections.end(),
@@ -42,11 +36,8 @@ bool IntersectionManager::initialize(const YAML::Node& intersections)
         {
           if (const auto name {intersection["Name"]})
           {
-            ROS_INFO_STREAM("\e[1;32m      - Name: " << name << "\e[0m");
-
             if (const auto the_state {intersection["InitialState"]})
             {
-              ROS_INFO_STREAM("\e[1;32m        InitialState: " << the_state << "\e[0m");
               return intersections_.at(name.template as<std::string>()).change_to(the_state.template as<std::string>());
             }
             else

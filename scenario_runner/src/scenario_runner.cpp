@@ -120,8 +120,6 @@ void ScenarioRunner::update(const ros::TimerEvent & event)
   {
     currently = simulation_is::ongoing;
   }
-
-  ROS_INFO_STREAM("\e[1;36m  SimulationIs: " << currently << "\n");
 }
 
 }  // namespace scenario_runner
