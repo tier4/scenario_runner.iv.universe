@@ -20,9 +20,22 @@ try
 
   trigger_ = read_essential<std::string>(node_, "Trigger");
 
-  target_pose_ = read_essential<geometry_msgs::PoseStamped>(node_, "Pose");
+  const auto pose_stamped { read_essential<geometry_msgs::PoseStamped>(node_, "Pose") };
+
+  if (pose_stamped.header.frame_id == "/map")
+  {
+    target_pose_ = pose_stamped.pose;
+  }
+  else
+  {
+    target_pose_ =
+      api_ptr_->getRelativePose(
+        pose_stamped.header.frame_id, pose_stamped.pose);
+  }
 
   tolerance_ = read_essential<float>(node_, "Tolerance");
+
+  shift_ = read_optional<std::string>(node_, "Shift", "Center");
 
   keep_ = read_optional<bool>(node_, "Keep", false);
 
@@ -47,38 +60,15 @@ bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection:
       SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
     }
 
-    if (target_pose_->header.frame_id == "/map")
+    if (api_ptr_->isObjectInArea(
+          trigger_, target_pose_, tolerance_, boost::math::constants::two_pi<double>(), shift_))
     {
-      if ((*api_ptr_).isObjectInArea(trigger_, target_pose_->pose, tolerance_, boost::math::constants::two_pi<double>()))
-      {
-        SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT();
-        return result_ = true;
-      }
-      else
-      {
-        return result_ = false;
-      }
+      SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT();
+      return result_ = true;
     }
     else
     {
-      auto p = api_ptr_->getRelativePose(target_pose_->header.frame_id,
-                                         target_pose_->pose.position.x,
-                                         target_pose_->pose.position.y,
-                                         target_pose_->pose.position.z,
-                                         target_pose_->pose.orientation.x,
-                                         target_pose_->pose.orientation.y,
-                                         target_pose_->pose.orientation.z,
-                                         target_pose_->pose.orientation.w);
-
-      if ((*api_ptr_).isObjectInArea(trigger_, p, tolerance_, boost::math::constants::two_pi<double>()))
-      {
-        SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT();
-        return result_ = true;
-      }
-      else
-      {
-        return result_ = false;
-      }
+      return result_ = false;
     }
   }
 }

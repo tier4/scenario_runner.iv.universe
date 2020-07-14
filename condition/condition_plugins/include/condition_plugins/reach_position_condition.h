@@ -17,9 +17,9 @@ public:
   bool configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr) override;
 
 private:
-  boost::optional<geometry_msgs::PoseStamped> target_pose_;
+  geometry_msgs::Pose target_pose_;
 
-  std::string trigger_;
+  std::string trigger_, shift_;
 
   float tolerance_;
 };
