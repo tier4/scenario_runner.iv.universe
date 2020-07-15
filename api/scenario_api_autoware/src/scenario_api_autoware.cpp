@@ -248,7 +248,7 @@ bool ScenarioAPIAutoware::sendGoalPoint(
   if (wait_autoware_status) {
     //publish recurssively until state changes
     while (!checkState(autoware_system_msgs::AutowareState::WaitingForEngage)) {
-      ros::Rate(5.0).sleep();
+      ros::Rate(1.0).sleep();
       posestmp.header.stamp = ros::Time::now();
       pub_goal_point_.publish(posestmp);
       ros::spinOnce();
