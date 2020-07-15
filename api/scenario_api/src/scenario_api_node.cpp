@@ -68,7 +68,7 @@ int main(int argc, char ** argv)
   // generate NPC to accel/to turn right/stop by vehicle
   geometry_msgs::Pose car_acc_tr_0_pose = obj.genPoseROS(3702.6, 73762.1, 0.0, 0.467);
   obj.addNPC("car", "car_acc_tr_0", car_acc_tr_0_pose, 0.0);
-  sleep(0.1);
+  ros::Rate(10.0).sleep();                             //0.1s sleep
   obj.changeNPCConsiderVehicle("car_acc_tr_0", true);  //change parameter: stop by vehicle
   obj.changeNPCVelocityWithAccel(
     "car_acc_tr_0", 15.0, 2.0);  // std::string name, double velocity, double accel
@@ -118,7 +118,7 @@ int main(int argc, char ** argv)
   obj.setTrafficLightColor(34806, "red", false);     // modify
   obj.setTrafficLightColor(40000, "yellow", false);  // invalid
   obj.updateState();
-  sleep(3);
+  ros::Rate(0.3).sleep();  //3.0s sleep
   std::string color;
   std::vector<std::string> arrows;
   if (obj.getTrafficLightColor(34806, &color, false)) {
@@ -127,7 +127,7 @@ int main(int argc, char ** argv)
     ROS_INFO_STREAM("failed to get traffic:34806 color");
   }
   obj.updateState();
-  sleep(3);
+  ros::Rate(0.3).sleep();  //3.0s sleep
   if (obj.getTrafficLightArrow(34806, &arrows, false)) {
     ROS_INFO_STREAM("traffic:34806 arrow size(NULL) is " << arrows.size());
   }
@@ -140,7 +140,7 @@ int main(int argc, char ** argv)
     }
   }
   obj.updateState();
-  sleep(3);
+  ros::Rate(0.3).sleep();  //3.0s sleep
 
   obj.resetTrafficLightArrow(34806, false);
   if (obj.getTrafficLightArrow(34806, &arrows, false)) {
@@ -150,7 +150,7 @@ int main(int argc, char ** argv)
     }
   }
   obj.updateState();
-  sleep(3);
+  ros::Rate(0.3).sleep();  //3.0s sleep
   obj.setTrafficLightArrow(34806, "right", false);
   obj.setTrafficLightArrow(34806, "down", false);
   obj.resetTrafficLightColor(34806, false);
@@ -158,7 +158,7 @@ int main(int argc, char ** argv)
   obj.updateState();
   //$rostopic echo /perception/traic_light_recognition/traffic_light_states
   //result: 34802, 34836->(3,5,7)
-  sleep(3);
+  ros::Rate(0.3).sleep();        //3.0s sleep
   /* set traffic light color */  //#############################################################
 
   geometry_msgs::Pose line_pose;
@@ -167,7 +167,7 @@ int main(int argc, char ** argv)
   } else {
     ROS_INFO_STREAM("failed to get traffic:34806 pose");
   }
-  sleep(2.0);
+  ros::Rate(0.5).sleep();  //2.0s sleep
 
   while (ros::ok()) {
     obj.updateState();  // Unimplemented. update simulator step(?)
