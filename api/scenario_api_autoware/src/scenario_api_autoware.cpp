@@ -161,6 +161,7 @@ bool ScenarioAPIAutoware::isAPIReady()
 
   if (second_previous_twist_ptr_ == nullptr) {
     ROS_WARN_DELAYED_THROTTLE(5.0, "second_previous_twist is nullptr");
+    return false;
   }
 
   if (turn_signal_ptr_ == nullptr) {
