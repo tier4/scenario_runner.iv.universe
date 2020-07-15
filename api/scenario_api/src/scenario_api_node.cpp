@@ -32,6 +32,7 @@ int main(int argc, char ** argv)
   obj.sendGoalPoint("EgoCar", ego_car_goal_pose, true, "Front");  // send goal point(name, pose)
   geometry_msgs::Pose ego_car_checkpoint_pose = obj.genPoseROS(3717.9, 73684.4, 0.0, 2.01);
   obj.sendCheckPoint(
+    "EgoCar",
     ego_car_checkpoint_pose);  // send check point(pose) (optional; it should be called after sendGoalPoint)
   obj.setMaxSpeed(20.0);        // send max velocity of autoware (m/s)
   obj.sendStartVelocity(7.0);   // send initial velocity

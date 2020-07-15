@@ -59,28 +59,6 @@ bool ScenarioAPI::sendStartPoint(
   return true;
 }
 
-bool ScenarioAPI::sendStartPoint(
-  const double p_x, const double p_y, const double p_z, const double o_x, const double o_y,
-  const double o_z, const double o_w, const bool wait_ready, const std::string & frame_type)
-{  // TODO remove this
-  geometry_msgs::Pose pose = poseFromValue(p_x, p_y, p_z, o_x, o_y, o_z, o_w);
-  return sendStartPoint(pose, wait_ready, frame_type);
-}
-
-bool ScenarioAPI::sendStartPoint(
-  const double x, const double y, const double z, const double yaw, const bool wait_ready,
-  const std::string & frame_type)
-{
-  geometry_msgs::Pose pose = poseFromValue(x, y, z, yaw);
-  return sendStartPoint(pose, wait_ready, frame_type);
-}
-
-bool ScenarioAPI::sendGoalPoint(
-  const geometry_msgs::Pose pose, const bool wait_ready, const std::string & frame_type)
-{
-  return autoware_api_->sendGoalPoint(pose, wait_ready, frame_type);
-}
-
 bool ScenarioAPI::sendGoalPoint(
   const std::string & name, const geometry_msgs::Pose pose, const bool wait_ready,
   const std::string & frame_type)
@@ -94,28 +72,6 @@ bool ScenarioAPI::sendGoalPoint(
   }
 }
 
-bool ScenarioAPI::sendGoalPoint(
-  const double p_x, const double p_y, const double p_z, const double o_x, const double o_y,
-  const double o_z, const double o_w, const bool wait_ready, const std::string & frame_type)
-{
-  geometry_msgs::Pose pose = poseFromValue(p_x, p_y, p_z, o_x, o_y, o_z, o_w);
-  return sendGoalPoint(pose, wait_ready, frame_type);
-}
-
-bool ScenarioAPI::sendGoalPoint(
-  const double x, const double y, const double z, const double yaw, const bool wait_ready,
-  const std::string & frame_type)
-{
-  geometry_msgs::Pose pose = poseFromValue(x, y, z, yaw);
-  return sendGoalPoint(pose, wait_ready, frame_type);
-}
-
-bool ScenarioAPI::sendCheckPoint(
-  const geometry_msgs::Pose pose, const bool wait_ready, const std::string & frame_type)
-{
-  return autoware_api_->sendCheckPoint(pose, wait_ready, frame_type);
-}
-
 bool ScenarioAPI::sendCheckPoint(
   const std::string & name, const geometry_msgs::Pose pose, const bool wait_ready,
   const std::string & frame_type)
@@ -125,22 +81,6 @@ bool ScenarioAPI::sendCheckPoint(
   } else {
     return simulator_api_->sendNPCToCheckPoint(name, pose, wait_ready, frame_type);
   }
-}
-
-bool ScenarioAPI::sendCheckPoint(
-  const double p_x, const double p_y, const double p_z, const double o_x, const double o_y,
-  const double o_z, const double o_w, const bool wait_ready, const std::string & frame_type)
-{
-  geometry_msgs::Pose pose = poseFromValue(p_x, p_y, p_z, o_x, o_y, o_z, o_w);
-  return autoware_api_->sendCheckPoint(pose, wait_ready, frame_type);
-}
-
-bool ScenarioAPI::sendCheckPoint(
-  const double x, const double y, const double z, const double yaw, const bool wait_ready,
-  const std::string & frame_type)
-{
-  geometry_msgs::Pose pose = poseFromValue(x, y, z, yaw);
-  return autoware_api_->sendCheckPoint(pose, wait_ready, frame_type);
 }
 
 bool ScenarioAPI::sendStartVelocity(const double velocity)
@@ -168,39 +108,9 @@ bool ScenarioAPI::setFrameId(std::string frame_id, const geometry_msgs::Pose pos
   return coordinate_api_->setFrameId(frame_id, pose);
 }
 
-bool ScenarioAPI::setFrameId(
-  std::string frame_id, const double x, const double y, const double z, const double yaw)
-{
-  geometry_msgs::Pose pose = poseFromValue(x, y, z, yaw);
-  return coordinate_api_->setFrameId(frame_id, pose);
-}
-
-bool ScenarioAPI::setFrameId(
-  std::string frame_id, const double p_x, const double p_y, const double p_z, const double o_x,
-  const double o_y, const double o_z, const double o_w)
-{
-  geometry_msgs::Pose pose = poseFromValue(p_x, p_y, p_z, o_x, o_y, o_z, o_w);
-  return coordinate_api_->setFrameId(frame_id, pose);
-}
-
 geometry_msgs::Pose ScenarioAPI::getRelativePose(
   std::string frame_id, const geometry_msgs::Pose pose)
 {
-  return coordinate_api_->getRelativePose(frame_id, pose);
-}
-
-geometry_msgs::Pose ScenarioAPI::getRelativePose(
-  std::string frame_id, const double x, const double y, const double z, const double yaw)
-{
-  geometry_msgs::Pose pose = poseFromValue(x, y, z, yaw);
-  return coordinate_api_->getRelativePose(frame_id, pose);
-}
-
-geometry_msgs::Pose ScenarioAPI::getRelativePose(
-  std::string frame_id, const double p_x, const double p_y, const double p_z, const double o_x,
-  const double o_y, const double o_z, const double o_w)
-{
-  geometry_msgs::Pose pose = poseFromValue(p_x, p_y, p_z, o_x, o_y, o_z, o_w);
   return coordinate_api_->getRelativePose(frame_id, pose);
 }
 
@@ -228,23 +138,9 @@ bool ScenarioAPI::isStopped(double thresh_velocity)
 bool ScenarioAPI::isInArea(geometry_msgs::Pose pose, double dist_thresh, double delta_yaw_thresh)
 {
   double yaw = yawFromQuat(pose.orientation);
-  return isInArea(pose.position.x, pose.position.y, yaw, dist_thresh, delta_yaw_thresh);
-}
-
-bool ScenarioAPI::isInArea(
-  double p_x, double p_y, double o_x, double o_y, double o_z, double o_w, double dist_thresh,
-  double delta_yaw_thresh)
-{
-  double yaw = yawFromQuat(o_x, o_y, o_w, o_z);
-  return isInArea(p_x, p_y, yaw, dist_thresh, delta_yaw_thresh);
-}
-
-bool ScenarioAPI::isInArea(
-  double x, double y, double yaw, double dist_thresh, double delta_yaw_thresh)
-{
   double delta_yaw = std::abs(normalizeRadian(getCurrentPose().yaw - yaw));
   double delta_dist =
-    sqrt(std::pow(getCurrentPose().x - x, 2) + std::pow(getCurrentPose().y - y, 2));
+    std::hypot(getCurrentPose().x - pose.position.x, getCurrentPose().y - pose.position.y);
   return (delta_dist < dist_thresh) and (delta_yaw < delta_yaw_thresh);
 }
 
@@ -294,24 +190,6 @@ bool ScenarioAPI::addNPC(
   const std::string & npc_type, const std::string & name, geometry_msgs::Pose pose,
   const double velocity, const bool stop_by_vehicle, const std::string & frame_type)
 {
-  return simulator_api_->addNPC(npc_type, name, pose, velocity, stop_by_vehicle, frame_type);
-}
-
-bool ScenarioAPI::addNPC(
-  const std::string & npc_type, const std::string & name, const double p_x, const double p_y,
-  const double p_z, const double o_x, const double o_y, const double o_z, const double o_w,
-  const double velocity, const bool stop_by_vehicle, const std::string & frame_type)
-{
-  geometry_msgs::Pose pose = poseFromValue(p_x, p_y, p_z, o_x, o_y, o_z, o_w);
-  return simulator_api_->addNPC(npc_type, name, pose, velocity, stop_by_vehicle, frame_type);
-}
-
-bool ScenarioAPI::addNPC(
-  const std::string & npc_type, const std::string & name, const double x, const double y,
-  const double z, const double yaw, const double velocity, const bool stop_by_vehicle,
-  const std::string & frame_type)
-{
-  geometry_msgs::Pose pose = poseFromValue(x, y, z, yaw);
   return simulator_api_->addNPC(npc_type, name, pose, velocity, stop_by_vehicle, frame_type);
 }
 
