@@ -48,10 +48,6 @@ int main(int argc, char ** argv)
 
   geometry_msgs::Pose bicycle0_pose = obj.genPoseROS(3819.2, 73799.2, 0.0, -1.096);
   obj.addNPC("bicycle", "bicycle0", bicycle0_pose, 5.0);
-  geometry_msgs::Pose bus0_pose = obj.genPoseROS(3819.2, 73799.2, 0.0, -1.096);
-  obj.addNPC("bus", "bus0", bus0_pose, 6.0);
-  geometry_msgs::Pose truck0_pose = obj.genPoseROS(3819.2, 73799.2, 0.0, -1.096);
-  obj.addNPC("truck", "truck0", truck0_pose, 7.0);
 
   geometry_msgs::Pose car0_pose = obj.genPoseROS(3819.2, 73799.2, 0.0, -1.096);
   obj.addNPC("car", "car0", car0_pose, 0.0);
@@ -126,21 +122,21 @@ int main(int argc, char ** argv)
   std::string color;
   std::vector<std::string> arrows;
   if (obj.getTrafficLightColor(34806, &color, false)) {
-    std::cout << "traffic:34806 color(RED) is " << color << std::endl;
+    ROS_INFO_STREAM("traffic:34806 color(RED) is " << color);
   } else {
-    std::cout << "failed to get traffic:34806 color" << std::endl;
+    ROS_INFO_STREAM("failed to get traffic:34806 color");
   }
   obj.updateState();
   sleep(3);
   if (obj.getTrafficLightArrow(34806, &arrows, false)) {
-    std::cout << "traffic:34806 arrow size(NULL) is " << arrows.size() << std::endl;
+    ROS_INFO_STREAM("traffic:34806 arrow size(NULL) is " << arrows.size());
   }
   obj.setTrafficLightArrow(34806, "left", false);
   obj.setTrafficLightArrow(34806, "up", false);
   if (obj.getTrafficLightArrow(34806, &arrows, false)) {
-    std::cout << "traffic:34806 arrow size(2) is " << arrows.size() << std::endl;
+    ROS_INFO_STREAM("traffic:34806 arrow size(2) is " << arrows.size());
     for (const auto arrow : arrows) {
-      std::cout << "traffic:34806 arrow (left, up)) is " << arrow << std::endl;
+      ROS_INFO_STREAM("traffic:34806 arrow (left, up)) is " << arrow);
     }
   }
   obj.updateState();
@@ -148,9 +144,9 @@ int main(int argc, char ** argv)
 
   obj.resetTrafficLightArrow(34806, false);
   if (obj.getTrafficLightArrow(34806, &arrows, false)) {
-    std::cout << "traffic:34806 arrow size(0) is " << arrows.size() << std::endl;
+    ROS_INFO_STREAM("traffic:34806 arrow size(0) is " << arrows.size());
     for (const auto arrow : arrows) {
-      std::cout << "traffic:34806 arrow (null)) is " << arrow << std::endl;
+      ROS_INFO_STREAM("traffic:34806 arrow (null)) is " << arrow);
     }
   }
   obj.updateState();
@@ -167,72 +163,72 @@ int main(int argc, char ** argv)
 
   geometry_msgs::Pose line_pose;
   if (obj.getTrafficLineCenterPose(34806, line_pose)) {
-    std::cout << "traffic:34806 pose is " << line_pose << std::endl;
+    ROS_INFO_STREAM("traffic:34806 pose is " << line_pose);
   } else {
-    std::cout << "failed to get traffic:34806 pose" << std::endl;
+    ROS_INFO_STREAM("failed to get traffic:34806 pose");
   }
   sleep(2.0);
 
   while (ros::ok()) {
     obj.updateState();  // Unimplemented. update simulator step(?)
-    std::cout << "*************************************" << std::endl;
-    std::cout << "velocity:" << obj.getVelocity() << std::endl;
-    std::cout << "accel:" << obj.getAccel() << std::endl;
-    std::cout << "jerk:" << obj.getJerk() << std::endl;
-    std::cout << "total move distance:" << obj.getMoveDistance() << std::endl;
-    std::cout << "getMinimumDistanceToObstacle:" << obj.getMinimumDistanceToObstacle(false)
-              << std::endl;  // false: do not consider z-axis of pointcloud
+    ROS_INFO_STREAM("*************************************");
+    ROS_INFO_STREAM("velocity:" << obj.getVelocity());
+    ROS_INFO_STREAM("accel:" << obj.getAccel());
+    ROS_INFO_STREAM("jerk:" << obj.getJerk());
+    ROS_INFO_STREAM("total move distance:" << obj.getMoveDistance());
+    ROS_INFO_STREAM(
+      "getMinimumDistanceToObstacle:"
+      << obj.getMinimumDistanceToObstacle(false));  // false: do not consider z-axis of pointcloud
     int current_id;
     double dist1, dist2, dist3;
     bool over_line;
-    if (obj.getCurrentLaneID(current_id))
-      std::cout << "getCurrentLaneID:" << current_id << std::endl;
+    if (obj.getCurrentLaneID(current_id)) ROS_INFO_STREAM("getCurrentLaneID:" << current_id);
     if (obj.getDistanceToTrafficLight(34806, dist1)) {
-      std::cout << "dist to traffic light: 34806 is " << dist1 << std::endl;
+      ROS_INFO_STREAM("dist to traffic light: 34806 is " << dist1);
     }
     if (obj.getDistanceToTrafficLine(34806, dist2)) {
-      std::cout << "dist to traffic light line: 34806 is " << dist2 << std::endl;
+      ROS_INFO_STREAM("dist to traffic light line: 34806 is " << dist2);
     } else if (obj.getDistancefromCenterLine(dist3))
-      std::cout << "getDistancefromCenterLine:" << dist3 << std::endl;
+      ROS_INFO_STREAM("getDistancefromCenterLine:" << dist3);
     if (obj.checkOverTrafficLine(34806, over_line)) {
-      std::cout << "over stop line (34806)? :" << over_line << std::endl;
+      ROS_INFO_STREAM("over stop line (34806)? :" << over_line);
     }
-    std::cout << "isInLane:" << obj.isInLane() << std::endl;  // base_link is in lane or not
-    std::cout << "LeftBlinker:" << obj.getLeftBlinker() << std::endl;
-    std::cout << "RightBlinker:" << obj.getRightBlinker() << std::endl;
-    std::cout << "WillLaneChange" << obj.willLaneChange() << std::endl;  // temporary implementation
+    ROS_INFO_STREAM("isInLane:" << obj.isInLane());  // base_link is in lane or not
+    ROS_INFO_STREAM("LeftBlinker:" << obj.getLeftBlinker());
+    ROS_INFO_STREAM("RightBlinker:" << obj.getRightBlinker());
+    ROS_INFO_STREAM("WillLaneChange" << obj.willLaneChange());  // temporary implementation
     Pose2D p = obj.getCurrentPose();
-    std::cout << "selfpose:" << p.x << "," << p.y << "," << p.yaw << std::endl;
+    ROS_INFO_STREAM("selfpose:" << p.x << "," << p.y << "," << p.yaw);
     geometry_msgs::PoseStamped p2 = obj.getCurrentPoseRos();
-    std::cout << "selfpose:" << p2.pose.position << "," << p2.pose.orientation << std::endl;
+    ROS_INFO_STREAM("selfpose:" << p2.pose.position << "," << p2.pose.orientation);
     double dist_npc;
     if (obj.calcDistToNPC(dist_npc, "car0")) {
-      std::cout << "distance to npc:car0:" << dist_npc << std::endl;
+      ROS_INFO_STREAM("distance to npc:car0:" << dist_npc);
     }
     double npc_vel;
     double npc_acc;
     if (obj.getNPCVelocity("car_acc_tr_0", &npc_vel)) {
-      std::cout << "velocity of npc:car_acc_tr_0:" << npc_vel << std::endl;
+      ROS_INFO_STREAM("velocity of npc:car_acc_tr_0:" << npc_vel);
     }
     if (obj.getNPCAccel("car_acc_tr_0", &npc_acc)) {
-      std::cout << "accel of npc:car_acc_tr_0:" << npc_acc << std::endl;
+      ROS_INFO_STREAM("accel of npc:car_acc_tr_0:" << npc_acc);
     }
-    std::cout << "NPC:car_acc_tr_0 in area?"
-              << obj.isObjectInArea("car_acc_tr_0", car_acc_tr_0_pose, 10.0, M_PI / 4.0)
-              << std::endl;
+    ROS_INFO_STREAM(
+      "NPC:car_acc_tr_0 in area?" << obj.isObjectInArea(
+        "car_acc_tr_0", car_acc_tr_0_pose, 10.0, M_PI / 4.0));
     bool finish_lane_change;
     if (obj.finishNPCLaneChange("car_uturn_0", &finish_lane_change)) {
-      std::cout << "car_uturn_0: finish lane change?" << finish_lane_change << std::endl;
+      ROS_INFO_STREAM("car_uturn_0: finish lane change?" << finish_lane_change);
     }
     bool finish_vel_change;
     if (obj.finishNPCVelocityChange("car_uturn_0", &finish_vel_change)) {
-      std::cout << "car_uturn_0: finish velocity change?" << finish_vel_change << std::endl;
+      ROS_INFO_STREAM("car_uturn_0: finish velocity change?" << finish_vel_change);
     }
 
     //   bool isInArea(double x, double y, double yaw, double dist_thresh, double delta_yaw_thresh)
     if (
       obj.isStopped() and
-      obj.isObjectInArea("EgoCar", ego_car_goal_pose, 1.0, M_PI / 10.0, "Rear")) {
+      obj.isObjectInArea("EgoCar", ego_car_goal_pose, 1.0, M_PI / 10.0, "Front")) {
       // bool deleteNPC(const uint16_t id)
       obj.deleteNPC("ped0");
       // bool modifyNPC(const uint16_t id, double velocity)
@@ -242,6 +238,6 @@ int main(int argc, char ** argv)
     }
   }
 
-  std::cout << "scenario end" << std::endl;
+  ROS_INFO_STREAM("scenario end");
   return 0;
 };
