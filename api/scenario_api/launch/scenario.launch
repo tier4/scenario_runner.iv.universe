@@ -7,6 +7,7 @@
   <!-- Optional parameters -->
   <arg name="rviz" default="true" doc="launch rviz"/>
   <arg name="initial_engage_state" default="false" />
+  <arg name="use_object_recognition" default="true" />
 
   <!-- Vehicle Description -->
   <include file="$(find vehicle_launch)/launch/vehicle_description.launch">
@@ -36,7 +37,7 @@
   <include file="$(find dummy_perception_publisher)/launch/dummy_perception_publisher.launch">
     <arg name="real" value="false" />
     <arg name="visible_range" value="1000" />
-    <arg name="use_object_recognition" value="true" />
+    <arg name="use_object_recognition" value="$(arg use_object_recognition)" />
   </include>
 
   <!-- Planning -->
