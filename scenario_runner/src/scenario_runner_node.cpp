@@ -71,6 +71,11 @@ int main(int argc, char * argv[]) try
         break;
       }
     }
+
+    terminator.update_mileage(runner.current_mileage());
+
+    terminator.update_duration(
+      (ros::Time::now() - scenario_logger::log.begin()).toSec());
   }
 
   switch (runner.currently)

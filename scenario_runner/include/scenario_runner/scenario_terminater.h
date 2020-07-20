@@ -11,7 +11,11 @@ class ScenarioTerminator
 {
 public:
   ScenarioTerminator(const char * host, int port);
+
   void sendTerminateRequest(int);
+
+  void update_mileage(double = 0);
+  void update_duration(double = 0);
 
 private:
   XmlRpc::XmlRpcClient client_;

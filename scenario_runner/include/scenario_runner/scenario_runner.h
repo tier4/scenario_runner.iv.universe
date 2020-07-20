@@ -20,6 +20,11 @@ public:
   ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh);
   void run();
 
+  double current_mileage() const
+  {
+    return simulator_->getMoveDistance();
+  }
+
   simulation_is currently;
 
 private:
