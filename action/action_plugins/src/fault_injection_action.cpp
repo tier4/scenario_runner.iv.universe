@@ -33,9 +33,9 @@ catch (...)
 void FaultInjectionAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  const auto command { "echo 'DEBUG: " + kill_ + "'"};
+  const auto command { "rosnode kill " + kill_ };
 
-  if (::system(command.data()))
+  if (::system(command.c_str()))
   {
     SCENARIO_ERROR_THROW(CATEGORY(),
       type_ << "Action failed to execute command \"" << command << "\".");
