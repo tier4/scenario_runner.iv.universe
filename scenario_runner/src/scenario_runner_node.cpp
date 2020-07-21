@@ -60,12 +60,12 @@ int main(int argc, char * argv[]) try
       case simulation_is::succeeded:
         SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
         terminator.sendTerminateRequest(boost::exit_success);
-        break;
+        return boost::exit_success;
 
       case simulation_is::failed:
         SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
         terminator.sendTerminateRequest(boost::exit_test_failure);
-        break;
+        return boost::exit_test_failure;
 
       case simulation_is::ongoing:
         break;
@@ -77,6 +77,7 @@ int main(int argc, char * argv[]) try
     terminator.update_duration(
       (ros::Time::now() - scenario_logger::log.begin()).toSec());
   }
+
 
   switch (runner.currently)
   {

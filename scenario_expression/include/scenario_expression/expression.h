@@ -291,6 +291,8 @@ protected:
     , plugin { proc.plugin }
   {}
 
+  virtual ~Procedure() = default;
+
   std::ostream& write(std::ostream& os) const override
   {
     return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
@@ -342,6 +344,8 @@ protected:
   {
     SCENARIO_ERROR_RETHROW(CATEGORY(), "Syntax error: malformed predicate.\n\n" << node << "\n");
   }
+
+  virtual ~Predicate() = default;
 
   pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const
   {
