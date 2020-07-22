@@ -20,17 +20,40 @@
 namespace scenario_expression
 {
 
-struct Context
+class Context
 {
-  #define DEFINE_LAYER(TYPE, NAME) \
-  void define(const std::shared_ptr<TYPE>& NAME) { (*this).NAME = NAME; } \
-  std::shared_ptr<TYPE> NAME
+#define boilerplate(TYPE, NAME)                                                \
+private:                                                                       \
+  std::shared_ptr<TYPE> NAME##_;                                               \
+                                                                               \
+public:                                                                        \
+  void define(const std::shared_ptr<TYPE>& NAME)                               \
+  {                                                                            \
+    NAME##_ = NAME;                                                            \
+  }                                                                            \
+                                                                               \
+  const auto& NAME##_pointer() const noexcept                                  \
+  {                                                                            \
+    return NAME##_;                                                            \
+  }                                                                            \
+                                                                               \
+  auto& NAME()                                                                 \
+  {                                                                            \
+    if (NAME##_)                                                               \
+    {                                                                          \
+      return *NAME##_;                                                         \
+    }                                                                          \
+    else                                                                       \
+    {                                                                          \
+      SCENARIO_ERROR_THROW(CATEGORY(), "No " #NAME " defined, but scenario execution requires this."); \
+    }                                                                          \
+  } static_assert(true, "")
 
-  DEFINE_LAYER(ScenarioAPI, api);
-  DEFINE_LAYER(scenario_entities::EntityManager, entities);
-  DEFINE_LAYER(scenario_intersection::IntersectionManager, intersections);
+  boilerplate(ScenarioAPI, api);
+  boilerplate(scenario_entities::EntityManager, entities);
+  boilerplate(scenario_intersection::IntersectionManager, intersections);
 
-  #undef DEFINE_LAYER
+#undef boilerplate
 };
 
 /* -----------------------------------------------------------------------------
@@ -315,7 +338,7 @@ protected:
 
   Expression evaluate(Context& context) override
   {
-    return Expression::make<Boolean>(plugin->update(context.intersections));
+    return Expression::make<Boolean>(plugin->update(context.intersections_pointer()));
   }
 };
 
@@ -327,13 +350,13 @@ class Predicate
 protected:
   using Procedure::Procedure;
 
-  Predicate(const Context& context, const YAML::Node& node)
+  Predicate(Context& context, const YAML::Node& node)
   try
     : Procedure {}
   {
     if (plugin = load(read_essential<std::string>(node, "Type") + "Condition"))
     {
-      plugin->configure(node, context.api);
+      plugin->configure(node, context.api_pointer());
     }
     else
     {

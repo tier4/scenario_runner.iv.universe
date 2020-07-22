@@ -49,14 +49,14 @@ try
 
   call_with_essential(scenario_, "Story", [&](const auto& node) mutable
   {
-    context.entities->setStory(node);
-    context.entities->initialize();
+    context.entities().setStory(node);
+    context.entities().initialize();
 
     call_with_essential(node, "Init", [&](const auto& node) mutable
     {
       call_with_optional(node, "Intersection", [&](const auto& node) mutable
       {
-        context.intersections->initialize(node);
+        context.intersections().initialize(node);
       });
     });
 

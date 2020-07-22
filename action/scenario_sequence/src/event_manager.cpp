@@ -19,7 +19,7 @@ simulation_is EventManager::update(
 {
   if (not events_.empty())
   {
-    switch (const auto result {events_.front().update(context_.intersections)})
+    switch (const auto result { events_.front().update(context_.intersections_pointer()) })
     {
     case simulation_is::succeeded:
       events_.pop();

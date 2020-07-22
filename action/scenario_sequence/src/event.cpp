@@ -17,7 +17,7 @@ Event::Event(
 
   action_manager_ =
     std::make_shared<scenario_actions::ActionManager>(
-      event_definition["Actions"], actors_, context.api);
+      event_definition["Actions"], actors_, context.api_pointer());
 
   if (const auto condition { event_definition["Condition"] })
   {
@@ -34,7 +34,7 @@ simulation_is Event::update(
 {
   if (ignited_ = condition_.evaluate(context_))
   {
-    (*action_manager_).run(context_.intersections);
+    (*action_manager_).run(context_.intersections_pointer());
     return simulation_is::succeeded;
   }
   else

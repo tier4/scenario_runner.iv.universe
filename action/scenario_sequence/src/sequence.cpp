@@ -29,7 +29,7 @@ simulation_is Sequence::update(
 {
   if (ignited_ = start_condition_.evaluate(context_))
   {
-    return (*event_manager_).update(context_.intersections);
+    return (*event_manager_).update(context_.intersections_pointer());
   }
   else
   {

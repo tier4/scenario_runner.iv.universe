@@ -18,7 +18,7 @@ simulation_is SequenceManager::update(
 {
   if (not sequences_.empty())
   {
-    switch (const auto result {sequences_.front().update(context_.intersections)})
+    switch (const auto result { sequences_.front().update(context_.intersections_pointer()) })
     {
     case simulation_is::succeeded:
       sequences_.pop();
