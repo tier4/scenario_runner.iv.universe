@@ -40,15 +40,9 @@ int main(int argc, char * argv[]) try
   std::this_thread::sleep_for(std::chrono::seconds { 10 });
   SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
 
-  /**
-   * setup scenario runner
-   */
   scenario_runner::ScenarioRunner runner(nh, pnh);
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner instantiated.");
 
-  /**
-   * start simulation
-   */
   for (runner.run(); ros::ok(); ros::spinOnce())
   {
     static auto previously{runner.currently};
@@ -59,11 +53,13 @@ int main(int argc, char * argv[]) try
       {
       case simulation_is::succeeded:
         SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
+        scenario_logger::log.write();
         terminator.sendTerminateRequest(boost::exit_success);
         return boost::exit_success;
 
       case simulation_is::failed:
         SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
+        scenario_logger::log.write();
         terminator.sendTerminateRequest(boost::exit_test_failure);
         return boost::exit_test_failure;
 

@@ -71,6 +71,10 @@ void Logger::write()
 
     boost::property_tree::write_json(log_output_path_.get(), toJson(data_));
   }
+  else
+  {
+    SCENARIO_ERROR_THROW(CATEGORY(), "No log_output_path specified.");
+  }
 }
 
 void Logger::append(const scenario_logger_msgs::Log& log)
