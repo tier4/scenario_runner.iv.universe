@@ -74,23 +74,18 @@ int main(int argc, char * argv[]) try
       (ros::Time::now() - scenario_logger::log.begin()).toSec());
   }
 
-
-  switch (runner.currently)
+  if (runner.currently == simulation_is::ongoing)
   {
-  case simulation_is::succeeded:
-    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation succeeded.");
-    scenario_logger::log.write();
-    return boost::exit_success;
-
-  case simulation_is::failed:
-    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation failed.");
-    scenario_logger::log.write();
-    return boost::exit_test_failure;
-
-  case simulation_is::ongoing:
     SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
     scenario_logger::log.write();
+    terminator.sendTerminateRequest(boost::exit_failure);
     return boost::exit_failure;
+  }
+  else
+  {
+    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
+    scenario_logger::log.write();
+    return boost::exit_exception_failure;
   }
 }
 
