@@ -12,7 +12,7 @@ namespace action_plugins
 class FaultInjectionAction
   : public scenario_actions::EntityActionBase
 {
-  std::string kill_;
+  std::string target_node_;
 
 public:
   FaultInjectionAction()

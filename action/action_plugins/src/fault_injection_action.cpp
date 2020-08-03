@@ -22,7 +22,7 @@ try
 
   call_with_essential(node_, "Params", [&](const auto& node) mutable
   {
-    kill_ = read_essential<std::string>(node, "Kill");
+    target_node_ = read_essential<std::string>(node, "Node");
   });
 }
 catch (...)
@@ -33,7 +33,7 @@ catch (...)
 void FaultInjectionAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  const auto command { "rosnode kill " + kill_ };
+  const auto command { "rosnode kill " + target_node_ };
 
   if (::system(command.c_str()))
   {
@@ -43,7 +43,7 @@ void FaultInjectionAction::run(
   else
   {
     SCENARIO_INFO_STREAM(CATEGORY(),
-      type_ << "Action killed ROS node \'" << kill_ << "\'.");
+      type_ << "Action killed ROS node \'" << target_node_ << "\'.");
   }
 }
 
