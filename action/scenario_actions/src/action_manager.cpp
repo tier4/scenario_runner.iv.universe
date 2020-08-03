@@ -56,11 +56,16 @@ catch (...)
 
 void ActionManager::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager>& intersection_manager)
+try
 {
   for (const auto& each : actions_)
   {
     each->run(intersection_manager);
   }
+}
+catch (...)
+{
+  SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to execute action.");
 }
 
 } // namespace scenario_actions

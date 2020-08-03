@@ -40,6 +40,11 @@ void FaultInjectionAction::run(
     SCENARIO_ERROR_THROW(CATEGORY(),
       type_ << "Action failed to execute command \"" << command << "\".");
   }
+  else
+  {
+    SCENARIO_INFO_STREAM(CATEGORY(),
+      type_ << "Action killed ROS node \'" << kill_ << "\'.");
+  }
 }
 
 } // namespace action_plugins

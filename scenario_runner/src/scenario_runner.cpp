@@ -107,7 +107,7 @@ catch (...)
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to initialize ScenarioRunner.");
 }
 
-void ScenarioRunner::update(const ros::TimerEvent & event)
+void ScenarioRunner::update(const ros::TimerEvent & event) try
 {
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
   (*sequence_manager_).update(intersection_manager_);
@@ -126,6 +126,10 @@ void ScenarioRunner::update(const ros::TimerEvent & event)
   {
     currently = simulation_is::ongoing;
   }
+}
+catch (...)
+{
+  SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to update simulation.");
 }
 
 }  // namespace scenario_runner
