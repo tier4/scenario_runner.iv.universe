@@ -108,7 +108,7 @@ void ScenarioAPIAutoware::callbackRoute(const autoware_planning_msgs::Route & ms
 void ScenarioAPIAutoware::callbackStatus(const autoware_system_msgs::AutowareState & msg)
 {
   autoware_state_ = msg.state;
-  if (autoware_state_ != autoware_system_msgs::AutowareState::Error)
+  if (autoware_state_ != autoware_system_msgs::AutowareState::Emergency)
     is_autoware_ready_initialize = true;
 }
 
