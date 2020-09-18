@@ -1,0 +1,31 @@
+<library path="lib/libentity_plugins">
+  <class name="entity_plugins/BicycleEntity"
+         type="entity_plugins::BicycleEntity"
+         base_class_type="scenario_entities::EntityBase">
+    <description>Bicycle</description>
+  </class>
+
+  <class name="entity_plugins/EgoEntity"
+         type="entity_plugins::EgoEntity"
+         base_class_type="scenario_entities::EntityBase">
+    <description>Ego</description>
+  </class>
+
+  <class name="entity_plugins/MotorBikeEntity"
+         type="entity_plugins::MotorBikeEntity"
+         base_class_type="scenario_entities::EntityBase">
+    <description>MotorBike</description>
+  </class>
+
+  <class name="entity_plugins/PedestrianEntity"
+         type="entity_plugins::PedestrianEntity"
+         base_class_type="scenario_entities::EntityBase">
+    <description>Pedestrian</description>
+  </class>
+
+  <class name="entity_plugins/VehicleEntity"
+         type="entity_plugins::VehicleEntity"
+         base_class_type="scenario_entities::EntityBase">
+    <description>Vehicle</description>
+  </class>
+</library>

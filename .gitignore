@@ -1,0 +1,9 @@
+# VSCode
+.vscode/
+*.code-workspace
+
+# Emacs
+*~
+
+# Python
+*.pyc

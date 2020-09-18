@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<package format="2">
+  <name>scenario_intersection</name>
+  <version>0.0.0</version>
+  <description>The scenario_intersection package</description>
+
+  <maintainer email="httperror@404-notfound.jp">Tatsuya Yamasaki</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>libgoogle-glog-dev</depend>
+  <depend>rosbag</depend>
+  <depend>roscpp</depend>
+  <depend>scenario_api</depend>
+  <depend>scenario_utility</depend>
+  <depend>scenario_logger</depend>
+  <depend>scenario_logger_msgs</depend>
+  <depend>yaml-cpp</depend>
+</package>
+

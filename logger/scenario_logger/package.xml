@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<package format="2">
+  <name>scenario_logger</name>
+  <version>0.0.0</version>
+  <description>The scenario_logger package</description>
+  <maintainer email="shotahirama@todo.todo">shotahirama</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>scenario_logger_msgs</depend>
+</package>
