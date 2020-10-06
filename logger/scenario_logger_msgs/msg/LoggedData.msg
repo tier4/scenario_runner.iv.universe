@@ -1,2 +1,0 @@
-scenario_logger_msgs/MetaData metadata
-scenario_logger_msgs/Log[] log
