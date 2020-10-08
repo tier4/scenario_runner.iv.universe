@@ -1,0 +1,54 @@
+<library path="lib/libcondition_plugins">
+  <class name="condition_plugins/AccelerationCondition"
+         type="condition_plugins::AccelerationCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>Acceleration</description>
+  </class>
+
+  <class name="condition_plugins/AlwaysTrueCondition"
+         type="condition_plugins::AlwaysTrueCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>AlwaysTrue</description>
+  </class>
+
+  <class name="condition_plugins/AlwaysFalseCondition"
+         type="condition_plugins::AlwaysFalseCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>AlwaysFalse</description>
+  </class>
+
+  <class name="condition_plugins/ReachPositionCondition"
+         type="condition_plugins::ReachPositionCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>ReachPosition</description>
+  </class>
+
+  <class name="condition_plugins/CollisionByEntityCondition"
+         type="condition_plugins::CollisionByEntityCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>CollisionByEntity</description>
+  </class>
+
+  <class name="condition_plugins/RelativeDistanceCondition"
+         type="condition_plugins::RelativeDistanceCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>RelativeDistance</description>
+  </class>
+
+  <class name="condition_plugins/SimulationTimeCondition"
+         type="condition_plugins::SimulationTimeCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>SimulationTime</description>
+  </class>
+
+  <class name="condition_plugins/SignalCondition"
+         type="condition_plugins::SignalCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>Signal</description>
+  </class>
+  <class name="condition_plugins/SpeedCondition"
+         type="condition_plugins::SpeedCondition"
+         base_class_type="scenario_conditions::ConditionBase">
+    <description>This is a add plugin.</description>
+  </class>
+</library>

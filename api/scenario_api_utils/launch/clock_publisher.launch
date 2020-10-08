@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<launch>
+
+  <arg name="time_rate" default="0.5" />
+
+  <node pkg="scenario_api_utils" type="ros_time_publisher.py" name="ros_time_publisher" output="log">
+    <param name="~time_rate" value="$(arg time_rate)" />
+  </node>
+</launch>

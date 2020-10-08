@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<package format="2">
+  <name>scenario_sequence</name>
+  <version>0.0.0</version>
+  <description>The scenario_sequence package</description>
+
+  <maintainer email="httperror@404-notfound.jp">Tatsuya Yamasaki</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>entity_plugins</depend>
+  <depend>libgoogle-glog-dev</depend>
+  <depend>rosbag</depend>
+  <depend>roscpp</depend>
+  <depend>scenario_actions</depend>
+  <depend>scenario_api</depend>
+  <depend>scenario_entities</depend>
+  <depend>scenario_expression</depend>
+  <depend>scenario_intersection</depend>
+  <depend>scenario_logger</depend>
+  <depend>scenario_logger_msgs</depend>
+  <depend>yaml-cpp</depend>
+</package>

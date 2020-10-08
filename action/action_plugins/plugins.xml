@@ -1,0 +1,43 @@
+<library path="lib/libaction_plugins">
+  <class name="action_plugins/AccelerationAction"
+         type="action_plugins::AccelerationAction"
+         base_class_type="scenario_actions::EntityActionBase">
+    <description>Acceleration</description>
+  </class>
+
+  <class name="action_plugins/EnableAction"
+         type="action_plugins::EnableAction"
+         base_class_type="scenario_actions::EntityActionBase">
+    <description>Enable</description>
+  </class>
+
+  <class name="action_plugins/FaultInjectionAction"
+         type="action_plugins::FaultInjectionAction"
+         base_class_type="scenario_actions::EntityActionBase">
+    <description>FaultInjection</description>
+  </class>
+
+  <class name="action_plugins/FollowRouteAction"
+         type="action_plugins::FollowRouteAction"
+         base_class_type="scenario_actions::EntityActionBase">
+    <description>FollowRoute</description>
+  </class>
+
+  <class name="action_plugins/LaneChangeAction"
+         type="action_plugins::LaneChangeAction"
+         base_class_type="scenario_actions::EntityActionBase">
+    <description>LaneChange</description>
+  </class>
+
+  <class name="action_plugins/ChangeSignalAction"
+         type="action_plugins::ChangeSignalAction"
+         base_class_type="scenario_actions::EntityActionBase">
+    <description>ChangeSignal</description>
+  </class>
+
+  <class name="action_plugins/SpeedAction"
+         type="action_plugins::SpeedAction"
+         base_class_type="scenario_actions::EntityActionBase">
+    <description>Speed</description>
+  </class>
+</library>

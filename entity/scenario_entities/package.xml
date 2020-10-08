@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<package format="2">
+  <name>scenario_entities</name>
+  <version>0.0.0</version>
+  <description>The scenario_entities package</description>
+
+  <maintainer email="masaya@todo.todo">masaya</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>pluginlib</depend>
+  <depend>roscpp</depend>
+  <depend>scenario_actions</depend>
+  <depend>scenario_api</depend>
+  <depend>scenario_intersection</depend>
+  <depend>scenario_logger</depend>
+  <depend>scenario_utility</depend>
+  <depend>yaml-cpp</depend>
+
+  <export>
+  </export>
+</package>
