@@ -1,30 +1,23 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(scenario_logger_msgs)
 
-find_package(catkin REQUIRED COMPONENTS
-    message_generation
-    std_msgs
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Log.msg"
+  "msg/Level.msg"
+  "msg/MetaData.msg"
+  "msg/LoggedData.msg"
+  DEPENDENCIES builtin_interfaces
 )
 
-add_message_files(
-  DIRECTORY msg
-  FILES
-  Log.msg
-  Level.msg
-  MetaData.msg
-  LoggedData.msg
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
-
-catkin_package(
- CATKIN_DEPENDS message_runtime std_msgs
-)
-
-foreach(dir msg)
-  install(DIRECTORY ${dir}/
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
-endforeach(dir)
+ament_package()
