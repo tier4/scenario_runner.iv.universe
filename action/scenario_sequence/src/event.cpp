@@ -21,8 +21,9 @@ Event::Event(
   const scenario_expression::Context& context,
   const YAML::Node& event_definition)
   : context_ { context }
-  , name_ {event_definition["Name"].as<std::string>()}
-  , ignited_ {false}
+  , name_ { event_definition["Name"].as<std::string>() }
+  , ignited_ { false }
+  , currently { state_is::sleeping }
 {
   for (const auto& each : event_definition["Actors"])
   {
@@ -43,17 +44,55 @@ Event::Event(
   }
 }
 
-simulation_is Event::update(
+void Event::dummy()
+{
+  std::cout << "        {" << std::endl;
+  std::cout << "          Name: " << name_ << "," << std::endl;
+  std::cout << "          Conditions: [" << std::endl;
+  std::cout << "            TODO," << std::endl;
+  std::cout << "          ]," << std::endl;
+  std::cout << "          State: " << currently << "," << std::endl;
+  std::cout << "        }," << std::endl;
+}
+
+state_is Event::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  if ((ignited_ = condition_.evaluate(context_)))
+  std::cout << "        {" << std::endl;
+  std::cout << "          Name: " << name_ << "," << std::endl;
+
+  std::cout << "          Conditions: [" << std::endl;
+  ignited_ = condition_.evaluate(context_);
+  std::cout << "          ]," << std::endl;
+
+  if (ignited_)
   {
     (*action_manager_).run(context_.intersections_pointer());
-    return simulation_is::succeeded;
+    currently = state_is::finished;
   }
   else
   {
-    return simulation_is::ongoing;
+    currently = state_is::running;
+  }
+
+  std::cout << "          State: " << currently << "," << std::endl;
+  std::cout << "        }," << std::endl;
+
+  return currently;
+}
+
+std::ostream& operator <<(std::ostream& os, const state_is& currently)
+{
+  switch (currently)
+  {
+  case state_is::sleeping:
+    return os << std::quoted("NotRunning");
+
+  case state_is::running:
+    return os << std::quoted("Running");
+
+  case state_is::finished:
+    return os << std::quoted("Finished");
   }
 }
 
