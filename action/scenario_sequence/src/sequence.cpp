@@ -44,7 +44,7 @@ void Sequence::touch()
   std::cout << (indent++) << "{\n";
   std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
   std::cout << (indent++) << "StartConditions: [\n";
-  std::cout << indent << start_condition_ << "\n";
+  std::cout << start_condition_ << "\n";
   std::cout << (--indent) << "],\n";
 
   (*event_manager_).touch();
@@ -59,7 +59,7 @@ state_is Sequence::update(
   std::cout << (indent++) << "{\n";
   std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
   std::cout << (indent++) << "StartConditions: [\n";
-  std::cout << indent << start_condition_ << "\n";
+  std::cout << start_condition_ << "\n";
   std::cout << (--indent) << "],\n";
 
   ignited_ = start_condition_.evaluate(context_);
