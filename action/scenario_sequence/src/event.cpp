@@ -44,7 +44,7 @@ Event::Event(
   }
 }
 
-void Event::dummy()
+void Event::touch()
 {
   std::cout << "        {" << std::endl;
   std::cout << "          Name: " << name_ << "," << std::endl;

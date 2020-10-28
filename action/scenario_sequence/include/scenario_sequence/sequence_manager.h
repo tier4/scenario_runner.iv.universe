@@ -36,6 +36,10 @@ class SequenceManager
 
   scenario_expression::Context context_;
 
+  // NOTE: Adding, removing and moving the elements within the list or across
+  // several lists does not invalidate the iterators or references.
+  decltype(sequences_)::iterator cursor;
+
 public:
   SequenceManager(const scenario_expression::Context&, const YAML::Node&);
 

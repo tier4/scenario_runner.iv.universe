@@ -44,7 +44,7 @@ class Sequence
 public:
   Sequence(const scenario_expression::Context&, const YAML::Node&);
 
-  void dummy();
+  void touch();
 
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);
