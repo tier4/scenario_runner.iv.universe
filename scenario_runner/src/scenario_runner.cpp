@@ -133,7 +133,7 @@ try
 
 void ScenarioRunner::update() try
 {
-  std::cout << "ScenarioRunnerContext: {\n";
+  std::cout << (indent++) << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 
@@ -149,7 +149,7 @@ void ScenarioRunner::update() try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << "}\n" << std::endl;
+  std::cout << (--indent) "}\n" << std::endl;
 }
 catch (...)
 {
