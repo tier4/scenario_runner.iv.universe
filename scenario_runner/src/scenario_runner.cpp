@@ -133,6 +133,8 @@ try
 
 void ScenarioRunner::update() try
 {
+  std::cout << "ScenarioRunnerContext: {" << std::endl;
+
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
   (*sequence_manager_).update(intersection_manager_);
 
@@ -145,7 +147,11 @@ void ScenarioRunner::update() try
   } else {
     currently = simulation_is::ongoing;
   }
-} catch (...) {
+
+  std::cout << "}" << std::endl;
+}
+catch (...)
+{
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to update simulation.");
 }
 
