@@ -17,5 +17,6 @@
   <depend>scenario_conditions</depend>
   <depend>scenario_entities</depend>
   <depend>scenario_intersection</depend>
+  <depend>scenario_utility</depend>
   <depend>yaml-cpp</depend>
 </package>

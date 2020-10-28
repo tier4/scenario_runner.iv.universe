@@ -5,7 +5,9 @@ namespace condition_plugins
 
 AlwaysFalseCondition::AlwaysFalseCondition()
   : scenario_conditions::ConditionBase {"AlwaysFalse"}
-{}
+{
+  result_ = false;
+}
 
 bool AlwaysFalseCondition::configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
 try
@@ -25,7 +27,7 @@ catch (...)
 bool AlwaysFalseCondition::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  return false;
+  return result_;
 }
 
 } // namespace condition_plugins

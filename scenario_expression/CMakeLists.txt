@@ -12,6 +12,7 @@ find_package(catkin REQUIRED
     scenario_conditions
     scenario_entities
     scenario_intersection
+    scenario_utility
   )
 
 catkin_package(
@@ -24,6 +25,7 @@ catkin_package(
     scenario_conditions
     scenario_entities
     scenario_intersection
+    scenario_utility
   )
 
 include_directories(

@@ -12,6 +12,7 @@
 #include <scenario_conditions/condition_base.h>
 #include <scenario_entities/entity_manager.h>
 #include <scenario_intersection/intersection_manager.h>
+#include <scenario_utility/indentation.hpp>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -282,14 +283,12 @@ protected:                                                                     \
                                                                                \
   std::ostream& write(std::ostream& os) const override                         \
   {                                                                            \
-    os << "(" #NAME;                                                           \
-                                                                               \
     for (const auto& each : operands)                                          \
     {                                                                          \
-      os << " " << each;                                                       \
+      os << each << (&each == &operands.back() ? "" : ",\n");                  \
     }                                                                          \
                                                                                \
-    return os << ")";                                                          \
+    return os;                                                                 \
   }                                                                            \
 }
 
@@ -318,7 +317,8 @@ protected:
 
   std::ostream& write(std::ostream& os) const override
   {
-    return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
+    // return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
+    return os << *plugin;
   }
 
   virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;

@@ -1,3 +1,6 @@
+#include <chrono>
+#include <thread>
+
 #include <scenario_logger/logger.h>
 #include <scenario_runner/scenario_runner.h>
 
@@ -130,7 +133,7 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << (--indent) << "}\n" << std::endl;
+  std::cout << (--indent) << "}" << std::endl;
 }
 catch (...)
 {

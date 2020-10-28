@@ -5,6 +5,7 @@
 
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_intersection/intersection_manager.h>
+#include <scenario_utility/indentation.hpp>
 
 namespace scenario_conditions
 {
@@ -29,6 +30,17 @@ public:
   const bool getResult() const noexcept { return result_; }
 
   const std::string & getType() const noexcept { return type_; }
+
+  friend std::ostream& operator <<(std::ostream& os, const ConditionBase& datum)
+  {
+    return os << indent
+              << "{ Name: "
+              << std::quoted(datum.name_)
+              << ", Value: "
+              << (datum.result_ ? "\x1b[32m" : "\x1b[31m")
+              << std::boolalpha << datum.result_
+              << "\x1b[0m }";
+  }
 
 protected:
   std::shared_ptr<ScenarioAPI> api_ptr_;
