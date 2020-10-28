@@ -86,4 +86,3 @@ state_is EventManager::update(
 }
 
 } // namespace scenario_sequence
-
