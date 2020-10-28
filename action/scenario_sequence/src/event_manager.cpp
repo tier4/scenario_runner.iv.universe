@@ -33,7 +33,7 @@ EventManager::EventManager(
 
 void EventManager::touch() const
 {
-  std::cout << "      Events: [\n";
+  std::cout << (indent++) << "Events: [\n";
 
   for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
   {
@@ -50,13 +50,13 @@ void EventManager::touch() const
     }
   }
 
-  std::cout << "      ],\n";
+  std::cout << (--indent) << "],\n";
 }
 
 state_is EventManager::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << "      Events: [\n";
+  std::cout << (indent++) << "Events: [\n";
 
   for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
   {
@@ -80,7 +80,7 @@ state_is EventManager::update(
     break;
   }
 
-  std::cout << "      ],\n";
+  std::cout << (--indent) << "],\n";
 
   return currently;
 }
