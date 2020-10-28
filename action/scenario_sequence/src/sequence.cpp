@@ -42,10 +42,11 @@ Sequence::Sequence(
 void Sequence::touch()
 {
   std::cout << "    {\n";
-  std::cout << "      Name: " << name_ << ",\n";
+  std::cout << "      Name: " << std::quoted(name_) << ",\n";
   std::cout << "      StartConditions: [\n";
   std::cout << "        TODO,\n";
   std::cout << "      ],\n";
+  (*event_manager_).touch();
   std::cout << "      State: " << currently << ",\n";
   std::cout << "    },\n";
 }
@@ -54,8 +55,7 @@ state_is Sequence::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
   std::cout << "    {\n";
-  std::cout << "      Name: " << name_ << ",\n";
-
+  std::cout << "      Name: " << std::quoted(name_) << ",\n";
   std::cout << "      StartConditions: [\n";
   ignited_ = start_condition_.evaluate(context_);
   std::cout << "      ],\n";
@@ -66,6 +66,7 @@ state_is Sequence::update(
   }
   else
   {
+    (*event_manager_).touch();
     currently = state_is::running;
   }
 
