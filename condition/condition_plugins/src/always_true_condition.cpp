@@ -19,7 +19,9 @@ namespace condition_plugins
 
 AlwaysTrueCondition::AlwaysTrueCondition()
 : scenario_conditions::ConditionBase{"AlwaysTrue"}
-{}
+{
+  result_ = true;
+}
 
 bool AlwaysTrueCondition::configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
 try
@@ -37,7 +39,7 @@ try
 bool AlwaysTrueCondition::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  return true;
+  return result_;
 }
 
 } // namespace condition_plugins
