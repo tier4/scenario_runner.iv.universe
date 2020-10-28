@@ -12,6 +12,8 @@ SequenceManager::SequenceManager(
   {
     sequences_.emplace_back(context, each["Sequence"]);
   }
+
+  cursor = std::begin(sequences_);
 }
 
 state_is SequenceManager::update(
@@ -19,27 +21,35 @@ state_is SequenceManager::update(
 {
   std::cout << "  Sequences: [" << std::endl;
 
-  if (not sequences_.empty())
+  std::cout << "\x1b[2m";
+  for (auto iter { std::begin(sequences_) }; iter != cursor; ++iter)
   {
-    switch (currently = sequences_.front().update(context_.intersections_pointer()))
+    (*iter).touch();
+  }
+  std::cout << "\x1b[0m";
+
+  if (cursor != std::end(sequences_))
+  {
+    switch (currently = (*cursor).update(context_.intersections_pointer()))
     {
     case state_is::finished:
-      sequences_.pop_front();
+      for (auto iter { ++cursor }; iter != std::end(sequences_); ++iter)
+      {
+        (*iter).touch();
+      }
+      break;
 
     default:
+      for (auto iter { std::next(cursor) }; iter != std::end(sequences_); ++iter)
+      {
+        (*iter).touch();
+      }
       break;
     }
   }
   else
   {
-    currently = state_is::running;
-  }
-
-  for (auto iter { std::next(std::begin(sequences_)) }; iter != std::end(sequences_); ++iter)
-  {
-    std::cout << "\x1b[2m";
-    (*iter).dummy();
-    std::cout << "\x1b[0m";
+    currently = state_is::finished;
   }
 
   std::cout << "  ]," << std::endl;

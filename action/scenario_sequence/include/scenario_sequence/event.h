@@ -34,10 +34,10 @@ class Event
 public:
   Event(const scenario_expression::Context&, const YAML::Node&);
 
+  void touch();
+
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);
-
-  void dummy();
 
   state_is currently;
 };

@@ -25,7 +25,7 @@ Sequence::Sequence(
   }
 }
 
-void Sequence::dummy()
+void Sequence::touch()
 {
   std::cout << "    {" << std::endl;
   std::cout << "      Name: " << name_ << "," << std::endl;
