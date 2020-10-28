@@ -149,7 +149,7 @@ void ScenarioRunner::update() try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << "}" << std::endl;
+  std::cout << "}\n" << std::endl;
 }
 catch (...)
 {
