@@ -120,11 +120,22 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
 
   // currently = (*entity_manager_).update(intersection_manager_);
 
-  if (failure.evaluate(context))
+  const auto fulfilled_failure_condition { failure.evaluate(context) };
+  const auto fulfilled_success_condition { success.evaluate(context) };
+
+  std::cout << (indent++) << "FailureConditions: [\n";
+  std::cout << failure << "\n";
+  std::cout << (--indent) << "],\n";
+
+  std::cout << (indent++) << "SuccessConditions: [\n";
+  std::cout << success << "\n";
+  std::cout << (--indent) << "],\n";
+
+  if (fulfilled_failure_condition)
   {
     currently = simulation_is::failed;
   }
-  else if (success.evaluate(context))
+  else if (fulfilled_success_condition)
   {
     currently = simulation_is::succeeded;
   }
