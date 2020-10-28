@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
+#include <thread>
+
 #include "scenario_logger/logger.hpp"
 #include "scenario_runner/scenario_runner.h"
 
@@ -149,7 +152,7 @@ void ScenarioRunner::update() try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << (--indent) << "}\n" << std::endl;
+  std::cout << (--indent) << "}" << std::endl;
 }
 catch (...)
 {
