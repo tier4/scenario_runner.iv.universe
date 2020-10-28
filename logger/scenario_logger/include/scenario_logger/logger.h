@@ -7,8 +7,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <cstdio>
 #include <new>
-#include <ros/ros.h>
-#include <scenario_logger_msgs/LoggedData.h>
+#include <rclcpp/rclcpp.hpp>
+#include <scenario_logger_msgs/msg/logged_data.hpp>
 #include <sstream>
 
 #define SCENARIO_LOG_FROM \
@@ -28,22 +28,22 @@
 
 #define SCENARIO_LOG_STREAM(CATEGORY, ...) \
   SCENARIO_LOG_APPEND( \
-    scenario_logger_msgs::Level::LEVEL_LOG, CATEGORY, __VA_ARGS__)
+    scenario_logger_msgs::msg::Level::LEVEL_LOG, CATEGORY, __VA_ARGS__)
 
 #define SCENARIO_INFO_STREAM(CATEGORY, ...) \
   SCENARIO_LOG_APPEND( \
-    scenario_logger_msgs::Level::LEVEL_INFO, CATEGORY, __VA_ARGS__); \
-  ROS_INFO_STREAM(__VA_ARGS__)
+    scenario_logger_msgs::msg::Level::LEVEL_INFO, CATEGORY, __VA_ARGS__); \
+  RCLCPP_INFO_STREAM(rclcpp::get_logger("scenario_logger"), __VA_ARGS__)
 
 #define SCENARIO_WARN_STREAM(CATEGORY, ...) \
   SCENARIO_LOG_APPEND( \
-    scenario_logger_msgs::Level::LEVEL_WARN, CATEGORY, __VA_ARGS__); \
-  ROS_WARN_STREAM(__VA_ARGS__)
+    scenario_logger_msgs::msg::Level::LEVEL_WARN, CATEGORY, __VA_ARGS__); \
+  RCLCPP_WARN_STREAM(rclcpp::get_logger("scenario_logger"), __VA_ARGS__)
 
 #define SCENARIO_ERROR_STREAM(CATEGORY, ...) \
   SCENARIO_LOG_APPEND( \
-    scenario_logger_msgs::Level::LEVEL_ERROR, CATEGORY, __VA_ARGS__); \
-  ROS_ERROR_STREAM(__VA_ARGS__)
+    scenario_logger_msgs::msg::Level::LEVEL_ERROR, CATEGORY, __VA_ARGS__); \
+  RCLCPP_ERROR_STREAM(rclcpp::get_logger("scenario_logger"), __VA_ARGS__)
 
 #define SCENARIO_ERROR_THROW(CATEGORY, ...)                                    \
   do                                                                           \
@@ -53,12 +53,12 @@
     ss << __VA_ARGS__;                                                         \
                                                                                \
     scenario_logger::log.append(                                               \
-      scenario_logger_msgs::Level::LEVEL_ERROR,                                \
+      scenario_logger_msgs::msg::Level::LEVEL_ERROR,                           \
       CATEGORY,                                                                \
       ss.str(),                                                                \
       SCENARIO_LOG_FROM);                                                      \
                                                                                \
-    ROS_ERROR_STREAM(ss.str());                                                \
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("scenario_logger"), ss.str());      \
                                                                                \
     throw std::runtime_error { ss.str() };                                     \
   }                                                                            \
@@ -72,12 +72,12 @@
     ss << __VA_ARGS__;                                                         \
                                                                                \
     scenario_logger::log.append(                                               \
-      scenario_logger_msgs::Level::LEVEL_ERROR,                                \
+      scenario_logger_msgs::msg::Level::LEVEL_ERROR,                           \
       CATEGORY,                                                                \
       ss.str(),                                                                \
       SCENARIO_LOG_FROM);                                                      \
                                                                                \
-    ROS_ERROR_STREAM(ss.str());                                                \
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("scenario_logger"), ss.str());      \
                                                                                \
     throw;                                                                     \
   }                                                                            \
@@ -109,35 +109,36 @@
 namespace scenario_logger
 {
 
-const ros::Time& begin();
+const rclcpp::Time& begin();
 
-std::string toIso6801(const ros::Time& stamp);
+std::string toIso6801(const rclcpp::Time& stamp);
 
-boost::property_tree::ptree toJson(const scenario_logger_msgs::MetaData& data);
-boost::property_tree::ptree toJson(const scenario_logger_msgs::LoggedData& data);
-boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::Log& data);
+boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::MetaData& data);
+boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::LoggedData& data);
+boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::msg::Log& data,
+                                                    const rclcpp::Logger & rclcpp_logger);
 
 class Logger
 {
-  scenario_logger_msgs::LoggedData data_;
+  scenario_logger_msgs::msg::LoggedData data_;
 
   boost::optional<std::string> log_output_path_;
 
-  ros::Time time_;
+  rclcpp::Time time_;
 
 public:
   Logger();
 
-  void setStartDatetime(const ros::Time&);
+  void setStartDatetime(const rclcpp::Time&);
   void setScenarioID(const std::string&);
   void setLogOutputPath(const std::string& directory);
 
-  const ros::Time& initialize(const ros::Time&);
-  const ros::Time& begin() const;
+  const rclcpp::Time& initialize(const rclcpp::Time&);
+  const rclcpp::Time& begin() const;
 
   void write();
 
-  void append(const scenario_logger_msgs::Log&);
+  void append(const scenario_logger_msgs::msg::Log&);
   void append(int level,
               const std::vector<std::string>& categories,
               const std::string& description,

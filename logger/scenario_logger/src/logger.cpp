@@ -30,7 +30,7 @@ Logger::Logger()
   , log_output_path_ { boost::none }
 {}
 
-void Logger::setStartDatetime(const ros::Time& time)
+void Logger::setStartDatetime(const rclcpp::Time& time)
 {
   data_.metadata.start_datetime = toIso6801(time);
 }
@@ -45,29 +45,31 @@ void Logger::setLogOutputPath(const std::string& directory)
   log_output_path_ = directory;
 }
 
-const ros::Time& Logger::initialize(const ros::Time& time)
+const rclcpp::Time& Logger::initialize(const rclcpp::Time& time)
 {
   return time_ = time;
 }
 
-const ros::Time& Logger::begin() const
+const rclcpp::Time& Logger::begin() const
 {
   return time_;
 }
 
-std::string toIso6801(const ros::Time& stamp)
+std::string toIso6801(const rclcpp::Time& stamp)
 {
-  return boost::posix_time::to_iso_extended_string(stamp.toBoost());
+  const boost::posix_time::time_duration duration(0,0,0,stamp.nanoseconds());
+  const boost::posix_time::ptime boost_time(boost::gregorian::date(1970, 1, 1), duration);
+  return boost::posix_time::to_iso_extended_string(boost_time);
 }
 
 void Logger::write()
 {
   if (log_output_path_)
   {
-    const ros::Time now { ros::Time::now() };
+    const rclcpp::Time now { rclcpp::Clock(RCL_ROS_TIME).now() };
 
     data_.metadata.end_datetime = toIso6801(now);
-    data_.metadata.duration = (now - begin()).toSec();
+    data_.metadata.duration = (now - begin()).seconds();
 
     boost::property_tree::write_json(log_output_path_.get(), toJson(data_));
   }
@@ -77,7 +79,7 @@ void Logger::write()
   }
 }
 
-void Logger::append(const scenario_logger_msgs::Log& log)
+void Logger::append(const scenario_logger_msgs::msg::Log& log)
 {
   data_.log.push_back(log);
 }
@@ -87,13 +89,13 @@ void Logger::append(int level,
                     const std::string& description,
                     const std::string& from)
 {
-  scenario_logger_msgs::Log log;
+  scenario_logger_msgs::msg::Log log;
 
-  log.elapsed_time = ros::Time::now() - begin();
+  log.elapsed_time = rclcpp::Clock(RCL_ROS_TIME).now() - begin();
   log.level.level = level;
   log.categories = categories;
   log.description = description;
-  log.from = from;
+  log.source = from;
 
   append(log);
 }
@@ -108,29 +110,29 @@ void Logger::updateMoveDistance(float move_distance)
   data_.metadata.move_distance = move_distance;
 }
 
-boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::Log& data)
+boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::msg::Log& data)
 {
   using namespace boost::property_tree;
   ptree pt;
-  pt.put("elapsed_time", data.elapsed_time);
+  pt.put("elapsed_time", rclcpp::Duration(data.elapsed_time).seconds());
   switch (data.level.level)
   {
-  case scenario_logger_msgs::Level::LEVEL_LOG:
+  case scenario_logger_msgs::msg::Level::LEVEL_LOG:
     {
       pt.put("level","log");
       break;
     }
-  case scenario_logger_msgs::Level::LEVEL_INFO:
+  case scenario_logger_msgs::msg::Level::LEVEL_INFO:
     {
       pt.put("level","info");
       break;
     }
-  case scenario_logger_msgs::Level::LEVEL_WARN:
+  case scenario_logger_msgs::msg::Level::LEVEL_WARN:
     {
       pt.put("level","warn");
       break;
     }
-  case scenario_logger_msgs::Level::LEVEL_ERROR:
+  case scenario_logger_msgs::msg::Level::LEVEL_ERROR:
     {
       pt.put("level","error");
       break;
@@ -151,12 +153,12 @@ boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::
 
   pt.add_child("categories",children);
   pt.put("description",data.description);
-  pt.put("from",data.from);
+  pt.put("from",data.source);
 
   return pt;
 }
 
-boost::property_tree::ptree toJson(const scenario_logger_msgs::MetaData& data)
+boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::MetaData& data)
 {
   boost::property_tree::ptree pt {};
   pt.put("scenario_id",data.scenario_id);
@@ -169,7 +171,7 @@ boost::property_tree::ptree toJson(const scenario_logger_msgs::MetaData& data)
   return pt;
 }
 
-boost::property_tree::ptree toJson(const scenario_logger_msgs::LoggedData& data)
+boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::LoggedData& data, const rclcpp::Logger & rclcpp_logger)
 {
   using namespace boost::property_tree;
   ptree pt,log_tree;
@@ -186,7 +188,7 @@ boost::property_tree::ptree toJson(const scenario_logger_msgs::LoggedData& data)
     }
     else
     {
-      ROS_ERROR_STREAM("failed to convert to json");
+      RCLCPP_ERROR_STREAM(rclcpp_logger, "failed to convert to json");
     }
   }
   pt.add_child("log",log_tree);
