@@ -32,24 +32,24 @@ Event::Event(
 
 void Event::touch()
 {
-  std::cout << "        {" << std::endl;
-  std::cout << "          Name: " << name_ << "," << std::endl;
-  std::cout << "          Conditions: [" << std::endl;
-  std::cout << "            TODO," << std::endl;
-  std::cout << "          ]," << std::endl;
-  std::cout << "          State: " << currently << "," << std::endl;
-  std::cout << "        }," << std::endl;
+  std::cout << "        {\n";
+  std::cout << "          Name: " << name_ << ",\n";
+  std::cout << "          Conditions: [\n";
+  std::cout << "            TODO,\n";
+  std::cout << "          ],\n";
+  std::cout << "          State: " << currently << ",\n";
+  std::cout << "        },\n";
 }
 
 state_is Event::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << "        {" << std::endl;
-  std::cout << "          Name: " << name_ << "," << std::endl;
+  std::cout << "        {\n";
+  std::cout << "          Name: " << name_ << ",\n";
 
-  std::cout << "          Conditions: [" << std::endl;
+  std::cout << "          Conditions: [\n";
   ignited_ = condition_.evaluate(context_);
-  std::cout << "          ]," << std::endl;
+  std::cout << "          ],\n";
 
   if (ignited_)
   {
@@ -61,8 +61,8 @@ state_is Event::update(
     currently = state_is::running;
   }
 
-  std::cout << "          State: " << currently << "," << std::endl;
-  std::cout << "        }," << std::endl;
+  std::cout << "          State: " << currently << ",\n";
+  std::cout << "        },\n";
 
   return currently;
 }

@@ -27,24 +27,24 @@ Sequence::Sequence(
 
 void Sequence::touch()
 {
-  std::cout << "    {" << std::endl;
-  std::cout << "      Name: " << name_ << "," << std::endl;
-  std::cout << "      StartConditions: [" << std::endl;
-  std::cout << "        TODO," << std::endl;
-  std::cout << "      ]," << std::endl;
-  std::cout << "      State: " << currently << "," << std::endl;
-  std::cout << "    }," << std::endl;
+  std::cout << "    {\n";
+  std::cout << "      Name: " << name_ << ",\n";
+  std::cout << "      StartConditions: [\n";
+  std::cout << "        TODO,\n";
+  std::cout << "      ],\n";
+  std::cout << "      State: " << currently << ",\n";
+  std::cout << "    },\n";
 }
 
 state_is Sequence::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << "    {" << std::endl;
-  std::cout << "      Name: " << name_ << "," << std::endl;
+  std::cout << "    {\n";
+  std::cout << "      Name: " << name_ << ",\n";
 
-  std::cout << "      StartConditions: [" << std::endl;
+  std::cout << "      StartConditions: [\n";
   ignited_ = start_condition_.evaluate(context_);
-  std::cout << "      ]," << std::endl;
+  std::cout << "      ],\n";
 
   if (ignited_)
   {
@@ -55,8 +55,8 @@ state_is Sequence::update(
     currently = state_is::running;
   }
 
-  std::cout << "      State: " << currently << "," << std::endl;
-  std::cout << "    }," << std::endl;
+  std::cout << "      State: " << currently << ",\n";
+  std::cout << "    },\n";
 
   return currently;
 }
