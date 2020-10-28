@@ -18,6 +18,7 @@ ament_auto_find_build_dependencies()
 ### Target executable
 set(SCENARIO_UTILITY_SRC
   src/converter.cpp
+  src/indentation.cpp
   src/misc.cpp
   src/parse.cpp
 )
