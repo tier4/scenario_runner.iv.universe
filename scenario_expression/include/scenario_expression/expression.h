@@ -350,8 +350,7 @@ class Predicate
 protected:
   using Procedure::Procedure;
 
-  Predicate(Context& context, const YAML::Node& node)
-  try
+  Predicate(Context& context, const YAML::Node& node) try
     : Procedure {}
   {
     if (plugin = load(read_essential<std::string>(node, "Type") + "Condition"))

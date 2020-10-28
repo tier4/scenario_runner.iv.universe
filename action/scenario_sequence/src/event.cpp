@@ -35,7 +35,7 @@ void Event::touch() const
   std::cout << "        {\n";
   std::cout << "          Name: " << std::quoted(name_) << ",\n";
   std::cout << "          Conditions: [\n";
-  std::cout << "            TODO,\n";
+  std::cout << condition_ << "\n";
   std::cout << "          ],\n";
   std::cout << "          State: " << currently << ",\n";
   std::cout << "        },\n";
@@ -48,6 +48,7 @@ state_is Event::update(
   std::cout << "          Name: " << std::quoted(name_) << ",\n";
 
   std::cout << "          Conditions: [\n";
+  std::cout << condition_ << "\n";
   ignited_ = condition_.evaluate(context_);
   std::cout << "          ],\n";
 

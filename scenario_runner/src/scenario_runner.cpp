@@ -109,7 +109,7 @@ catch (...)
 
 void ScenarioRunner::update(const ros::TimerEvent & event) try
 {
-  std::cout << "ScenarioRunnerContext: {\n";
+  std::cout << (indent++) << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 
@@ -130,7 +130,7 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << "}\n" << std::endl;
+  std::cout << (--indent) "}\n" << std::endl;
 }
 catch (...)
 {

@@ -30,7 +30,7 @@ void Sequence::touch()
   std::cout << "    {\n";
   std::cout << "      Name: " << std::quoted(name_) << ",\n";
   std::cout << "      StartConditions: [\n";
-  std::cout << "        TODO,\n";
+  std::cout << "        " << start_condition_ << "\n";
   std::cout << "      ],\n";
   (*event_manager_).touch();
   std::cout << "      State: " << currently << ",\n";
@@ -43,6 +43,7 @@ state_is Sequence::update(
   std::cout << "    {\n";
   std::cout << "      Name: " << std::quoted(name_) << ",\n";
   std::cout << "      StartConditions: [\n";
+  std::cout << "        " << start_condition_ << "\n";
   ignited_ = start_condition_.evaluate(context_);
   std::cout << "      ],\n";
 
@@ -63,4 +64,3 @@ state_is Sequence::update(
 }
 
 } // namespace scenario_sequence
-

@@ -22,5 +22,6 @@
   <depend>scenario_intersection</depend>
   <depend>scenario_logger</depend>
   <depend>scenario_logger_msgs</depend>
+  <depend>scenario_utility</depend>
   <depend>yaml-cpp</depend>
 </package>

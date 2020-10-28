@@ -19,7 +19,7 @@ SequenceManager::SequenceManager(
 state_is SequenceManager::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << "  Sequences: [\n";
+  std::cout << (indent++) << "Sequences: [\n";
 
   for (auto iter { std::begin(sequences_) }; iter != cursor; ++iter)
   {
@@ -50,10 +50,9 @@ state_is SequenceManager::update(
     currently = state_is::finished;
   }
 
-  std::cout << "  ],\n";
+  std::cout << (--indent) << "],\n";
 
   return currently;
 }
 
 } // namespace scenario_sequence
-

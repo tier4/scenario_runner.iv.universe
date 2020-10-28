@@ -28,6 +28,7 @@ include_directories(
 
 add_library(scenario_utility SHARED
   src/converter.cpp
+  src/indentation.cpp
   src/misc.cpp
   src/parse.cpp
 )

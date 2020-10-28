@@ -28,6 +28,7 @@ catkin_package(
                  scenario_intersection
                  scenario_logger
                  scenario_logger_msgs
+                 scenario_utility
   )
 
 include_directories(
