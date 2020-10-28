@@ -16,16 +16,18 @@
 #define INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 
 #include "pluginlib/class_loader.hpp"
+#include "scenario_api/scenario_api_core.hpp"
 #include "scenario_conditions/condition_base.hpp"
 #include "scenario_entities/entity_manager.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
-#include "scenario_logger/logger.hpp"
+#include "scenario_utility/indentation.hpp"
 #include <yaml-cpp/yaml.h>
 
 #include <algorithm>
 #include <functional>
 #include <ios>
 #include <iostream>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -252,60 +254,58 @@ protected:
   }
 };
 
-#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR, BASE_CASE) \
-  class NAME \
-    : public Expression \
-  { \
-    friend Expression; \
- \
-    OPERATOR<bool> combine; \
- \
-    std::vector<Expression> operands; \
- \
-protected: \
-    NAME(const NAME & rhs) \
-      : Expression {std::integral_constant<decltype(0), 0>()} \
-    , operands {rhs.operands} \
-    {} \
- \
-    NAME(Context & context, const YAML::Node & node) \
-      : Expression {std::integral_constant<decltype(0), 0>()} \
-    { \
-      if (node.IsSequence()) \
-      { \
-        for (const auto & each : node) \
-        { \
-          operands.push_back(read(context, each)); \
-        } \
-      } \
-    } \
- \
-    virtual ~NAME() = default; \
- \
-    Expression evaluate(Context & context) override \
-    { \
-      return \
-        Expression::make<Boolean>( \
-        std::accumulate( \
-          operands.begin(), operands.end(), BASE_CASE, \
-          [&](const auto & lhs, auto && rhs) \
-          { \
-            return combine(lhs, rhs.evaluate(context)); \
-          })); \
-    } \
- \
-    std::ostream & write(std::ostream & os) const override \
-    { \
-      os << "(" #NAME; \
- \
-      for (const auto & each : operands) \
-      { \
-        os << " " << each; \
-      } \
- \
-      return os << ")"; \
-    } \
-  }
+#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR, BASE_CASE)             \
+class NAME                                                                     \
+  : public Expression                                                          \
+{                                                                              \
+  friend Expression;                                                           \
+                                                                               \
+  OPERATOR<bool> combine;                                                      \
+                                                                               \
+  std::vector<Expression> operands;                                            \
+                                                                               \
+protected:                                                                     \
+  NAME(const NAME& rhs)                                                        \
+    : Expression { std::integral_constant<decltype(0), 0>() }                  \
+    , operands { rhs.operands }                                                \
+  {}                                                                           \
+                                                                               \
+  NAME(Context& context, const YAML::Node& node)                               \
+    : Expression { std::integral_constant<decltype(0), 0>() }                  \
+  {                                                                            \
+    if (node.IsSequence())                                                     \
+    {                                                                          \
+      for (const auto& each : node)                                            \
+      {                                                                        \
+        operands.push_back(read(context, each));                               \
+      }                                                                        \
+    }                                                                          \
+  }                                                                            \
+                                                                               \
+  virtual ~NAME() = default;                                                   \
+                                                                               \
+  Expression evaluate(Context& context) override                               \
+  {                                                                            \
+    return                                                                     \
+      Expression::make<Boolean>(                                               \
+      std::accumulate(                                                         \
+        operands.begin(), operands.end(), BASE_CASE,                           \
+        [&](const auto& lhs, auto&& rhs)                                       \
+        {                                                                      \
+          return combine(lhs, rhs.evaluate(context));                          \
+        }));                                                                   \
+  }                                                                            \
+                                                                               \
+  std::ostream& write(std::ostream& os) const override                         \
+  {                                                                            \
+    for (const auto& each : operands)                                          \
+    {                                                                          \
+      os << each << (&each == &operands.back() ? "" : ",\n");                  \
+    }                                                                          \
+                                                                               \
+    return os;                                                                 \
+  }                                                                            \
+}
 
 DEFINE_N_ARY_LOGICAL_EXPRESSION(And, std::logical_and, true);
 DEFINE_N_ARY_LOGICAL_EXPRESSION(Or, std::logical_or, false);
@@ -332,7 +332,8 @@ protected:
 
   std::ostream & write(std::ostream & os) const override
   {
-    return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
+    // return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
+    return os << *plugin;
   }
 
   virtual pluginlib::ClassLoader<PluginBase> & loader() const = 0;

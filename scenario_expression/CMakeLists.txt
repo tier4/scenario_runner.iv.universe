@@ -21,7 +21,7 @@ ament_auto_find_build_dependencies(REQUIRED
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
   src/expression.cpp
-  )
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
