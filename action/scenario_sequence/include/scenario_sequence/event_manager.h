@@ -24,8 +24,10 @@ class EventManager
 public:
   EventManager(const scenario_expression::Context&, const YAML::Node&);
 
-  simulation_is update(
+  state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+
+  state_is currently;
 };
 
 } // namespace scenario_sequence

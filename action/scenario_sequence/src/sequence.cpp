@@ -7,8 +7,9 @@ Sequence::Sequence(
   const scenario_expression::Context& context,
   const YAML::Node& sequence_definition)
   : context_ { context }
-  , name_ {sequence_definition["Name"].as<std::string>()}
-  , ignited_ {false}
+  , name_ { sequence_definition["Name"].as<std::string>() }
+  , ignited_ { false }
+  , currently { state_is::sleeping }
 {
   event_manager_ =
     std::make_shared<scenario_sequence::EventManager>(
@@ -24,17 +25,40 @@ Sequence::Sequence(
   }
 }
 
-simulation_is Sequence::update(
+void Sequence::dummy()
+{
+  std::cout << "    {" << std::endl;
+  std::cout << "      Name: " << name_ << "," << std::endl;
+  std::cout << "      StartConditions: [" << std::endl;
+  std::cout << "        TODO," << std::endl;
+  std::cout << "      ]," << std::endl;
+  std::cout << "      State: " << currently << "," << std::endl;
+  std::cout << "    }," << std::endl;
+}
+
+state_is Sequence::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  if (ignited_ = start_condition_.evaluate(context_))
+  std::cout << "    {" << std::endl;
+  std::cout << "      Name: " << name_ << "," << std::endl;
+
+  std::cout << "      StartConditions: [" << std::endl;
+  ignited_ = start_condition_.evaluate(context_);
+  std::cout << "      ]," << std::endl;
+
+  if (ignited_)
   {
-    return (*event_manager_).update(context_.intersections_pointer());
+    currently = (*event_manager_).update(context_.intersections_pointer());
   }
   else
   {
-    return simulation_is::ongoing;
+    currently = state_is::running;
   }
+
+  std::cout << "      State: " << currently << "," << std::endl;
+  std::cout << "    }," << std::endl;
+
+  return currently;
 }
 
 } // namespace scenario_sequence

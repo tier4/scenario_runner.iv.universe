@@ -1,7 +1,7 @@
 #ifndef SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
 #define SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
 
-#include <queue>
+#include <list>
 
 #include <ros/ros.h>
 
@@ -18,15 +18,17 @@ namespace scenario_sequence
 
 class SequenceManager
 {
-  std::queue<scenario_sequence::Sequence> sequences_;
+  std::list<scenario_sequence::Sequence> sequences_;
 
   scenario_expression::Context context_;
 
 public:
   SequenceManager(const scenario_expression::Context&, const YAML::Node&);
 
-  simulation_is update(
+  state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+
+  state_is currently;
 };
 
 } // namespace scenario_sequence
