@@ -1,10 +1,9 @@
 #ifndef SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 #define SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 
-#include <queue>
+#include <list>
 
 #include <ros/ros.h>
-
 #include <yaml-cpp/yaml.h>
 
 #include <scenario_expression/expression.h>
@@ -19,10 +18,14 @@ class EventManager
 {
   scenario_expression::Context context_;
 
-  std::queue<scenario_sequence::Event> events_;
+  std::list<scenario_sequence::Event> events_;
+
+  decltype(events_)::iterator cursor;
 
 public:
   EventManager(const scenario_expression::Context&, const YAML::Node&);
+
+  void touch() const;
 
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);

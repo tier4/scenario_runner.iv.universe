@@ -17,6 +17,17 @@ enum class state_is
 
 std::ostream& operator <<(std::ostream&, const state_is&);
 
+struct state_color
+{
+  const state_is value;
+
+  explicit state_color(state_is value)
+    : value { value }
+  {}
+};
+
+std::ostream& operator <<(std::ostream&, const state_color&);
+
 class Event
 {
   scenario_expression::Context context_;
@@ -34,7 +45,7 @@ class Event
 public:
   Event(const scenario_expression::Context&, const YAML::Node&);
 
-  void touch();
+  void touch() const;
 
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);

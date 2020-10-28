@@ -21,12 +21,10 @@ state_is SequenceManager::update(
 {
   std::cout << "  Sequences: [\n";
 
-  std::cout << "\x1b[2m";
   for (auto iter { std::begin(sequences_) }; iter != cursor; ++iter)
   {
     (*iter).touch();
   }
-  std::cout << "\x1b[0m";
 
   if (cursor != std::end(sequences_))
   {
@@ -53,6 +51,8 @@ state_is SequenceManager::update(
   }
 
   std::cout << "  ],\n";
+
+  return currently;
 }
 
 } // namespace scenario_sequence

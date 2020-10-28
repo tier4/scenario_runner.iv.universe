@@ -11,8 +11,32 @@ EventManager::EventManager(
 {
   for (const auto& each : events_definition)
   {
-    events_.emplace(context, each);
+    events_.emplace_back(context, each);
   }
+
+  cursor = std::begin(events_);
+}
+
+void EventManager::touch() const
+{
+  std::cout << "      Events: [\n";
+
+  for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
+  {
+    (*iter).touch();
+  }
+
+  if (cursor != std::end(events_))
+  {
+    (*cursor).touch();
+
+    for (auto iter { std::next(cursor) }; iter != std::end(events_); ++iter)
+    {
+      (*iter).touch();
+    }
+  }
+
+  std::cout << "      ],\n";
 }
 
 state_is EventManager::update(
@@ -20,12 +44,25 @@ state_is EventManager::update(
 {
   std::cout << "      Events: [\n";
 
-  switch (currently = events_.front().update(context_.intersections_pointer()))
+  for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
+  {
+    (*iter).touch();
+  }
+
+  switch (currently = (*cursor).update(context_.intersections_pointer()))
   {
   case state_is::finished:
-    events_.pop();
+    for (auto iter { ++cursor }; iter != std::end(events_); ++iter)
+    {
+      (*iter).touch();
+    }
+    break;
 
   default:
+    for (auto iter { std::next(cursor) }; iter != std::end(events_); ++iter)
+    {
+      (*iter).touch();
+    }
     break;
   }
 

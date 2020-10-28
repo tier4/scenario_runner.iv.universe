@@ -30,10 +30,10 @@ Event::Event(
   }
 }
 
-void Event::touch()
+void Event::touch() const
 {
   std::cout << "        {\n";
-  std::cout << "          Name: " << name_ << ",\n";
+  std::cout << "          Name: " << std::quoted(name_) << ",\n";
   std::cout << "          Conditions: [\n";
   std::cout << "            TODO,\n";
   std::cout << "          ],\n";
@@ -45,7 +45,7 @@ state_is Event::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
   std::cout << "        {\n";
-  std::cout << "          Name: " << name_ << ",\n";
+  std::cout << "          Name: " << std::quoted(name_) << ",\n";
 
   std::cout << "          Conditions: [\n";
   ignited_ = condition_.evaluate(context_);
@@ -72,15 +72,31 @@ std::ostream& operator <<(std::ostream& os, const state_is& currently)
   switch (currently)
   {
   case state_is::sleeping:
-    return os << std::quoted("NotRunning");
+    return os << "\x1b[33m" << std::quoted("NotRunning") << "\x1b[0m";
 
   case state_is::running:
-    return os << std::quoted("Running");
+    return os << "\x1b[32m" << std::quoted("Running") << "\x1b[0m";
 
   case state_is::finished:
-    return os << std::quoted("Finished");
+    return os << "\x1b[31m" << std::quoted("Finished") << "\x1b[0m";
   }
 }
 
+std::ostream& operator <<(std::ostream& os, const state_color& datum)
+{
+  os << "\x1b[0m";
+
+  switch (datum.value)
+  {
+  case state_is::finished:
+    return os << "\x1b[2m";
+
+  case state_is::running:
+    return os << "\x1b[32m";
+
+  case state_is::sleeping:
+    return os;
+  }
+}
 } // namespace scenario_sequence
 
