@@ -133,9 +133,10 @@ try
 
 void ScenarioRunner::update() try
 {
-  std::cout << "ScenarioRunnerContext: {" << std::endl;
+  std::cout << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
+
   (*sequence_manager_).update(intersection_manager_);
 
   // currently = (*entity_manager_).update(intersection_manager_);
