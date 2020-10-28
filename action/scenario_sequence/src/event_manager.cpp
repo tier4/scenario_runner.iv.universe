@@ -32,7 +32,7 @@ EventManager::EventManager(
 state_is EventManager::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << "      Events: [" << std::endl;
+  std::cout << "      Events: [\n";
 
   switch (currently = events_.front().update(context_.intersections_pointer()))
   {
@@ -43,7 +43,7 @@ state_is EventManager::update(
     break;
   }
 
-  std::cout << "      ]," << std::endl;
+  std::cout << "      ],\n";
 
   return currently;
 }
