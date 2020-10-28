@@ -27,25 +27,28 @@ Sequence::Sequence(
 
 void Sequence::touch()
 {
-  std::cout << "    {\n";
-  std::cout << "      Name: " << std::quoted(name_) << ",\n";
-  std::cout << "      StartConditions: [\n";
-  std::cout << "        " << start_condition_ << "\n";
-  std::cout << "      ],\n";
+  std::cout << (indent++) << "{\n";
+  std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
+  std::cout << (indent++) << "StartConditions: [\n";
+  std::cout << indent << start_condition_ << "\n";
+  std::cout << (--indent) << "],\n";
+
   (*event_manager_).touch();
-  std::cout << "      State: " << currently << ",\n";
-  std::cout << "    },\n";
+
+  std::cout << indent << "State: " << currently << ",\n";
+  std::cout << (--indent) << "},\n";
 }
 
 state_is Sequence::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << "    {\n";
-  std::cout << "      Name: " << std::quoted(name_) << ",\n";
-  std::cout << "      StartConditions: [\n";
-  std::cout << "        " << start_condition_ << "\n";
+  std::cout << (indent++) << "{\n";
+  std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
+  std::cout << (indent++) << "StartConditions: [\n";
+  std::cout << indent << start_condition_ << "\n";
+  std::cout << (--indent) << "],\n";
+
   ignited_ = start_condition_.evaluate(context_);
-  std::cout << "      ],\n";
 
   if (ignited_)
   {
@@ -57,8 +60,8 @@ state_is Sequence::update(
     currently = state_is::running;
   }
 
-  std::cout << "      State: " << currently << ",\n";
-  std::cout << "    },\n";
+  std::cout << indent << "State: " << currently << ",\n";
+  std::cout << (--indent) << "},\n";
 
   return currently;
 }

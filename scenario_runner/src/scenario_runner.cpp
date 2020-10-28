@@ -130,7 +130,7 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << (--indent) "}\n" << std::endl;
+  std::cout << (--indent) << "}\n" << std::endl;
 }
 catch (...)
 {

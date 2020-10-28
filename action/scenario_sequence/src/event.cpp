@@ -32,25 +32,26 @@ Event::Event(
 
 void Event::touch() const
 {
-  std::cout << "        {\n";
-  std::cout << "          Name: " << std::quoted(name_) << ",\n";
-  std::cout << "          Conditions: [\n";
-  std::cout << condition_ << "\n";
-  std::cout << "          ],\n";
-  std::cout << "          State: " << currently << ",\n";
-  std::cout << "        },\n";
+  std::cout << (indent++) << "{\n";
+  std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
+  std::cout << (indent++) << "Conditions: [\n";
+  std::cout << indent << condition_ << "\n";
+  std::cout << (--indent) << "],\n";
+  std::cout << indent << "State: " << currently << ",\n";
+  std::cout << (--indent) << "},\n";
 }
 
 state_is Event::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << "        {\n";
-  std::cout << "          Name: " << std::quoted(name_) << ",\n";
+  std::cout << (indent++) << "{\n";
+  std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
 
-  std::cout << "          Conditions: [\n";
-  std::cout << condition_ << "\n";
+  std::cout << (indent++) << "Conditions: [\n";
+  std::cout << indent << condition_ << "\n";
+  std::cout << (--indent) << "],\n";
+
   ignited_ = condition_.evaluate(context_);
-  std::cout << "          ],\n";
 
   if (ignited_)
   {
@@ -62,8 +63,8 @@ state_is Event::update(
     currently = state_is::running;
   }
 
-  std::cout << "          State: " << currently << ",\n";
-  std::cout << "        },\n";
+  std::cout << indent << "State: " << currently << ",\n";
+  std::cout << (--indent) << "},\n";
 
   return currently;
 }
