@@ -23,6 +23,7 @@ namespace scenario_runner
 ScenarioRunner::ScenarioRunner()
 : Node("ScenarioRunnerNode"),
   currently{simulation_is::ongoing},
+  publisher_{create_publisher<autoware_debug_msgs::msg::StringStamped>("context", rclcpp::QoS(1).transient_local())},
   simulator_{std::make_shared<ScenarioAPI>()},
   scenario_path_{declare_parameter("scenario_path").get<std::string>()}
 {
@@ -136,7 +137,7 @@ try
 
 void ScenarioRunner::update() try
 {
-  std::cout << (indent++) << "ScenarioRunnerContext: {\n";
+  context.json << (indent++) << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 
@@ -147,13 +148,13 @@ void ScenarioRunner::update() try
   const auto fulfilled_failure_condition { failure.evaluate(context) };
   const auto fulfilled_success_condition { success.evaluate(context) };
 
-  std::cout << (indent++) << "FailureConditions: [\n";
-  std::cout << failure;
-  std::cout << (--indent) << "],\n";
+  context.json << (indent++) << "FailureConditions: [\n";
+  context.json << failure;
+  context.json << (--indent) << "],\n";
 
-  std::cout << (indent++) << "SuccessConditions: [\n";
-  std::cout << success;
-  std::cout << (--indent) << "],\n";
+  context.json << (indent++) << "SuccessConditions: [\n";
+  context.json << success;
+  context.json << (--indent) << "],\n";
 
   if (fulfilled_failure_condition)
   {
@@ -166,7 +167,21 @@ void ScenarioRunner::update() try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << (--indent) << "}" << std::endl;
+  context.json << (--indent) << "}" << std::endl;
+
+  autoware_debug_msgs::msg::StringStamped message {};
+  message.stamp = this->now();
+  message.data = context.json.str();
+
+  std::cout << message.data.c_str() << std::endl;
+
+  publisher_->publish(message);
+
+  std::stringstream ss {};
+  std::swap(context.json, ss);
+
+  // context.json.str("");
+  // context.json.clear(std::stringstream::goodbit);
 }
 catch (...)
 {

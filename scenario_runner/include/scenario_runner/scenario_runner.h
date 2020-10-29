@@ -23,6 +23,7 @@
 #include "scenario_entities/entity_manager.hpp"
 
 #include <memory>
+#include "autoware_debug_msgs/msg/string_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace scenario_runner
@@ -46,6 +47,8 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   const std::shared_ptr<ScenarioAPI> simulator_;
+
+  rclcpp::Publisher<autoware_debug_msgs::msg::StringStamped>::SharedPtr publisher_;
 
   std::string scenario_path_;
 
