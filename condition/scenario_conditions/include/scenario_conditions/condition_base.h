@@ -30,7 +30,7 @@ public:
 
   ConditionBase(const std::string & type, std::size_t occurrence = 0)
     : type_ { type }
-    , name_ { type + "Condition(" + std::to_string(occurrence) + ")" }
+    // , name_ { type + "Condition(" + std::to_string(occurrence) + ")" }
   {}
 
   virtual ~ConditionBase() = default;
@@ -47,16 +47,16 @@ public:
 
   const std::string & getType() const noexcept {return type_;}
 
-  friend std::ostream& operator <<(std::ostream& os, const ConditionBase& datum)
-  {
-    return os << indent
-              << "{ Name: \x1b[36m"
-              << std::quoted(datum.name_)
-              << "\x1b[0m, Value: "
-              << (datum.result_ ? "\x1b[32m" : "\x1b[31m")
-              << std::boolalpha << datum.result_
-              << "\x1b[0m }";
-  }
+  // friend std::ostream& operator <<(std::ostream& os, const ConditionBase& datum)
+  // {
+  //   return os << indent
+  //             << "{ Name: \x1b[36m"
+  //             << std::quoted(datum.name_)
+  //             << "\x1b[0m, Value: "
+  //             << (datum.result_ ? "\x1b[32m" : "\x1b[31m")
+  //             << std::boolalpha << datum.result_
+  //             << "\x1b[0m },\n";
+  // }
 
 protected:
   std::shared_ptr<ScenarioAPI> api_ptr_;
