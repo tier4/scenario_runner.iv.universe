@@ -65,6 +65,11 @@ class Event
 public:
   Event(const scenario_expression::Context&, const YAML::Node&);
 
+  const auto& name() const noexcept
+  {
+    return name_;
+  }
+
   void touch() const;
 
   state_is update(
