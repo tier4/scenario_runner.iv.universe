@@ -21,8 +21,6 @@
 #include "scenario_intersection/intersection_manager.hpp"
 #include "scenario_utility/indentation.hpp"
 
-#include <sstream>
-
 namespace scenario_conditions
 {
 class ConditionBase
@@ -30,13 +28,10 @@ class ConditionBase
 public:
   ConditionBase() = default;
 
-  ConditionBase(const std::string & type)
-  : type_{type}
-  {
-    std::stringstream ss;
-    ss << type << "Condition<" << static_cast<const void *>(this) << ">";
-    name_ = ss.str();
-  }
+  ConditionBase(const std::string & type, std::size_t occurrence = 0)
+    : type_ { type }
+    , name_ { type + "Condition(" + std::to_string(occurrence) + ")" }
+  {}
 
   virtual ~ConditionBase() = default;
 
@@ -55,9 +50,9 @@ public:
   friend std::ostream& operator <<(std::ostream& os, const ConditionBase& datum)
   {
     return os << indent
-              << "{ Name: "
+              << "{ Name: \x1b[36m"
               << std::quoted(datum.name_)
-              << ", Value: "
+              << "\x1b[0m, Value: "
               << (datum.result_ ? "\x1b[32m" : "\x1b[31m")
               << std::boolalpha << datum.result_
               << "\x1b[0m }";
