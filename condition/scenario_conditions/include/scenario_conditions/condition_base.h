@@ -43,7 +43,12 @@ public:
 
   const std::string & getName() const noexcept {return name_;}
 
-  bool getResult() const noexcept {return result_;}
+  const auto& rename(const std::string& new_name)
+  {
+    return name_ = new_name;
+  }
+
+  const bool getResult() const noexcept { return result_; }
 
   const std::string & getType() const noexcept {return type_;}
 
