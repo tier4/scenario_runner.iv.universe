@@ -33,7 +33,7 @@ SequenceManager::SequenceManager(
 state_is SequenceManager::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << (indent++) << "Sequences: [\n";
+  context_.json << (indent++) << "Sequences: [\n";
 
   for (auto iter { std::begin(sequences_) }; iter != cursor; ++iter)
   {
@@ -64,7 +64,7 @@ state_is SequenceManager::update(
     currently = state_is::finished;
   }
 
-  std::cout << (--indent) << "],\n";
+  context_.json << (--indent) << "],\n";
 
   return currently;
 }
