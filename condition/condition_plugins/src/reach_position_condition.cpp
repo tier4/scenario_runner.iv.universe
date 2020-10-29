@@ -17,8 +17,10 @@
 namespace condition_plugins
 {
 
+std::size_t ReachPositionCondition::occurrence { 0 };
+
 ReachPositionCondition::ReachPositionCondition()
-: scenario_conditions::ConditionBase{"ReachPosition"}
+: scenario_conditions::ConditionBase{"ReachPosition", occurrence++}
 {}
 
 bool ReachPositionCondition::configure(

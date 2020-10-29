@@ -18,8 +18,10 @@
 namespace condition_plugins
 {
 
+std::size_t CollisionByEntityCondition::occurrence { 0 };
+
 CollisionByEntityCondition::CollisionByEntityCondition()
-: scenario_conditions::ConditionBase{"CollisionByEntity"}
+: scenario_conditions::ConditionBase{"CollisionByEntity", occurrence++}
 {}
 
 bool CollisionByEntityCondition::configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)

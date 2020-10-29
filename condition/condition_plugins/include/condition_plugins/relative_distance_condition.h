@@ -26,6 +26,8 @@ namespace condition_plugins
 class RelativeDistanceCondition
   : public scenario_conditions::ConditionBase
 {
+  static std::size_t occurrence;
+
   std::string trigger_, target_entity_, rule_;
 
   float value_;

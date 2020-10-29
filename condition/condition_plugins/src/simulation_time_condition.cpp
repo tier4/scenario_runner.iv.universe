@@ -17,9 +17,10 @@
 namespace condition_plugins
 {
 
+std::size_t SimulationTimeCondition::occurrence { 0 };
+
 SimulationTimeCondition::SimulationTimeCondition()
-: scenario_conditions::ConditionBase{"SimulationTime"},
-  duration_(0)
+: scenario_conditions::ConditionBase {"SimulationTime", occurrence++}, duration_(0)
 {}
 
 bool SimulationTimeCondition::configure(
