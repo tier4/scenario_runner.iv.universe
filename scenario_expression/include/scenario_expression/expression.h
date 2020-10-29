@@ -78,6 +78,9 @@ public: \
 
 public:
   static std::stringstream json;
+
+  std::string current_sequence,
+              current_event;
 };
 
 /* -----------------------------------------------------------------------------
@@ -369,15 +372,13 @@ protected:
     // return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
     // return os << *plugin;
 
-    std::string name { (*plugin).getName() };
-
-    if (name.empty())
+    if ((*plugin).getName().empty())
     {
-      name = prefix + (*plugin).getType() + "(" + std::to_string(occurrence) + ")";
+      (*plugin).rename(prefix + (*plugin).getType() + "(" + std::to_string(occurrence) + ")");
     }
 
     return os << indent
-              << "{ Name: \x1b[36m" << std::quoted(name) << "\x1b[0m"
+              << "{ Name: \x1b[36m" << std::quoted((*plugin).getName()) << "\x1b[0m"
               << ", Value: "
               << ((*plugin).getResult() ? "\x1b[32m" : "\x1b[31m")
               << std::boolalpha << (*plugin).getResult()
