@@ -26,6 +26,8 @@ state_is SequenceManager::update(
     (*iter).touch();
   }
 
+  context_.current_sequence = (*cursor).name();
+
   if (cursor != std::end(sequences_))
   {
     switch (currently = (*cursor).update(context_.intersections_pointer()))

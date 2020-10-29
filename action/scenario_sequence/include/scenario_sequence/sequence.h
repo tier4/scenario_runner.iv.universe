@@ -29,6 +29,11 @@ class Sequence
 public:
   Sequence(const scenario_expression::Context&, const YAML::Node&);
 
+  const auto& name() const noexcept
+  {
+    return name_;
+  }
+
   void touch();
 
   state_is update(
