@@ -76,7 +76,7 @@ public:                                                                        \
  *   <Logical> = <N-Ary Logical Operator> [ <Test>* ]
  *             | <Unary Logical Operator> { <Test> }
  *
- *   <N-Ary Logical Operator> = <And> | <Or>
+ *   <N-Ary Logical Operator> = <All> | <Any>
  *   <Unary Logical Operator> = <Not>
  *
  *   <Test> = <Expression>
@@ -101,8 +101,8 @@ class Literal;
 
 using Boolean = Literal<bool>;
 
-class And;
-class Or;
+class All;
+class Any;
 
 class Predicate;
 
@@ -112,8 +112,8 @@ class Expression
 
   friend Predicate;
 
-  friend And;
-  friend Or;
+  friend All;
+  friend Any;
 
 public:
   Expression()
@@ -310,15 +310,15 @@ protected:                                                                     \
       each.data->write(                                                        \
         os,                                                                    \
         prefix + type() + "(" + std::to_string(occurrence) + ")/",             \
-        occurrences[each.type()]++);                                           \
+        occurrences[each.data->type()]++);                                     \
     }                                                                          \
                                                                                \
     return os;                                                                 \
   }                                                                            \
 }
 
-DEFINE_N_ARY_LOGICAL_EXPRESSION(And, std::logical_and, true);
-DEFINE_N_ARY_LOGICAL_EXPRESSION(Or, std::logical_or, false);
+DEFINE_N_ARY_LOGICAL_EXPRESSION(All, std::logical_and, true);
+DEFINE_N_ARY_LOGICAL_EXPRESSION(Any, std::logical_or, false);
 
 template <typename PluginBase>
 class Procedure

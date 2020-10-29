@@ -19,11 +19,11 @@ Expression read(Context& context, const YAML::Node& node)
   {
     if (const auto all { node["All"] }) // NOTE: should be 'and'
     {
-      return Expression::make<And>(context, all);
+      return Expression::make<All>(context, all);
     }
     else if (const auto any { node["Any"] }) // NOTE: should be 'or'
     {
-      return Expression::make<Or>(context, any);
+      return Expression::make<Any>(context, any);
     }
     else if (const auto type { node["Type"] }) // <procedure call>
     {
