@@ -9,6 +9,8 @@ namespace condition_plugins
 {
 class CollisionByEntityCondition : public scenario_conditions::ConditionBase
 {
+  static std::size_t occurrence;
+
 public:
   CollisionByEntityCondition();
   bool update(const std::shared_ptr<scenario_intersection::IntersectionManager> &) override;

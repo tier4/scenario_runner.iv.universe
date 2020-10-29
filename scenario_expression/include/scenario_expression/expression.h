@@ -165,12 +165,12 @@ public:
 
   virtual std::ostream& write(std::ostream& os) const
   {
-    return os << "()";
+    return os;
   }
 
   friend std::ostream& operator <<(std::ostream& os, const Expression& expression)
   {
-    return expression.data ? expression.data->write(os) : (os << "()");
+    return expression.data ? expression.data->write(os) : os;
   }
 
   virtual operator bool() const noexcept

@@ -79,13 +79,13 @@ try
       call_with_optional(node, "Success", [&](const auto& node) mutable
       {
         success = scenario_expression::read(context, node);
-        SCENARIO_INFO_STREAM(CATEGORY(), "Loaded success condition: " << success);
+        // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded success condition: " << success);
       });
 
       call_with_optional(node, "Failure", [&](const auto& node) mutable
       {
         failure = scenario_expression::read(context, node);
-        SCENARIO_INFO_STREAM(CATEGORY(), "Loaded failure condition: " << failure);
+        // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded failure condition: " << failure);
       });
     });
   });
