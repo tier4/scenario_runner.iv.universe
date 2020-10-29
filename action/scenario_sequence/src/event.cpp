@@ -32,24 +32,24 @@ Event::Event(
 
 void Event::touch() const
 {
-  std::cout << (indent++) << "{\n";
-  std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
-  std::cout << (indent++) << "Conditions: [\n";
-  std::cout << condition_ << "\n";
-  std::cout << (--indent) << "],\n";
-  std::cout << indent << "State: " << currently << ",\n";
-  std::cout << (--indent) << "},\n";
+  context_.json << (indent++) << "{\n";
+  context_.json << indent << "Name: " << std::quoted(name_) << ",\n";
+  context_.json << (indent++) << "Conditions: [\n";
+  context_.json << condition_;
+  context_.json << (--indent) << "],\n";
+  context_.json << indent << "State: " << currently << ",\n";
+  context_.json << (--indent) << "},\n";
 }
 
 state_is Event::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << (indent++) << "{\n";
-  std::cout << indent << "Name: " << std::quoted(name_) << ",\n";
+  context_.json << (indent++) << "{\n";
+  context_.json << indent << "Name: " << std::quoted(name_) << ",\n";
 
-  std::cout << (indent++) << "Conditions: [\n";
-  std::cout << condition_ << "\n";
-  std::cout << (--indent) << "],\n";
+  context_.json << (indent++) << "Conditions: [\n";
+  context_.json << condition_ << "\n";
+  context_.json << (--indent) << "],\n";
 
   ignited_ = condition_.evaluate(context_);
 
@@ -63,8 +63,8 @@ state_is Event::update(
     currently = state_is::running;
   }
 
-  std::cout << indent << "State: " << currently << ",\n";
-  std::cout << (--indent) << "},\n";
+  context_.json << indent << "State: " << currently << ",\n";
+  context_.json << (--indent) << "},\n";
 
   return currently;
 }

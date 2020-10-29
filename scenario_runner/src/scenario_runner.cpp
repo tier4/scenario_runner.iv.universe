@@ -1,16 +1,19 @@
 #include <chrono>
 #include <thread>
 
+#include <std_msgs/String.h>
+
 #include <scenario_logger/logger.h>
 #include <scenario_runner/scenario_runner.h>
 
 namespace scenario_runner
 {
 ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
-: currently{simulation_is::ongoing},
-  nh_{nh},
-  pnh_{pnh},
-  simulator_{std::make_shared<ScenarioAPI>()}
+  : currently { simulation_is::ongoing }
+  ,  nh_ {  nh }
+  , pnh_ { pnh }
+  , publisher_ { pnh.advertise<std_msgs::String>("context", 1) }
+  , simulator_ { std::make_shared<ScenarioAPI>() }
 {
   pnh_.getParam("scenario_path", scenario_path_);
 
@@ -112,7 +115,7 @@ catch (...)
 
 void ScenarioRunner::update(const ros::TimerEvent & event) try
 {
-  std::cout << (indent++) << "ScenarioRunnerContext: {\n";
+  context.json << (indent++) << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 
@@ -123,13 +126,13 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
   const auto fulfilled_failure_condition { failure.evaluate(context) };
   const auto fulfilled_success_condition { success.evaluate(context) };
 
-  std::cout << (indent++) << "FailureConditions: [\n";
-  std::cout << failure;
-  std::cout << (--indent) << "],\n";
+  context.json << (indent++) << "FailureConditions: [\n";
+  context.json << failure;
+  context.json << (--indent) << "],\n";
 
-  std::cout << (indent++) << "SuccessConditions: [\n";
-  std::cout << success;
-  std::cout << (--indent) << "],\n";
+  context.json << (indent++) << "SuccessConditions: [\n";
+  context.json << success;
+  context.json << (--indent) << "],\n";
 
   if (fulfilled_failure_condition)
   {
@@ -144,7 +147,20 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
     currently = simulation_is::ongoing;
   }
 
-  std::cout << (--indent) << "}" << std::endl;
+  context.json << (--indent) << "}" << std::endl;
+
+  std_msgs::String message {};
+  message.data = context.json.str();
+
+  std::cout << message.data.c_str() << std::endl;
+
+  publisher_.publish(message);
+
+  std::stringstream ss {};
+  std::swap(context.json, ss);
+
+  // context.json.str("");
+  // context.json.clear(std::stringstream::goodbit);
 }
 catch (...)
 {

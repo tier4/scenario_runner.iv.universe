@@ -13,6 +13,7 @@
 #include <scenario_entities/entity_manager.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_utility/indentation.hpp>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -56,6 +57,9 @@ public:                                                                        \
   boilerplate(scenario_intersection::IntersectionManager, intersections);
 
 #undef boilerplate
+
+public:
+  static std::stringstream json;
 };
 
 /* -----------------------------------------------------------------------------

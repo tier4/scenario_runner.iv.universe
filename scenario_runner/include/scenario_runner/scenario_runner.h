@@ -32,6 +32,8 @@ private:
   ros::NodeHandle pnh_;
   ros::Timer timer_;
 
+  ros::Publisher publisher_;
+
   std::string scenario_path_;
 
   YAML::Node scenario_;

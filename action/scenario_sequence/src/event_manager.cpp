@@ -19,7 +19,7 @@ EventManager::EventManager(
 
 void EventManager::touch() const
 {
-  std::cout << (indent++) << "Events: [\n";
+  context_.json << (indent++) << "Events: [\n";
 
   for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
   {
@@ -36,13 +36,13 @@ void EventManager::touch() const
     }
   }
 
-  std::cout << (--indent) << "],\n";
+  context_.json << (--indent) << "],\n";
 }
 
 state_is EventManager::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  std::cout << (indent++) << "Events: [\n";
+  context_.json << (indent++) << "Events: [\n";
 
   for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
   {
@@ -66,7 +66,7 @@ state_is EventManager::update(
     break;
   }
 
-  std::cout << (--indent) << "],\n";
+  context_.json << (--indent) << "],\n";
 
   return currently;
 }
