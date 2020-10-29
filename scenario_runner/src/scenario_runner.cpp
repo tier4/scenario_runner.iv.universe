@@ -124,11 +124,11 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
   const auto fulfilled_success_condition { success.evaluate(context) };
 
   std::cout << (indent++) << "FailureConditions: [\n";
-  std::cout << failure << "\n";
+  std::cout << failure;
   std::cout << (--indent) << "],\n";
 
   std::cout << (indent++) << "SuccessConditions: [\n";
-  std::cout << success << "\n";
+  std::cout << success;
   std::cout << (--indent) << "],\n";
 
   if (fulfilled_failure_condition)

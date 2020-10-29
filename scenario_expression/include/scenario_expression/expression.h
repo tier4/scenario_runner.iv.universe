@@ -13,6 +13,7 @@
 #include <scenario_entities/entity_manager.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_utility/indentation.hpp>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -138,6 +139,12 @@ public:
     }
   }
 
+  virtual const std::string& type() const
+  {
+    static const std::string result { "Expression" };
+    return result;
+  }
+
   Expression& operator =(const Expression& rhs)
   {
     Expression e { rhs };
@@ -163,14 +170,14 @@ public:
     std::swap(data, e.data);
   }
 
-  virtual std::ostream& write(std::ostream& os) const
+  virtual std::ostream& write(std::ostream& os, const std::string&, std::size_t) const
   {
     return os;
   }
 
   friend std::ostream& operator <<(std::ostream& os, const Expression& expression)
   {
-    return expression.data ? expression.data->write(os) : os;
+    return expression.data ? expression.data->write(os, "", 0) : os;
   }
 
   virtual operator bool() const noexcept
@@ -223,7 +230,13 @@ protected:
 
   virtual ~Literal() = default;
 
-  std::ostream& write(std::ostream& os) const override
+  const std::string& type() const override
+  {
+    static const std::string result { "Literal" };
+    return result;
+  }
+
+  std::ostream& write(std::ostream& os, const std::string&, std::size_t) const override
   {
     return os << std::boolalpha << value;
   }
@@ -248,6 +261,13 @@ class NAME                                                                     \
   OPERATOR<bool> combine;                                                      \
                                                                                \
   std::vector<Expression> operands;                                            \
+                                                                               \
+public:                                                                        \
+  const std::string& type() const override                                     \
+  {                                                                            \
+    static const std::string result { #NAME };                                 \
+    return result;                                                             \
+  }                                                                            \
                                                                                \
 protected:                                                                     \
   NAME(const NAME& rhs)                                                        \
@@ -281,11 +301,16 @@ protected:                                                                     \
         }));                                                                   \
   }                                                                            \
                                                                                \
-  std::ostream& write(std::ostream& os) const override                         \
+  std::ostream& write(std::ostream& os, const std::string& prefix, std::size_t occurrence) const override \
   {                                                                            \
+    std::unordered_map<std::string, std::size_t> occurrences {};               \
+                                                                               \
     for (const auto& each : operands)                                          \
     {                                                                          \
-      os << each << (&each == &operands.back() ? "" : ",\n");                  \
+      each.data->write(                                                        \
+        os,                                                                    \
+        prefix + type() + "(" + std::to_string(occurrence) + ")/",             \
+        occurrences[each.type()]++);                                           \
     }                                                                          \
                                                                                \
     return os;                                                                 \
@@ -315,10 +340,29 @@ protected:
 
   virtual ~Procedure() = default;
 
-  std::ostream& write(std::ostream& os) const override
+  const std::string& type() const override
+  {
+    return (*plugin).getType();
+  }
+
+  std::ostream& write(std::ostream& os, const std::string& prefix, std::size_t occurrence) const override
   {
     // return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
-    return os << *plugin;
+    // return os << *plugin;
+
+    std::string name { (*plugin).getName() };
+
+    if (name.empty())
+    {
+      name = prefix + (*plugin).getType() + "(" + std::to_string(occurrence) + ")";
+    }
+
+    return os << indent
+              << "{ Name: \x1b[36m" << std::quoted(name) << "\x1b[0m"
+              << ", Value: "
+              << ((*plugin).getResult() ? "\x1b[32m" : "\x1b[31m")
+              << std::boolalpha << (*plugin).getResult()
+              << "\x1b[0m },\n";
   }
 
   virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;
