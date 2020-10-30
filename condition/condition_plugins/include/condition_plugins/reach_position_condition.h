@@ -11,6 +11,8 @@ namespace condition_plugins
 
 class ReachPositionCondition : public scenario_conditions::ConditionBase
 {
+  static std::size_t occurrence;
+
 public:
   ReachPositionCondition();
   bool update(const std::shared_ptr<scenario_intersection::IntersectionManager> &) override;

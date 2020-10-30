@@ -17,7 +17,7 @@ public:
 
   ConditionBase(const std::string & type, std::size_t occurrence = 0)
     : type_ { type }
-    // , name_ { type + "Condition(" + std::to_string(occurrence) + ")" }
+    , name_ { type + "Condition(" + std::to_string(occurrence) + ")" }
   {}
 
   template <typename T>
@@ -43,7 +43,7 @@ public:
   {
     return os << indent
               << "{ Name: \x1b[36m" << std::quoted(datum.getName()) << "\x1b[0m"
-              << ", Value: " << datum.description()
+              << ", Value: " << std::quoted(datum.description())
               << ", Result: " << (datum.getResult() ? "\x1b[32m" : "\x1b[31m") << std::boolalpha << datum.getResult() << "\x1b[0m"
               << "},\n";
   }

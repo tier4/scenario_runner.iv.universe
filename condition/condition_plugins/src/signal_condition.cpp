@@ -3,8 +3,10 @@
 namespace condition_plugins
 {
 
+size_t SignalCondition::occurrence { 0 };
+
 SignalCondition::SignalCondition()
-  : scenario_conditions::ConditionBase { "Signal" }
+  : scenario_conditions::ConditionBase { "Signal", occurrence++ }
 {}
 
 bool SignalCondition::configure(
