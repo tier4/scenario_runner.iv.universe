@@ -63,8 +63,6 @@ state_is EventManager::update(
     (*iter).touch();
   }
 
-  context_.current_event = (*cursor).name();
-
   switch (currently = (*cursor).update(context_.intersections_pointer()))
   {
   case state_is::finished:
