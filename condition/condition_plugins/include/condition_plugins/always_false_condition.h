@@ -25,8 +25,6 @@ namespace condition_plugins
 class AlwaysFalseCondition
   : public scenario_conditions::ConditionBase
 {
-  static std::size_t occurrence;
-
 public:
   AlwaysFalseCondition();
 

@@ -17,10 +17,8 @@
 namespace condition_plugins
 {
 
-std::size_t SimulationTimeCondition::occurrence { 0 };
-
 SimulationTimeCondition::SimulationTimeCondition()
-: scenario_conditions::ConditionBase {"SimulationTime", occurrence++}, duration_(0)
+  : scenario_conditions::ConditionBase { "SimulationTime" }
 {}
 
 bool SimulationTimeCondition::configure(
@@ -62,7 +60,10 @@ bool SimulationTimeCondition::update(
 {
   if (keep_ && result_) {
     return true;
-  } else {
+  }
+  else
+  {
+    value_ = elapsed().toSec();
     return result_ = compare_(elapsed(), duration_);
   }
 }

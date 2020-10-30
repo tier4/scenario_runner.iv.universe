@@ -17,10 +17,8 @@
 namespace condition_plugins
 {
 
-std::size_t SignalCondition::occurrence { 0 };
-
 SignalCondition::SignalCondition()
-: scenario_conditions::ConditionBase {"Signal", occurrence++}
+  : scenario_conditions::ConditionBase { "Signal" }
 {}
 
 bool SignalCondition::configure(
