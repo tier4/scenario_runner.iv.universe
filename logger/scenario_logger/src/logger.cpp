@@ -103,7 +103,7 @@ void Logger::append(int level,
 std::size_t Logger::getNumberOfLog() const
 {
   return data_.log.size();
-};
+}
 
 void Logger::updateMoveDistance(float move_distance)
 {
