@@ -29,6 +29,32 @@ class SequenceManager
 public:
   SequenceManager(const scenario_expression::Context&, const YAML::Node&);
 
+  const auto& current_sequence_name() const
+  {
+    if (cursor != std::end(sequences_))
+    {
+      return (*cursor).name();
+    }
+    else
+    {
+      static const std::string it { "" };
+      return it;
+    }
+  }
+
+  const auto& current_event_name() const
+  {
+    if (cursor != std::end(sequences_))
+    {
+      return (*cursor).current_event_name();
+    }
+    else
+    {
+      static const std::string it { "" };
+      return it;
+    }
+  }
+
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);
 

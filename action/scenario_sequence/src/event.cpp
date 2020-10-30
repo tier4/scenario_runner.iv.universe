@@ -48,7 +48,7 @@ state_is Event::update(
   context_.json << indent << "Name: " << std::quoted(name_) << ",\n";
 
   context_.json << (indent++) << "Conditions: [\n";
-  context_.json << condition_ << "\n";
+  context_.json << condition_;
   context_.json << (--indent) << "],\n";
 
   ignited_ = condition_.evaluate(context_);

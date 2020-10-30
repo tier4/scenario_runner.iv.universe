@@ -60,9 +60,6 @@ public:                                                                        \
 
 public:
   static std::stringstream json;
-
-  std::string current_sequence,
-              current_event;
 };
 
 /* -----------------------------------------------------------------------------

@@ -25,6 +25,19 @@ class EventManager
 public:
   EventManager(const scenario_expression::Context&, const YAML::Node&);
 
+  const auto& current_event_name() const
+  {
+    if (cursor != std::end(events_))
+    {
+      return (*cursor).name();
+    }
+    else
+    {
+      static const std::string it { "" };
+      return it;
+    }
+  }
+
   void touch() const;
 
   state_is update(

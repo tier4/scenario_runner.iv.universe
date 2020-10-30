@@ -34,6 +34,12 @@ public:
     return name_;
   }
 
+  template <typename... Ts>
+  decltype(auto) current_event_name(Ts&&... xs) const
+  {
+    return (*event_manager_).current_event_name(std::forward<decltype(xs)>(xs)...);
+  }
+
   void touch();
 
   state_is update(
