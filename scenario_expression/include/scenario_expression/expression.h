@@ -359,12 +359,7 @@ protected:
       (*plugin).rename(prefix + (*plugin).getType() + "(" + std::to_string(occurrence) + ")");
     }
 
-    return os << indent
-              << "{ Name: \x1b[36m" << std::quoted((*plugin).getName()) << "\x1b[0m"
-              << ", Value: "
-              << ((*plugin).getResult() ? "\x1b[32m" : "\x1b[31m")
-              << std::boolalpha << (*plugin).getResult()
-              << "\x1b[0m },\n";
+    return os << (*plugin);
   }
 
   virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;

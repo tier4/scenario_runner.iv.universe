@@ -3,10 +3,8 @@
 namespace condition_plugins
 {
 
-std::size_t RelativeDistanceCondition::occurrence { 0 };
-
 RelativeDistanceCondition::RelativeDistanceCondition()
-  : scenario_conditions::ConditionBase { "RelativeDistance", occurrence++ }
+  : scenario_conditions::ConditionBase { "RelativeDistance" }
 {}
 
 bool RelativeDistanceCondition::configure(
@@ -29,7 +27,7 @@ try
     std::swap(trigger_, target_entity_);
   }
 
-  value_ = read_essential<float>(node_, "Value");
+  target_value_ = read_essential<float>(node_, "Value");
 
   if (not parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
   {
@@ -55,18 +53,16 @@ bool RelativeDistanceCondition::update(
   }
   else
   {
-    double distance {0};
-
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      (*api_ptr_).calcDistToNPC(distance, target_entity_);
+      (*api_ptr_).calcDistToNPC(value_, target_entity_);
     }
     else
     {
-      (*api_ptr_).calcDistToNPCFromNPC(distance, trigger_, target_entity_);
+      (*api_ptr_).calcDistToNPCFromNPC(value_, trigger_, target_entity_);
     }
 
-    return result_ = compare_(distance, value_);
+    return result_ = compare_(value_, target_value_);
   }
 }
 

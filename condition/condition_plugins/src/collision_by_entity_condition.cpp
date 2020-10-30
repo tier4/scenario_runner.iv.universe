@@ -4,10 +4,8 @@
 namespace condition_plugins
 {
 
-std::size_t CollisionByEntityCondition::occurrence { 0 };
-
 CollisionByEntityCondition::CollisionByEntityCondition()
-  : scenario_conditions::ConditionBase { "CollisionByEntity", occurrence++ }
+  : scenario_conditions::ConditionBase { "CollisionByEntity" }
 {}
 
 bool CollisionByEntityCondition::configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
@@ -51,18 +49,16 @@ bool CollisionByEntityCondition::update(
   }
   else
   {
-    double distance;
-
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      (*api_ptr_).calcDistToNPC(distance, target_entity_);
+      (*api_ptr_).calcDistToNPC(value_, target_entity_);
     }
     else
     {
-      (*api_ptr_).calcDistToNPCFromNPC(distance, trigger_, target_entity_);
+      (*api_ptr_).calcDistToNPCFromNPC(value_, trigger_, target_entity_);
     }
 
-    return result_ = (distance <= std::numeric_limits<double>::epsilon());
+    return result_ = (value_ <= std::numeric_limits<double>::epsilon());
   }
 }
 

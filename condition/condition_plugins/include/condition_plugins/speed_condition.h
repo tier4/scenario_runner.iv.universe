@@ -22,7 +22,7 @@ public:
 private:
   std::string rule_;
   std::string trigger_;
-  float value_;
+  float target_value_;
   Comparator<float> compare_;
 };
 

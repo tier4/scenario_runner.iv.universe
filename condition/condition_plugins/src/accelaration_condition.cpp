@@ -3,10 +3,8 @@
 namespace condition_plugins
 {
 
-std::size_t AccelerationCondition::occurrence { 0 };
-
 AccelerationCondition::AccelerationCondition()
-  : scenario_conditions::ConditionBase { "Acceleration", occurrence++ }
+  : scenario_conditions::ConditionBase { "Acceleration" }
 {}
 
 bool AccelerationCondition::configure(
@@ -22,7 +20,7 @@ try
 
   trigger_ = read_essential<std::string>(node_, "Trigger");
 
-  value_ = read_essential<float>(node_, "Value");
+  target_ = read_essential<float>(node_, "Value");
 
   if (not parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
   {
@@ -50,20 +48,20 @@ bool AccelerationCondition::update(
   {
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      return result_ = compare_((*api_ptr_).getAccel(), value_);
+      return result_ = compare_(value_ = (*api_ptr_).getAccel(), target_);
     }
     else
     {
       double npc_acceleration { 0.0 };
 
-      if (not (*api_ptr_).getNPCAccel(trigger_, &npc_acceleration))
+      if (not (*api_ptr_).getNPCAccel(trigger_, &value_))
       {
         ROS_ERROR_STREAM("Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
       }
       else
       {
-        return result_ = compare_(npc_acceleration, value_);
+        return result_ = compare_(value_, target_);
       }
     }
   }

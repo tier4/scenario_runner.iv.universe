@@ -3,10 +3,8 @@
 namespace condition_plugins
 {
 
-std::size_t SpeedCondition::occurrence { 0 };
-
 SpeedCondition::SpeedCondition()
-  : scenario_conditions::ConditionBase { "Speed", occurrence++ }
+  : scenario_conditions::ConditionBase { "Speed" }
 {}
 
 bool SpeedCondition::configure(
@@ -21,7 +19,7 @@ try
 
   trigger_ = read_essential<std::string>(node_, "Trigger");
 
-  value_ = read_essential<float>(node_, "Value");
+  target_value_ = read_essential<float>(node_, "Value");
 
   if (not parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
   {
@@ -49,20 +47,18 @@ bool SpeedCondition::update(
   {
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      return result_ = compare_((*api_ptr_).getVelocity(), value_);
+      return result_ = compare_(value_ = (*api_ptr_).getVelocity(), target_value_);
     }
     else
     {
-      double npc_velocity { 0.0 };
-
-      if (not (*api_ptr_).getNPCVelocity(trigger_, &npc_velocity))
+      if (not (*api_ptr_).getNPCVelocity(trigger_, &value_))
       {
         ROS_ERROR_STREAM("Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
       }
       else
       {
-        return result_ = compare_(npc_velocity, value_);
+        return result_ = compare_(value_, target_value_);
       }
     }
   }

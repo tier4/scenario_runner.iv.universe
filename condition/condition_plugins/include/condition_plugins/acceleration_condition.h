@@ -14,8 +14,6 @@ namespace condition_plugins
 class AccelerationCondition
   : public scenario_conditions::ConditionBase
 {
-  static std::size_t occurrence;
-
 public:
   AccelerationCondition();
 
@@ -24,7 +22,7 @@ public:
 
 private:
   std::string trigger_;
-  float value_;
+  float target_;
   Comparator<float> compare_;
 };
 
