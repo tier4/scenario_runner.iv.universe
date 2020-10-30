@@ -17,10 +17,7 @@ target_link_libraries(scenario_api_utils
   ${YAML_CPP_LIBRARIES}
 )
 
-# Install python package
-ament_python_install_package(scripts)
-
-# Install script  
+# Install python script  
 install(PROGRAMS scripts/ros_time_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
