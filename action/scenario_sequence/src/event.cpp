@@ -88,13 +88,22 @@ std::ostream& operator <<(std::ostream& os, const state_is& currently)
   switch (currently)
   {
   case state_is::sleeping:
-    return os << "\x1b[33m" << std::quoted("NotRunning") << "\x1b[0m";
+    return os // << "\x1b[33m"
+              << std::quoted("NotRunning")
+              // << "\x1b[0m"
+              ;
 
   case state_is::running:
-    return os << "\x1b[32m" << std::quoted("Running") << "\x1b[0m";
+    return os // << "\x1b[32m"
+              << std::quoted("Running")
+              // << "\x1b[0m"
+              ;
 
   case state_is::finished:
-    return os << "\x1b[31m" << std::quoted("Finished") << "\x1b[0m";
+    return os // << "\x1b[31m"
+              << std::quoted("Finished")
+              // << "\x1b[0m"
+              ;
   }
 }
 
