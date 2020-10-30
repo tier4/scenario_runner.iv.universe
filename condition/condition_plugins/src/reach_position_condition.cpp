@@ -68,6 +68,11 @@ bool ReachPositionCondition::update(
       SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
     }
 
+    description_ =
+      std::to_string(
+        api_ptr_->getDistanceToArea(
+          trigger_, target_pose_, shift_));
+
     if (api_ptr_->isObjectInArea(
         trigger_, target_pose_, tolerance_, boost::math::constants::two_pi<double>(), shift_))
     {
