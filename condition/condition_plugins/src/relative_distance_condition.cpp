@@ -17,8 +17,10 @@
 namespace condition_plugins
 {
 
+size_t RelativeDistanceCondition::occurrence { 0 };
+
 RelativeDistanceCondition::RelativeDistanceCondition()
-  : scenario_conditions::ConditionBase { "RelativeDistance" }
+  : scenario_conditions::ConditionBase { "RelativeDistance", occurrence++ }
 {}
 
 bool RelativeDistanceCondition::configure(
