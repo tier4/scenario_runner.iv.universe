@@ -47,18 +47,22 @@ bool SpeedCondition::update(
   {
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      return result_ = compare_(value_ = (*api_ptr_).getVelocity(), target_value_);
+      description_ = std::to_string((*api_ptr_).getVelocity());
+      return result_ = compare_((*api_ptr_).getVelocity(), target_value_);
     }
     else
     {
-      if (not (*api_ptr_).getNPCVelocity(trigger_, &value_))
+      double velocity { 0 };
+
+      if (not (*api_ptr_).getNPCVelocity(trigger_, &velocity))
       {
         ROS_ERROR_STREAM("Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
       }
       else
       {
-        return result_ = compare_(value_, target_value_);
+        description_ = std::to_string(velocity);
+        return result_ = compare_(velocity, target_value_);
       }
     }
   }

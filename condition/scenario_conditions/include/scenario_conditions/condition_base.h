@@ -28,7 +28,7 @@ public:
 
   const std::string & getName() const noexcept { return name_; }
 
-  double getValue() const noexcept { return value_; }
+  const std::string& description() const noexcept { return description_; }
 
   const auto& rename(const std::string& new_name)
   {
@@ -43,7 +43,7 @@ public:
   {
     return os << indent
               << "{ Name: \x1b[36m" << std::quoted(datum.getName()) << "\x1b[0m"
-              << ", Value: " << datum.getValue()
+              << ", Value: " << datum.description()
               << ", Result: " << (datum.getResult() ? "\x1b[32m" : "\x1b[31m") << std::boolalpha << datum.getResult() << "\x1b[0m"
               << "},\n";
   }
@@ -56,7 +56,7 @@ protected:
   bool keep_ = false;
   bool result_ = false;
 
-  double value_ { std::numeric_limits<double>::quiet_NaN() };
+  std::string description_;
 
   std::string name_;
   std::string type_;

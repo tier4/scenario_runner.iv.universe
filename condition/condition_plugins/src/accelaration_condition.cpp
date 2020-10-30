@@ -48,20 +48,22 @@ bool AccelerationCondition::update(
   {
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      return result_ = compare_(value_ = (*api_ptr_).getAccel(), target_);
+      description_ = std::to_string((*api_ptr_).getAccel());
+      return result_ = compare_((*api_ptr_).getAccel(), target_);
     }
     else
     {
-      double npc_acceleration { 0.0 };
+      double acceleration { 0 };
 
-      if (not (*api_ptr_).getNPCAccel(trigger_, &value_))
+      if (not (*api_ptr_).getNPCAccel(trigger_, &acceleration))
       {
         ROS_ERROR_STREAM("Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
       }
       else
       {
-        return result_ = compare_(value_, target_);
+        description_ = std::to_string((*api_ptr_).getAccel());
+        return result_ = compare_(acceleration, target_);
       }
     }
   }

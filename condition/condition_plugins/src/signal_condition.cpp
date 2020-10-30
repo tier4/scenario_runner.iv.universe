@@ -49,6 +49,7 @@ bool SignalCondition::update(const std::shared_ptr<scenario_intersection::Inters
   }
   else
   {
+    description_ = (*intersections).at(trigger_).current_state();
     return result_ = (*intersections).at(trigger_).is(state_);
   }
 }

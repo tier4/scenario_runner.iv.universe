@@ -51,7 +51,7 @@ bool SimulationTimeCondition::update(
   }
   else
   {
-    value_ = elapsed().toSec();
+    description_ = std::to_string(elapsed().toSec());
     return result_ = compare_(elapsed(), duration_);
   }
 }
