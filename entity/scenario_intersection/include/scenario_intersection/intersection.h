@@ -166,9 +166,14 @@ public:
 
   bool change_to(const std::string & the_state);
 
-  bool is(const std::string & state) const
+  const auto& current_state() const noexcept
   {
-    return current_state_ == state;
+    return current_state_;
+  }
+
+  bool is(const std::string& state) const
+  {
+    return current_state() == state;
   }
 
   const std::vector<std::size_t> & ids() const;
