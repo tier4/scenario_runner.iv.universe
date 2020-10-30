@@ -20,7 +20,7 @@ namespace condition_plugins
 AlwaysTrueCondition::AlwaysTrueCondition()
   : scenario_conditions::ConditionBase { "AlwaysTrue" }
 {
-  value_ = 1;
+  description_ = "true";
   result_ = true;
 }
 

@@ -62,16 +62,20 @@ bool RelativeDistanceCondition::update(
   }
   else
   {
+    double distance {};
+
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      (*api_ptr_).calcDistToNPC(value_, target_entity_);
+      (*api_ptr_).calcDistToNPC(distance, target_entity_);
     }
     else
     {
-      (*api_ptr_).calcDistToNPCFromNPC(value_, trigger_, target_entity_);
+      (*api_ptr_).calcDistToNPCFromNPC(distance, trigger_, target_entity_);
     }
 
-    return result_ = compare_(value_, target_value_);
+    description_ = std::to_string(distance);
+
+    return result_ = compare_(distance, target_value_);
   }
 }
 

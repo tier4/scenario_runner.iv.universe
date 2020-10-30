@@ -58,16 +58,20 @@ bool CollisionByEntityCondition::update(
   }
   else
   {
+    double distance {};
+
     if ((*api_ptr_).isEgoCarName(trigger_))
     {
-      (*api_ptr_).calcDistToNPC(value_, target_entity_);
+      (*api_ptr_).calcDistToNPC(distance, target_entity_);
     }
     else
     {
-      (*api_ptr_).calcDistToNPCFromNPC(value_, trigger_, target_entity_);
+      (*api_ptr_).calcDistToNPCFromNPC(distance, trigger_, target_entity_);
     }
 
-    return result_ = (value_ <= std::numeric_limits<double>::epsilon());
+    description_ = std::to_string(distance);
+
+    return result_ = (distance <= std::numeric_limits<double>::epsilon());
   }
 }
 

@@ -58,7 +58,10 @@ bool SignalCondition::update(
 
   if (keep_ && result_) {
     return result_;
-  } else {
+  }
+  else
+  {
+    description_ = (*intersections).at(trigger_).current_state();
     return result_ = (*intersections).at(trigger_).is(state_);
   }
 }

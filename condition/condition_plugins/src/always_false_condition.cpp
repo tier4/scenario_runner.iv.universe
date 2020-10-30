@@ -20,7 +20,7 @@ namespace condition_plugins
 AlwaysFalseCondition::AlwaysFalseCondition()
   : scenario_conditions::ConditionBase { "AlwaysFalse" }
 {
-  value_ = 0;
+  description_ = "false";
   result_ = false;
 }
 
