@@ -455,6 +455,32 @@ bool ScenarioAPI::checkOverTrafficLine(const int traffic_relation_id, bool & ove
   return autoware_api_->checkOverTrafficLine(traffic_relation_id, self_pose.pose, over_line);
 }
 
+double ScenarioAPI::getDistanceToArea(
+  const std::string & name, const geometry_msgs::msg::Pose pose, const std::string & frame_type)
+{
+  // get position of target object and shift pose
+  geometry_msgs::msg::Pose obj_pose;
+  geometry_msgs::msg::Pose shift_pose;
+  if (name == ego_car_name_) { // ego-car
+    obj_pose = autoware_api_->getCurrentPoseRos().pose;
+    if (!autoware_api_->shiftEgoPose(pose, frame_type, &shift_pose)) {
+      return false;
+    }
+  } else { // npc-object
+    npc_simulator::Object obj;
+    if (!simulator_api_->getNPC(name, obj)) {
+      return false;
+    }
+    obj_pose = obj.initial_state.pose_covariance.pose;
+    if (!simulator_api_->shiftNPCPose(pose, frame_type, obj, &shift_pose)) {
+      return false;
+    }
+  }
+  return std::sqrt(
+    std::pow(obj_pose.position.x - shift_pose.position.x, 2) +
+    std::pow(obj_pose.position.y - shift_pose.position.y, 2));
+}
+
 //util API
 bool ScenarioAPI::isObjectInArea(
   const std::string & name, geometry_msgs::msg::Pose pose, double dist_thresh,
