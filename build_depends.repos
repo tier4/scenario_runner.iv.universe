@@ -2,7 +2,7 @@ repositories:
   autoware/pilot.auto:
     type: git
     url: https://github.com/tier4/pilot.auto.git
-    version: ros2
+    version: d435e0295fc843f5aa2e3210828bfc9f025202f5
   # dependencies for autoware/pilot.auto
   vendor/osqp:
     type: git
