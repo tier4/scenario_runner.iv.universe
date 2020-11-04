@@ -27,8 +27,6 @@ namespace condition_plugins
 class SimulationTimeCondition
   : public scenario_conditions::ConditionBase
 {
-  static std::size_t occurrence;
-
   rclcpp::Duration duration_;
 
   std::string rule_;

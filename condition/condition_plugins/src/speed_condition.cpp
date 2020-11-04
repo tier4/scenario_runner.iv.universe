@@ -17,10 +17,8 @@
 namespace condition_plugins
 {
 
-std::size_t SpeedCondition::occurrence { 0 };
-
 SpeedCondition::SpeedCondition()
-  : scenario_conditions::ConditionBase { "Speed", occurrence++ }
+  : scenario_conditions::ConditionBase { "Speed" }
 {}
 
 bool SpeedCondition::configure(

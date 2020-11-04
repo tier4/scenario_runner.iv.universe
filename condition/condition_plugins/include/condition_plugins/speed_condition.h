@@ -26,8 +26,6 @@ namespace condition_plugins
 
 class SpeedCondition : public scenario_conditions::ConditionBase
 {
-  static std::size_t occurrence;
-
 public:
   SpeedCondition();
   bool update(const std::shared_ptr<scenario_intersection::IntersectionManager> &) override;
