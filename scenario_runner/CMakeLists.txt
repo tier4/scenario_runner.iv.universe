@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   scenario_intersection
   scenario_logger
   scenario_logger_msgs
+  scenario_runner_msgs
   scenario_sequence
   scenario_utility
 )

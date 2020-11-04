@@ -1,7 +1,7 @@
 #include <chrono>
 #include <thread>
 
-#include <std_msgs/String.h>
+#include <scenario_runner_msgs/StringStamped.h>
 
 #include <scenario_logger/logger.h>
 #include <scenario_runner/scenario_runner.h>
@@ -12,7 +12,7 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
   : currently { simulation_is::ongoing }
   ,  nh_ {  nh }
   , pnh_ { pnh }
-  , publisher_ { pnh.advertise<std_msgs::String>("context", 1) }
+  , publisher_ { pnh.advertise<scenario_runner_msgs::StringStamped>("context", 1) }
   , simulator_ { std::make_shared<ScenarioAPI>() }
 {
   pnh_.getParam("scenario_path", scenario_path_);
@@ -154,10 +154,11 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
 
   context.json << (--indent) << "}" << std::endl;
 
-  std_msgs::String message {};
+  scenario_runner_msgs::StringStamped message {};
+  message.header.stamp = ros::Time::now();
   message.data = context.json.str();
 
-  std::cout << message.data.c_str() << std::endl;
+  // std::cout << message.data.c_str() << std::endl;
 
   publisher_.publish(message);
 
