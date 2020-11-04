@@ -13,8 +13,6 @@ namespace condition_plugins
 class AlwaysTrueCondition
   : public scenario_conditions::ConditionBase
 {
-  static std::size_t occurrence;
-
 public:
   AlwaysTrueCondition();
 

@@ -3,10 +3,8 @@
 namespace condition_plugins
 {
 
-std::size_t AccelerationCondition::occurrence { 0 };
-
 AccelerationCondition::AccelerationCondition()
-  : scenario_conditions::ConditionBase { "Acceleration", occurrence++ }
+  : scenario_conditions::ConditionBase { "Acceleration" }
 {}
 
 bool AccelerationCondition::configure(

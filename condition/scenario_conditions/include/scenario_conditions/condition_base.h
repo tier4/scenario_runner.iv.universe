@@ -15,9 +15,9 @@ class ConditionBase
 public:
   ConditionBase() = default;
 
-  ConditionBase(const std::string & type, std::size_t occurrence = 0)
+  ConditionBase(const std::string & type)
     : type_ { type }
-    , name_ { type + "Condition(" + std::to_string(occurrence) + ")" }
+    , name_ {}
   {}
 
   template <typename T>

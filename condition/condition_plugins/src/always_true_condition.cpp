@@ -3,10 +3,8 @@
 namespace condition_plugins
 {
 
-std::size_t AlwaysTrueCondition::occurrence { 0 };
-
 AlwaysTrueCondition::AlwaysTrueCondition()
-  : scenario_conditions::ConditionBase { "AlwaysTrue", occurrence++ }
+  : scenario_conditions::ConditionBase { "AlwaysTrue" }
 {
   description_ = "true";
   result_ = true;

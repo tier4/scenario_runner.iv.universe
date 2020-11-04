@@ -14,8 +14,6 @@ namespace condition_plugins
 class AccelerationCondition
   : public scenario_conditions::ConditionBase
 {
-  static std::size_t occurrence;
-
 public:
   AccelerationCondition();
 

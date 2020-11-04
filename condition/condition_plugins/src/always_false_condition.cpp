@@ -3,10 +3,8 @@
 namespace condition_plugins
 {
 
-std::size_t AlwaysFalseCondition::occurrence { 0 };
-
 AlwaysFalseCondition::AlwaysFalseCondition()
-  : scenario_conditions::ConditionBase { "AlwaysFalse", occurrence++ }
+  : scenario_conditions::ConditionBase { "AlwaysFalse" }
 {
   description_ = "false";
   result_ = false;

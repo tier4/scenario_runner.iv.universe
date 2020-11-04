@@ -12,8 +12,6 @@ namespace condition_plugins
 class SignalCondition
   : public scenario_conditions::ConditionBase
 {
-  static std::size_t occurrence;
-
   std::shared_ptr<ScenarioAPI> simulator_;
 
   std::string trigger_, state_;
