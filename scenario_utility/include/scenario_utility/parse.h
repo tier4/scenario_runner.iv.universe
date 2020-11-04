@@ -2,10 +2,10 @@
 #define SCENARIO_UTILS_PARSE_H_INCLUDED
 
 #include <boost/optional.hpp>
-#include <geometry_msgs/point_stamped.hpp>
-#include <geometry_msgs/pose_stamped.hpp>
+#include <geometry_msgs/msg/point_stamped.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <scenario_logger/logger.h>
+// #include <scenario_logger/logger.h>
 
 #include <sstream>
 #include <string>
