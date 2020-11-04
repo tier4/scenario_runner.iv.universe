@@ -2,10 +2,11 @@
 #define SCENARIO_UTILS_PARSE_H_INCLUDED
 
 #include <boost/optional.hpp>
-#include <geometry_msgs/PointStamped.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <ros/ros.h>
+#include <geometry_msgs/point_stamped.hpp>
+#include <geometry_msgs/pose_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <scenario_logger/logger.h>
+
 #include <sstream>
 #include <string>
 #include <vector>
@@ -24,10 +25,10 @@ T read_as(const YAML::Node&);
   template <>                                                                  \
   TYPENAME read_as<TYPENAME>(const YAML::Node& node)
 
-READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::Point);
-READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::Quaternion);
-READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::Pose);
-READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::PoseStamped);
+READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::msg::Point);
+READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::msg::Quaternion);
+READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::msg::Pose);
+READ_AS_SPECIALIZED_SIGNATURE(geometry_msgs::msg::PoseStamped);
 
 template <typename T>
 T read_essential(const YAML::Node& node, const std::string& key)
@@ -56,10 +57,10 @@ T read_essential(const YAML::Node& node, const std::string& key)
   TYPENAME read_essential<TYPENAME>(                                           \
     const YAML::Node& node, const std::string& key)
 
-READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::Point);
-READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::Quaternion);
-READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::Pose);
-READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::PoseStamped);
+READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::msg::Point);
+READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::msg::Quaternion);
+READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::msg::Pose);
+READ_ESSENTIAL_SPECIALIZED_SIGNATURE(geometry_msgs::msg::PoseStamped);
 
 template <typename T>
 T read_optional(
