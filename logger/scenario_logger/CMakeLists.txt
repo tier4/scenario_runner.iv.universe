@@ -18,4 +18,4 @@ ament_auto_add_library(scenario_logger SHARED
   src/logger.cpp
   )
 
-ament_package()
+ament_auto_package()
