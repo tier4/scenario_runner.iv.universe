@@ -3,7 +3,7 @@ project(scenario_utility)
 
 ### Compile options
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
@@ -24,8 +24,5 @@ ament_auto_add_library(scenario_utility SHARED
   ${SCENARIO_UTILITY_SRC}
 )
 
-ament_auto_package(INSTALL_TO_SHARE
-  launch
-  config
-)
+ament_auto_package()
 
