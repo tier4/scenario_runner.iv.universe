@@ -14,6 +14,7 @@
 
 #include "glog/logging.h"
 #include "scenario_logger/logger.hpp"
+#include "scenario_logger/simple_logger.hpp"
 #include "scenario_runner/scenario_runner.h"
 #include "boost/cstdlib.hpp"
 #include <exception>
@@ -55,6 +56,12 @@ int main(int argc, char * argv[])
 {
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureFunction(&failureCallback);
+
+  using scenario_logger::slog;
+
+  slog.open("/tmp/log", std::ios::trunc);
+
+  slog << "test" << std::endl;
 
   /*
   * setup scenario runner

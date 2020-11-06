@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "scenario_logger/logger.hpp"
+#include "scenario_logger/simple_logger.hpp"
 #include "scenario_runner/scenario_runner.h"
 
 namespace scenario_runner
