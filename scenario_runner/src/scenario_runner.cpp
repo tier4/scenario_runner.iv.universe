@@ -28,6 +28,9 @@ ScenarioRunner::ScenarioRunner()
   simulator_{std::make_shared<ScenarioAPI>()},
   scenario_path_{declare_parameter("scenario_path").get<std::string>()}
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
   simulator_->init();
   if (not (*simulator_).waitAutowareInitialize()) {
     SCENARIO_ERROR_THROW(CATEGORY(), "Failed to initialize Autoware.");

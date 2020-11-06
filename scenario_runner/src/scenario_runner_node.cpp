@@ -70,7 +70,6 @@ int main(int argc, char * argv[])
 
   rclcpp::init(argc, argv);
 
-  SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner instantiated.");
   const auto runner_ptr = std::make_shared<scenario_runner::ScenarioRunner>();
 
   scenario_logger::log.setStartDatetime(runner_ptr->now());
@@ -78,13 +77,14 @@ int main(int argc, char * argv[])
 
   std::string scenario_id{runner_ptr->declare_parameter("scenario_id").get<std::string>()};
   scenario_logger::log.setScenarioID(scenario_id);
+  slog.info() << "Scenario ID is " << scenario_id << endlog;
 
   std::string log_output_path{runner_ptr->declare_parameter("log_output_path").get<std::string>()};
   scenario_logger::log.setLogOutputPath(log_output_path);
 
-  // SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
+  // slog.info() << "Sleep for 10 seconds" << endlog;
   // std::this_thread::sleep_for(std::chrono::seconds {10});
-  // SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
+  // slog.info() << "Wake-up." << endlog;
   const auto & path = runner_ptr->declare_parameter("json_dump_path").get<std::string>();
   const auto dump = [&runner_ptr, path](int exit_code) {
       dump_diagnostics(
