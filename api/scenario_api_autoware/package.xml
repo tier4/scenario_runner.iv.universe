@@ -19,8 +19,11 @@
   <depend>boost</depend>
   <depend>geometry_msgs</depend>
   <depend>lanelet2_extension</depend>
+  <depend>pcl_conversions</depend>
+  <depend>pcl_ros</depend>
   <depend>rclcpp</depend>
   <depend>scenario_api_utils</depend>
+  <depend>scenario_logger</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf2</depend>

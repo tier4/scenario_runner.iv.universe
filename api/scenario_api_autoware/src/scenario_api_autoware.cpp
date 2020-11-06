@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "scenario_api_autoware/scenario_api_autoware.hpp"
+#include "scenario_logger/simple_logger.hpp"
 
 #include "boost/assign/list_of.hpp"
 
@@ -27,6 +28,11 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
+  slog.info() << "Connecting to Autoware" << endlog;
+
   /* Get Parameter*/
   camera_frame_id_ = node_->declare_parameter<std::string>("camera_frame_id", "camera_link");
 
@@ -113,6 +119,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   pub_traffic_detection_result_ =
     node_->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
     "output/traffic_detection_result", rclcpp::QoS{10}.transient_local());
+  slog.info() << "Connection to Autoware established" << endlog;
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
@@ -154,9 +161,13 @@ void ScenarioAPIAutoware::callbackRoute(
 void ScenarioAPIAutoware::callbackStatus(
   const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg)
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
   autoware_state_ = msg->state;
   if (autoware_state_ != autoware_system_msgs::msg::AutowareState::EMERGENCY) {
     is_autoware_ready_initialize = true;
+
+    slog.info() << "Current Autoware state is " << autoware_state_ << endlog;
   }
 }
 
@@ -393,14 +404,19 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
 
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
   while (rclcpp::ok()) {
+    slog.info() << "Waiting for Autoware to be initialized" << endlog;
     if (isAutowareReadyInitialize()) {
-      break;
+      slog.info() << "Autoware is initialized" << endlog;
+      return true;
     }
     rclcpp::Rate(10.0).sleep();
     rclcpp::spin_some(node_->get_node_base_interface());
   }
-  return true;
+  return false;
 }
 
 bool ScenarioAPIAutoware::isAutowareReadyInitialize() {return is_autoware_ready_initialize;}
