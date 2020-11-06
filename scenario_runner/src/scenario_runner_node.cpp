@@ -23,10 +23,11 @@ int main(int argc, char * argv[]) try
   google::InstallFailureFunction(&failureCallback);
 
   using scenario_logger::slog;
+  using scenario_logger::endlog;
 
   slog.open("/tmp/log", std::ios::trunc);
 
-  slog << "test" << std::endl;
+  slog.info() << "test" << endlog;
 
   ros::init(argc, argv, "scenario_runner_node");
   ros::NodeHandle nh;
