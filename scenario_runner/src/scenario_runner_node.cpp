@@ -1,11 +1,12 @@
-#include <thread>
 #include <boost/cstdlib.hpp>
 #include <exception>
 #include <glog/logging.h>
 #include <ros/ros.h>
 #include <scenario_logger/logger.h>
+#include <scenario_logger/simple_logger.hpp>
 #include <scenario_runner/scenario_runner.h>
 #include <scenario_runner/scenario_terminater.h>
+#include <thread>
 
 
 static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
@@ -20,6 +21,12 @@ int main(int argc, char * argv[]) try
 {
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureFunction(&failureCallback);
+
+  using scenario_logger::slog;
+
+  slog.open("/tmp/log", std::ios::trunc);
+
+  slog << "test" << std::endl;
 
   ros::init(argc, argv, "scenario_runner_node");
   ros::NodeHandle nh;

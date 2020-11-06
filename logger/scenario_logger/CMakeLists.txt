@@ -23,6 +23,7 @@ include_directories(
 
 add_library(scenario_logger SHARED
   src/logger.cpp
+  src/simple_logger.cpp
   )
 
 add_dependencies(${PROJECT_NAME}
