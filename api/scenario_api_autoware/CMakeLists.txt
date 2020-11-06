@@ -4,26 +4,42 @@ project(scenario_api_autoware)
 add_compile_options(-std=c++14)
 
 find_package(catkin REQUIRED COMPONENTS
-  sensor_msgs
-  geometry_msgs
-  std_msgs
+  autoware_perception_msgs
   autoware_planning_msgs
   autoware_system_msgs
-  autoware_perception_msgs
   autoware_vehicle_msgs
   dummy_perception_publisher
-  roscpp
-  tf2_ros
-  pcl_ros
-  pcl_conversions
+  geometry_msgs
   lanelet2_extension
+  pcl_conversions
+  pcl_ros
+  roscpp
   scenario_api_utils
+  scenario_logger
+  sensor_msgs
+  std_msgs
+  tf2_ros
 )
 
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES scenario_api_autoware
- CATKIN_DEPENDS scenario_api_utils sensor_msgs geometry_msgs std_msgs autoware_planning_msgs autoware_system_msgs autoware_perception_msgs autoware_vehicle_msgs dummy_perception_publisher roscpp tf2_ros pcl_ros pcl_conversions lanelet2_extension
+  INCLUDE_DIRS include
+  LIBRARIES scenario_api_autoware
+  CATKIN_DEPENDS
+    autoware_perception_msgs
+    autoware_planning_msgs
+    autoware_system_msgs
+    autoware_vehicle_msgs
+    dummy_perception_publisher
+    geometry_msgs
+    lanelet2_extension
+    pcl_conversions
+    pcl_ros
+    roscpp
+    scenario_api_utils
+    scenario_logger
+    sensor_msgs
+    std_msgs
+    tf2_ros
 )
 
 include_directories(

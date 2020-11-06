@@ -29,10 +29,8 @@ namespace scenario_logger { inline namespace simple
       }
     };
 
-    decltype(auto) info()
-    {
-      return (*this) << Header("info");
-    }
+    decltype(auto) info()  { return (*this) << Header("info"); }
+    decltype(auto) error() { return (*this) << Header("error"); }
   };
 
   extern SimpleLogger& slog;

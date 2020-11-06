@@ -16,6 +16,9 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
   , publisher_ { pnh.advertise<scenario_runner_msgs::StringStamped>("context", 1) }
   , simulator_ { std::make_shared<ScenarioAPI>() }
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
   pnh_.getParam("scenario_path", scenario_path_);
 
   if (not (*simulator_).waitAutowareInitialize())

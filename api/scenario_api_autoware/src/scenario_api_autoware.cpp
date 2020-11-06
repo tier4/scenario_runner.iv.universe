@@ -15,6 +15,7 @@
  */
 
 #include <scenario_api_autoware/scenario_api_autoware.h>
+#include <scenario_logger/simple_logger.hpp>
 
 ScenarioAPIAutoware::ScenarioAPIAutoware()
 : nh_(""),
@@ -24,6 +25,11 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
+  slog.info() << "Connecting to Autoware" << endlog;
+
   /* Get Parameter*/
   pnh_.param<std::string>("camera_frame_id", camera_frame_id_, "camera_link");
 
@@ -68,6 +74,8 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
     "output/traffic_detection_result", 10, true);
   pub_lane_change_permission_ =
     pnh_.advertise<std_msgs::Bool>("output/lane_change_permission", 1, true);
+
+  slog.info() << "Connection to Autoware established" << endlog;
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
@@ -107,9 +115,14 @@ void ScenarioAPIAutoware::callbackRoute(const autoware_planning_msgs::Route & ms
 
 void ScenarioAPIAutoware::callbackStatus(const autoware_system_msgs::AutowareState & msg)
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
   autoware_state_ = msg.state;
   if (autoware_state_ != autoware_system_msgs::AutowareState::Emergency)
     is_autoware_ready_initialize = true;
+
+  slog.info() << "Current Autoware state is " << autoware_state_ << endlog;
 }
 
 void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::TwistStamped::ConstPtr & msg)
@@ -326,14 +339,19 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
 
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
   while (ros::ok()) {
+    slog.info() << "Waiting for Autoware to be initialized" << endlog;
     if (isAutowareReadyInitialize()) {
-      break;
+      slog.info() << "Autoware is initialized" << endlog;
+      return true;
     }
     ros::Rate(10.0).sleep();
     ros::spinOnce();
   }
-  return true;
+  return false;
 }
 
 bool ScenarioAPIAutoware::isAutowareReadyInitialize() { return is_autoware_ready_initialize; }

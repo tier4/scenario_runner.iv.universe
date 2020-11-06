@@ -39,20 +39,20 @@ int main(int argc, char * argv[]) try
   std::string scenario_id;
   pnh.getParam("scenario_id", scenario_id);
   scenario_logger::log.setScenarioID(scenario_id);
+  slog.info() << "Scenario ID is " << scenario_id << endlog;
 
   std::string log_output_path;
   pnh.getParam("log_output_path", log_output_path);
   scenario_logger::log.setLogOutputPath(log_output_path);
 
-  SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
+  slog.info() << "Sleep for 10 seconds" << endlog;
   std::this_thread::sleep_for(std::chrono::seconds { 10 });
-  SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
+  slog.info() << "Wake-up." << endlog;
 
   /*
    * setup scenario runner
    */
   scenario_runner::ScenarioRunner runner(nh, pnh);
-  SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner instantiated.");
 
   /*
    * start simulation
