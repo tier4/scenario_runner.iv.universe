@@ -9,7 +9,7 @@ double normalizeRadian(const double rad, const double min_rad, const double max_
     return value - std::copysign(2 * M_PI, value);
 }
 
-geometry_msgs::Quaternion quatFromYaw(double yaw)
+geometry_msgs::msg::Quaternion quatFromYaw(double yaw)
 {
   tf2::Quaternion quat;
   quat.setRPY(0.0, 0.0, yaw);
@@ -26,7 +26,7 @@ double yawFromQuat(double q_x, double q_y, double q_z, double q_w)
   return yaw;
 }
 
-double yawFromQuat(geometry_msgs::Quaternion q)
+double yawFromQuat(geometry_msgs::msg::Quaternion q)
 {
   tf2::Quaternion quat(q.x, q.y, q.z, q.w);
   tf2::Matrix3x3 mat(quat);
@@ -36,11 +36,11 @@ double yawFromQuat(geometry_msgs::Quaternion q)
   return yaw;
 }
 
-geometry_msgs::Pose poseFromValue(
+geometry_msgs::msg::Pose poseFromValue(
   const double p_x, const double p_y, const double p_z, const double o_x, const double o_y,
   const double o_z, const double o_w)
 {
-  geometry_msgs::Pose pose;
+  geometry_msgs::msg::Pose pose;
   pose.position.x = p_x;
   pose.position.y = p_y;
   pose.position.z = p_z;
@@ -51,10 +51,10 @@ geometry_msgs::Pose poseFromValue(
   return pose;
 }
 
-geometry_msgs::Pose poseFromValue(
+geometry_msgs::msg::Pose poseFromValue(
   const double p_x, const double p_y, const double p_z, const double yaw)
 {
-  geometry_msgs::Pose pose;
+  geometry_msgs::msg::Pose pose;
   pose.position.x = p_x;
   pose.position.y = p_y;
   pose.position.z = p_z;
@@ -62,9 +62,9 @@ geometry_msgs::Pose poseFromValue(
   return pose;
 }
 
-geometry_msgs::Pose movePose(const geometry_msgs::Pose & pose, const double move_dist_to_forward)
+geometry_msgs::msg::Pose movePose(const geometry_msgs::msg::Pose & pose, const double move_dist_to_forward)
 {
-  geometry_msgs::Pose move_pose = pose;
+  geometry_msgs::msg::Pose move_pose = pose;
   const double yaw = tf2::getYaw(pose.orientation);
   const double dx = move_dist_to_forward * std::cos(yaw);
   const double dy = move_dist_to_forward * std::sin(yaw);

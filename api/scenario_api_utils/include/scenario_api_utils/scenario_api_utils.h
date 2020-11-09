@@ -17,26 +17,13 @@
 #ifndef SCENARIO_API_SCENARIO_API_UTILS_H_INCLUDED
 #define SCENARIO_API_SCENARIO_API_UTILS_H_INCLUDED
 
-#pragma once
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Transform.h>
-#include <geometry_msgs/Twist.h>
-#include <ros/ros.h>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/transform.hpp>
+#include <geometry_msgs/msg/twist.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2/utils.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
-
-#include <boost/assign/list_of.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-
-namespace bg = boost::geometry;
-namespace bt = bg::strategy::transform;
-typedef bg::model::d2::point_xy<double> Point;
-typedef bg::model::linestring<Point> Line;
-typedef bg::model::polygon<Point> Polygon;
 
 struct Pose2D
 {
@@ -46,28 +33,32 @@ struct Pose2D
 };
 
 template <class T>
-T waitForParam(const ros::NodeHandle & nh, const std::string & key)
+T waitForParam(const std::shared_ptr<rclcpp::Node> & node, const std::string & key)
 {
   T value;
-  ros::Rate rate(0.5);
-  while (ros::ok()) {
-    const auto result = nh.getParam(key, value);
-    if (result) {
-      return value;
+  // TODO: replace this with Rate that works based on ROS Clock when it is available
+  // https://github.com/ros2/rclcpp/pull/1373
+  rclcpp::WallRate rate(0.5);
+  while (!rclcpp::ok()) {
+    try{
+      const auto result = node->declare_parameter(key).get<T>();
+      return result;
+    } catch(...)
+    {
+      rate.sleep();
     }
-    rate.sleep();
   }
 }
 
 double normalizeRadian(const double rad, const double min_rad = -M_PI, const double max_rad = M_PI);
-geometry_msgs::Quaternion quatFromYaw(double yaw);
+geometry_msgs::msg::Quaternion quatFromYaw(double yaw);
 double yawFromQuat(double q_x, double q_y, double q_z, double q_w);
-double yawFromQuat(geometry_msgs::Quaternion q);
-geometry_msgs::Pose poseFromValue(
+double yawFromQuat(geometry_msgs::msg::Quaternion q);
+geometry_msgs::msg::Pose poseFromValue(
   const double p_x, const double p_y, const double p_z, const double o_x, const double o_y,
   const double o_z, const double o_w);
-geometry_msgs::Pose poseFromValue(
+geometry_msgs::msg::Pose poseFromValue(
   const double p_x, const double p_y, const double p_z, const double yaw);
-geometry_msgs::Pose movePose(const geometry_msgs::Pose & pose, const double move_dist_to_forward);
+geometry_msgs::msg::Pose movePose(const geometry_msgs::msg::Pose & pose, const double move_dist_to_forward);
 
 #endif  // SCENARIO_API_SCENARIO_API_UTILS_H_INCLUDED
