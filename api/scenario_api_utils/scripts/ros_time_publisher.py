@@ -2,26 +2,24 @@
 # -*- coding: utf-8 -*-
 import rclpy
 from rclpy.node import Node
+from rcl_interfaces.msg import ParameterDescriptor
+from rcl_interfaces.msg import ParameterType
 import time
 from rosgraph_msgs.msg import Clock
 
 class RosTimePublisher(Node):
     def __init__(self):
         super().__init__('ros_time_publisher')
-        use_sim_time_param = rclpy.parameter.Parameter(
-            "use_sim_time",
-            rclpy.Parameter.Type.BOOL,
-            False)
-        self.set_parameters([use_sim_time_param])
-        self.declare_parameter("time_rate", 1.0)
+        time_param_descriptor = ParameterDescriptor(type=ParameterType.PARAMETER_DOUBLE,
+                                                                    description='clock publishing rate compared to real time')
+        self.declare_parameter("time_rate", 1.0, time_param_descriptor)
         self.time_rate_ = self.get_parameter("time_rate").get_parameter_value().double_value
-        # rclpy does not have WallTime)
         self.system_clock_ = rclpy.clock.Clock()
         self.initial_time_ = self.system_clock_.now()
         self.current_ros_time_ = self.initial_time_
         self.pub_clock_ = self.create_publisher(
             Clock, "/clock", 1)
-        self.timer_ = self.create_timer(1e-03, self.timerCallback, clock=self.system_clock_)
+        self.timer_ = self.create_timer(1e-03, self.timerCallback)
 
     def timerCallback(self):
         # calculate current ros time with time_rate
