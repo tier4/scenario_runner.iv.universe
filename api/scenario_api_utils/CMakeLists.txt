@@ -24,5 +24,4 @@ install(PROGRAMS scripts/ros_time_publisher.py
 
 ament_auto_package(INSTALL_TO_SHARE
   launch
-  scripts
 )
