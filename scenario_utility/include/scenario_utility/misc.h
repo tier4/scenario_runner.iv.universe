@@ -41,30 +41,30 @@ constexpr simulation_is operator ||(const simulation_is& lhs,
 }
 
 
-static_assert( ( simulation_is::succeeded && simulation_is::succeeded ) == simulation_is::succeeded );
-static_assert( ( simulation_is::succeeded && simulation_is::ongoing   ) == simulation_is::ongoing   );
-static_assert( ( simulation_is::succeeded && simulation_is::failed    ) == simulation_is::failed    );
+static_assert( ( simulation_is::succeeded && simulation_is::succeeded ) == simulation_is::succeeded, "");
+static_assert( ( simulation_is::succeeded && simulation_is::ongoing   ) == simulation_is::ongoing  , "");
+static_assert( ( simulation_is::succeeded && simulation_is::failed    ) == simulation_is::failed   , "");
 
-static_assert( ( simulation_is::ongoing   && simulation_is::succeeded ) == simulation_is::ongoing   );
-static_assert( ( simulation_is::ongoing   && simulation_is::ongoing   ) == simulation_is::ongoing   );
-static_assert( ( simulation_is::ongoing   && simulation_is::failed    ) == simulation_is::failed    );
+static_assert( ( simulation_is::ongoing   && simulation_is::succeeded ) == simulation_is::ongoing  , "");
+static_assert( ( simulation_is::ongoing   && simulation_is::ongoing   ) == simulation_is::ongoing  , "");
+static_assert( ( simulation_is::ongoing   && simulation_is::failed    ) == simulation_is::failed   , "");
 
-static_assert( ( simulation_is::failed    && simulation_is::succeeded ) == simulation_is::failed    );
-static_assert( ( simulation_is::failed    && simulation_is::ongoing   ) == simulation_is::failed    );
-static_assert( ( simulation_is::failed    && simulation_is::failed    ) == simulation_is::failed    );
+static_assert( ( simulation_is::failed    && simulation_is::succeeded ) == simulation_is::failed   , "");
+static_assert( ( simulation_is::failed    && simulation_is::ongoing   ) == simulation_is::failed   , "");
+static_assert( ( simulation_is::failed    && simulation_is::failed    ) == simulation_is::failed   , "");
 
 
-static_assert( ( simulation_is::succeeded || simulation_is::succeeded ) == simulation_is::succeeded );
-static_assert( ( simulation_is::succeeded || simulation_is::ongoing   ) == simulation_is::succeeded );
-static_assert( ( simulation_is::succeeded || simulation_is::failed    ) == simulation_is::succeeded );
+static_assert( ( simulation_is::succeeded || simulation_is::succeeded ) == simulation_is::succeeded, "");
+static_assert( ( simulation_is::succeeded || simulation_is::ongoing   ) == simulation_is::succeeded, "");
+static_assert( ( simulation_is::succeeded || simulation_is::failed    ) == simulation_is::succeeded, "");
 
-static_assert( ( simulation_is::ongoing   || simulation_is::succeeded ) == simulation_is::succeeded );
-static_assert( ( simulation_is::ongoing   || simulation_is::ongoing   ) == simulation_is::ongoing   );
-static_assert( ( simulation_is::ongoing   || simulation_is::failed    ) == simulation_is::ongoing   );
+static_assert( ( simulation_is::ongoing   || simulation_is::succeeded ) == simulation_is::succeeded, "");
+static_assert( ( simulation_is::ongoing   || simulation_is::ongoing   ) == simulation_is::ongoing  , "");
+static_assert( ( simulation_is::ongoing   || simulation_is::failed    ) == simulation_is::ongoing  , "");
 
-static_assert( ( simulation_is::failed    || simulation_is::succeeded ) == simulation_is::succeeded );
-static_assert( ( simulation_is::failed    || simulation_is::ongoing   ) == simulation_is::ongoing   );
-static_assert( ( simulation_is::failed    || simulation_is::failed    ) == simulation_is::failed    );
+static_assert( ( simulation_is::failed    || simulation_is::succeeded ) == simulation_is::succeeded, "");
+static_assert( ( simulation_is::failed    || simulation_is::ongoing   ) == simulation_is::ongoing  , "");
+static_assert( ( simulation_is::failed    || simulation_is::failed    ) == simulation_is::failed   , "");
 
 // }  inline namespace misc
 // }  namespace scenario_utility
