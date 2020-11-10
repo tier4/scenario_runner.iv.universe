@@ -207,7 +207,7 @@ void ScenarioRunner::update() try
   context.json << (--indent) << "}\n";
 
   context.json << (--indent) << "}\n";
-  context.json << (--indent) << "}" << std::endl;
+  context.json << (--indent) << "}," << std::endl;
 
   scenario_runner_msgs::msg::StringStamped message {};
   message.stamp = this->now();
