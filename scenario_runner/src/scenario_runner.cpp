@@ -170,8 +170,6 @@ void ScenarioRunner::update() try
 
   (*sequence_manager_).update(intersection_manager_);
 
-  // currently = (*entity_manager_).update(intersection_manager_);
-
   const auto fulfilled_failure_condition { failure.evaluate(context) };
   const auto fulfilled_success_condition { success.evaluate(context) };
 
