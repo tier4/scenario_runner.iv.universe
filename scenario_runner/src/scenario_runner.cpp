@@ -184,7 +184,7 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
   context.json << (--indent) << "}\n";
 
   context.json << (--indent) << "}\n";
-  context.json << (--indent) << "}" << std::endl;
+  context.json << (--indent) << "}," << std::endl;
 
   scenario_runner_msgs::StringStamped message {};
   message.header.stamp = ros::Time::now();
