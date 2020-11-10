@@ -424,9 +424,8 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
   while (rclcpp::ok()) {
-    LOG_SIMPLE(info() << "Waiting for Autoware to be initialized");
+    LOG_SIMPLE(info() << "Waiting for Autoware (Current state is Emergency)");
     if (isAutowareReadyInitialize()) {
-      LOG_SIMPLE(info() << "Initialized Autoware");
       return true;
     }
     rclcpp::Rate(10.0).sleep();
