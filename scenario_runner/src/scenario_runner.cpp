@@ -170,6 +170,7 @@ try
 
 void ScenarioRunner::update() try
 {
+  context.json << (indent++) << "{\n";
   context.json << (indent++) << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
@@ -205,13 +206,14 @@ void ScenarioRunner::update() try
   context.json << indent << "EventName: "    << std::quoted((*sequence_manager_).current_event_name())    << ",\n";
   context.json << (--indent) << "},\n";
 
+  context.json << (--indent) << "}\n";
   context.json << (--indent) << "}" << std::endl;
 
   scenario_runner_msgs::msg::StringStamped message {};
   message.stamp = this->now();
   message.data = context.json.str();
 
-  // std::cout << message.data.c_str() << std::endl;
+  std::cout << message.data.c_str() << std::endl;
 
   publisher_->publish(message);
 
