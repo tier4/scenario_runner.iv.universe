@@ -61,9 +61,8 @@ try
   SCENARIO_RETHROW_ERROR_FROM_ACTION_CONFIGURATION();
 }
 
-auto AccelerationAction::run(
-  const std::shared_ptr<scenario_intersection::IntersectionManager> &)
-->void
+void AccelerationAction::run(
+  const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
   for (const auto & actor : actors_) {
     if (not std::isnan(min_) and not (*api_ptr_).changeNPCAccelMin(actor, min_)) {
