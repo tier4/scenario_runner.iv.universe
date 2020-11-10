@@ -58,15 +58,10 @@ public:
   friend std::ostream& operator <<(std::ostream& os, const ConditionBase& datum)
   {
     return os << indent
-              << "{ Name: "
-              // << "\x1b[36m"
-              << std::quoted(datum.getName())
-              // << "\x1b[0m"
-              << ", Value: " << std::quoted(datum.description())
-              << ", Result: "
-              // << (datum.getResult() ? "\x1b[32m" : "\x1b[31m")
-              << std::boolalpha << datum.getResult()
-              // << "\x1b[0m"
+              << "{ "
+              << std::quoted("Name") << ": " << std::quoted(datum.getName()) << ", "
+              << std::quoted("Value") << ": " << std::quoted(datum.description()) << ", "
+              << std::quoted("Result") << ": " << std::quoted(datum.getResult() ? "true" : "false")
               << " }";
   }
 
