@@ -77,10 +77,7 @@ try
 bool EntityBase::init()
 try
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].InitialStates" << endlog;
+  LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates");
   call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
   {
     const auto type { type_ != "Vehicle" ? boost::to_lower_copy(type_) : "car" };
@@ -94,7 +91,7 @@ try
       read_optional<std::string>(node, "Shift", "Center"));
   });
 
-  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].Actions" << endlog;
+  LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].Actions");
   call_with_optional(init_entity_, "Actions", [&](const auto& node) mutable
   {
     action_manager_ =
