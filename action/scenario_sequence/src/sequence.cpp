@@ -28,14 +28,14 @@ Sequence::Sequence(
 void Sequence::touch()
 {
   context_.json << (indent++) << "{\n";
-  context_.json << indent << "Name: " << std::quoted(name_) << ",\n";
-  context_.json << (indent++) << "StartConditions: [\n";
+  context_.json << indent << std::quoted("Name") << ": " << std::quoted(name_) << ",\n";
+  context_.json << (indent++) << std::quoted("StartConditions") << ": [\n";
   context_.json << start_condition_;
   context_.json << (--indent) << "],\n";
 
   (*event_manager_).touch();
 
-  context_.json << indent << "State: " << currently << "\n";
+  context_.json << indent << std::quoted("State") << ": " << currently << "\n";
   context_.json << (--indent) << "}";
 }
 
@@ -43,8 +43,8 @@ state_is Sequence::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
   context_.json << (indent++) << "{\n";
-  context_.json << indent << "Name: " << std::quoted(name_) << ",\n";
-  context_.json << (indent++) << "StartConditions: [\n";
+  context_.json << indent << std::quoted("Name") << ": " << std::quoted(name_) << ",\n";
+  context_.json << (indent++) << std::quoted("StartConditions") << ": [\n";
   context_.json << start_condition_;
   context_.json << (--indent) << "],\n";
 
@@ -60,7 +60,7 @@ state_is Sequence::update(
     currently = state_is::running;
   }
 
-  context_.json << indent << "State: " << currently << "\n";
+  context_.json << indent << std::quoted("State") << ": " << currently << "\n";
   context_.json << (--indent) << "}";
 
   return currently;
