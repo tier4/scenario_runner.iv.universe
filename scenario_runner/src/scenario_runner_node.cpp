@@ -57,12 +57,7 @@ int main(int argc, char * argv[])
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureFunction(&failureCallback);
 
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.open("/tmp/log", std::ios::trunc);
-
-  slog.info() << "test" << endlog;
+  scenario_logger::slog.open("/tmp/log", std::ios::trunc);
 
   /*
   * setup scenario runner
@@ -77,18 +72,17 @@ int main(int argc, char * argv[])
 
   std::string scenario_id{runner_ptr->declare_parameter("scenario_id").get<std::string>()};
   scenario_logger::log.setScenarioID(scenario_id);
-  slog.info() << "Scenario ID is " << scenario_id << endlog;
+  LOG_SIMPLE(info() << "Scenario ID: " << scenario_id);
 
   std::string log_output_path{runner_ptr->declare_parameter("log_output_path").get<std::string>()};
   scenario_logger::log.setLogOutputPath(log_output_path);
 
-  slog.info() << "Sleep for 10 seconds" << endlog;
-  for (auto i { 10 }; 0 < i; --i)
+  LOG_SIMPLE(info() << "Sleep for 10 seconds");
+  for (auto i { 10 }; 0 < i; std::this_thread::sleep_for(std::chrono::seconds(1)))
   {
-    slog.info() << "Sleeping... " << i << endlog;
-    std::this_thread::sleep_for(std::chrono::seconds {1});
+    LOG_SIMPLE(info() << "Sleeping... " << --i);
   }
-  slog.info() << "Wake-up." << endlog;
+  LOG_SIMPLE(info() << "Wake-up");
   const auto & path = runner_ptr->declare_parameter("json_dump_path").get<std::string>();
   const auto dump = [&runner_ptr, path](int exit_code) {
       dump_diagnostics(

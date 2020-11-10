@@ -28,23 +28,20 @@ ScenarioRunner::ScenarioRunner()
   simulator_{std::make_shared<ScenarioAPI>()},
   scenario_path_{declare_parameter("scenario_path").get<std::string>()}
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
   simulator_->init();
-  if (not (*simulator_).waitAutowareInitialize()) {
+  if (not (*simulator_).waitAutowareInitialize())
+  {
     SCENARIO_ERROR_THROW(CATEGORY(), "Failed to initialize Autoware.");
   }
 
   try
   {
-    slog.info() << "Loading scenario " << scenario_path_ << endlog;
+    LOG_SIMPLE(info() << "Load scenario " << scenario_path_);
     scenario_ = YAML::LoadFile(scenario_path_);
-    slog.info() << "Success to load the scenario" << endlog;
   }
   catch (...)
   {
-    slog.info() << "Failed to load the scenario" << endlog;
+    LOG_SIMPLE(error() << "Failed to load scenario: " << scenario_path_);
     SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to load YAML file \"" << scenario_path_ << "\".");
   }
 }
@@ -57,14 +54,10 @@ void ScenarioRunner::spin_simulator()
 void ScenarioRunner::run()
 try
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
+  LOG_SIMPLE(info() << "Parse scenario");
   context.define(simulator_);
 
-  slog.info() << "Parsing start" << endlog;
-
-  slog.info() << "Parsing 'Entity'" << endlog;
+  LOG_SIMPLE(info() << "Parse 'Entity'");
   call_with_essential(scenario_, "Entity", [&](const auto & node)
   {
     context.define(
@@ -73,7 +66,7 @@ try
           node, simulator_));
     });
 
-  slog.info() << "Parsing 'Intersections'" << endlog;
+  LOG_SIMPLE(info() << "Parse 'Intersections'");
   call_with_optional(
     scenario_, "Intersection", [&](const auto & node)
     {
@@ -83,21 +76,21 @@ try
           node, simulator_));
     });
 
-  slog.info() << "Parsing 'Story'" << endlog;
+  LOG_SIMPLE(info() << "Parse 'Story'");
   call_with_essential(
     scenario_, "Story", [&](const auto & node)
     {
-      slog.info() << "Setting 'Story' to entities" << endlog;
+      LOG_SIMPLE(info() << "Set 'Story' to entities");
       context.entities().setStory(node);
 
-      slog.info() << "Initializing entities" << endlog;
+      LOG_SIMPLE(info() << "Initializing entities");
       context.entities().initialize();
 
-      slog.info() << "Parsing 'Story.Init'" << endlog;
+      LOG_SIMPLE(info() << "Parse 'Story.Init'");
       call_with_essential(
         node, "Init", [&](const auto & node)
         {
-          slog.info() << "Parsing 'Story.Init.Intersection'" << endlog;
+          LOG_SIMPLE(info() << "Parse 'Story.Init.Intersection'");
           call_with_optional(
             node, "Intersection", [&](const auto & node)
             {
@@ -112,55 +105,56 @@ try
       //       context, node);
       // });
 
-      slog.info() << "Parsing 'Story.Act'" << endlog;
-      sequence_manager_ =
-      std::make_shared<scenario_sequence::SequenceManager>(
-        context, node["Act"]);
+      // sequence_manager_ =
+      // std::make_shared<scenario_sequence::SequenceManager>(
+      //   context, node["Act"]);
 
-      slog.info() << "Parsing 'Story.EndCondition'" << endlog;
+      LOG_SIMPLE(info() << "Parse 'Story.Act'");
+      call_with_optional(node, "Act", [&](auto&& node)
+      {
+        sequence_manager_ =
+          std::make_shared<scenario_sequence::SequenceManager>(
+            context, node);
+      });
+
+      LOG_SIMPLE(info() << "Parse 'Story.EndCondition'");
       call_with_essential(
         node, "EndCondition", [&](const auto & node)
         {
-          slog.info() << "Parsing 'Story.EndCondition.Success'" << endlog;
+          LOG_SIMPLE(info() << "Parse 'Story.EndCondition.Success'");
           call_with_optional(
             node, "Success", [&](const auto & node)
             {
               success = scenario_expression::read(context, node);
-              // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded success condition: " << success);
             });
 
-          slog.info() << "Parsing 'Story.EndCondition.Failure'" << endlog;
+          LOG_SIMPLE(info() << "Parse 'Story.EndCondition.Failure'");
           call_with_optional(
             node, "Failure", [&](const auto & node)
             {
               failure = scenario_expression::read(context, node);
-              // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded failure condition: " << failure);
             });
         });
     });
 
-  slog.info() << "Parsing completed. There is no syntax-error" << endlog;
+  LOG_SIMPLE(info() << "Parse completed. There is no syntax-error");
 
-  slog.info() << "Waiting for simulation APIs to be ready" << endlog;
+  LOG_SIMPLE(info() << "Waiting for simulation APIs to be ready");
   simulator_->waitAPIReady();
-  slog.info() << "Simulation APIs are ready" << endlog;
+  LOG_SIMPLE(info() << "Simulation APIs are ready");
 
   auto timer_callback = std::bind(&ScenarioRunner::update, this);
-  const auto period = std::chrono::milliseconds{10UL};
+  const auto period = std::chrono::milliseconds{50UL};
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
     this->get_clock(), period, std::move(timer_callback),
     this->get_node_base_interface()->get_context());
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 
-  slog.info() << "Sending engage to Autoware" << endlog;
-  if (not simulator_->sendEngage(true))
-  {
-    SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send engage.");
-  }
-  slog.info() << "Engaged" << endlog;
+  LOG_SIMPLE(info() << "Engage!");
+  simulator_->sendEngage(true);
 
+  LOG_SIMPLE(info() << "Initialize SimulationTime");
   scenario_logger::log.initialize(this->now()); // NOTE: initialize logger's clock here.
-  slog.info() << "Clock initialized" << endlog;
 
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "Simulation started.");
 } catch (...) {
