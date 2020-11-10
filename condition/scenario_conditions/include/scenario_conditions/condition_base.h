@@ -67,7 +67,7 @@ public:
               // << (datum.getResult() ? "\x1b[32m" : "\x1b[31m")
               << std::boolalpha << datum.getResult()
               // << "\x1b[0m"
-              << "},\n";
+              << " }";
   }
 
 protected:
