@@ -50,10 +50,7 @@ try
 bool EgoEntity::init()
 try
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].InitialStates.Speed" << endlog;
+  LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates.Speed");
   if (const auto speed_node {init_entity_["InitialStates"]["Speed"]})
   {
     if (not api_->setMaxSpeed(speed_node.as<float>()))
@@ -62,7 +59,7 @@ try
     }
   }
 
-  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].InitialStates.InitialSpeed" << endlog;
+  LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates.InitialSpeed");
   if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
   {
     if (not api_->sendStartVelocity(initial_speed.as<float>()))
@@ -75,7 +72,7 @@ try
     }
   }
 
-  slog.info() << "Parsing 'Story.Entity[" << name_ << "].InitialStates" << endlog;
+  LOG_SIMPLE(info() << "Parsing 'Story.Entity[" << name_ << "].InitialStates");
   call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
   {
     const auto pose { read_essential<geometry_msgs::msg::Pose>(node, "Pose") };
