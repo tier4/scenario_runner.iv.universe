@@ -7,9 +7,9 @@
 
 namespace scenario_logger { inline namespace simple
 {
-  decltype(auto) endlog(std::ostream& os)
+  decltype(auto) elog(std::ostream& os)
   {
-    return os << "\" }," << std::endl;
+    return os << "\" }" << std::endl;
   }
 
   struct SimpleLogger
@@ -41,5 +41,33 @@ namespace scenario_logger { inline namespace simple
     ~SimpleLoggerInitializer();
   } initializer;
 }} // namespace scenario_logger
+
+#define LOG_SIMPLE(...)                                                        \
+do                                                                             \
+{                                                                              \
+  using scenario_logger::slog;                                                 \
+  using scenario_logger::elog;                                                 \
+                                                                               \
+  slog. __VA_ARGS__ << elog;                                                   \
+}                                                                              \
+while (false)
+
+#define LOG_TOGGLE(TITLE, VARIABLE)                                            \
+do                                                                             \
+{                                                                              \
+  using scenario_logger::slog;                                                 \
+  using scenario_logger::elog;                                                 \
+                                                                               \
+  static auto previous {                                                       \
+    ((slog.info() << TITLE ": " << VARIABLE << elog), VARIABLE)                \
+  };                                                                           \
+                                                                               \
+  if (previous != VARIABLE)                                                    \
+  {                                                                            \
+    slog.info() << TITLE ": " << previous << " => " << VARIABLE << elog;       \
+    previous = VARIABLE;                                                       \
+  }                                                                            \
+}                                                                              \
+while (false)
 
 #endif // INCLUDED_SCENARIO_LOGGER_SIMPLE_LOGGER_HPP
