@@ -28,8 +28,6 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
-  LOG_SIMPLE(info() << "Connecting to Autoware");
-
   /* Get Parameter*/
   camera_frame_id_ = node_->declare_parameter<std::string>("camera_frame_id", "camera_link");
   LOG_SIMPLE(info() << "Parameter 'camera_frame_id' = " << camera_frame_id_);
@@ -143,7 +141,6 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
     node_->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
     "output/traffic_detection_result", rclcpp::QoS{10}.transient_local());
   LOG_SIMPLE(info() << "Advertise topic 'output/traffic_detection_result'");
-  LOG_SIMPLE(info() << "Connection to Autoware established");
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
@@ -169,17 +166,17 @@ void ScenarioAPIAutoware::callbackPointCloud(
 
 void ScenarioAPIAutoware::callbackMap(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
 {
-  RCLCPP_INFO(node_->get_logger(), "Start loading lanelet");
+  LOG_SIMPLE(info() << "Receive autoware_lanelet2_msgs::MapBin");
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
     *msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
-  RCLCPP_INFO(node_->get_logger(), "Map is loaded");
 }
 
 void ScenarioAPIAutoware::callbackRoute(
   const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
 {
-  is_autoware_ready_routing = true;  // check autoware rady
+  LOG_SIMPLE(info() << "Receive autoware_planning_msgs::Route");
+  is_autoware_ready_routing = true;  // check autoware ready
 }
 
 void ScenarioAPIAutoware::callbackStatus(
@@ -188,6 +185,7 @@ void ScenarioAPIAutoware::callbackStatus(
   autoware_state_ = msg->state;
   if (autoware_state_ != autoware_system_msgs::msg::AutowareState::EMERGENCY) {
     is_autoware_ready_initialize = true;
+  }
 
   LOG_TOGGLE("Autoware state", autoware_state_);
 }
@@ -202,6 +200,7 @@ void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::msg::TwistStamped::
   if (current_twist_ptr_ != nullptr) {
     previous_twist_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*current_twist_ptr_);
   }
+
   current_twist_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*msg);
 }
 
@@ -215,52 +214,45 @@ void ScenarioAPIAutoware::callbackTurnSignal(
 bool ScenarioAPIAutoware::isAPIReady()
 {
   if (current_pose_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "current_pose is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'current_pose'");
   }
 
   if (pcl_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "pointcloud is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'pointcloud'");
   }
 
   if (lanelet_map_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "lanelet_map is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'lanelet2_map'");
   }
 
   if (current_twist_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "current_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'current_twist'");
   }
 
   if (previous_twist_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "previous_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'previous_twist'");
   }
 
   if (second_previous_twist_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "second_previous_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'second_previous_twist'");
   }
 
   if (turn_signal_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "turn_signal is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'turn_signal'");
   }
 
   return true;
@@ -269,7 +261,9 @@ bool ScenarioAPIAutoware::isAPIReady()
 bool ScenarioAPIAutoware::waitAPIReady()
 {
   while (rclcpp::ok()) {
+    LOG_SIMPLE(info() << "Connect to Autoware");
     if (isAPIReady()) {
+      LOG_SIMPLE(info() << "Established connection to Autoware");
       break;
     }
     rclcpp::Rate(10.0).sleep();
