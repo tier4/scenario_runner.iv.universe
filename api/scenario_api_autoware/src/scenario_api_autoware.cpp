@@ -167,8 +167,15 @@ void ScenarioAPIAutoware::callbackStatus(
   if (autoware_state_ != autoware_system_msgs::msg::AutowareState::EMERGENCY) {
     is_autoware_ready_initialize = true;
 
-    slog.info() << "Current Autoware state is " << autoware_state_ << endlog;
-  }
+    static auto previous_state {
+      ((slog.info() << "Autoware state is " << autoware_state_ << endlog), autoware_state_)
+    };
+
+    if (autoware_state_ != previous_state)
+    {
+      slog.info() << "Autoware state changed: " << previous_state << " => " << autoware_state_ << endlog;
+      previous_state = autoware_state_;
+    }
 }
 
 void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
@@ -262,6 +269,11 @@ bool ScenarioAPIAutoware::sendStartPoint(
   const geometry_msgs::msg::Pose pose, const bool wait_autoware_status,
   const std::string & frame_type)
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
+  slog.info() << "Sending start-point to Autoware" << endlog;
+
   // ignore roll/pitch information
   const double yaw = yawFromQuat(pose.orientation);
   geometry_msgs::msg::PoseWithCovarianceStamped posewcs;
@@ -386,6 +398,11 @@ bool ScenarioAPIAutoware::waitState(const std::string state)
 
 bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
+  slog.info() << "Sending initial-velocity " << velocity << " to Autoware" << endlog;
+
   geometry_msgs::msg::TwistStamped twistmsg;
   twistmsg.header.frame_id = "base_link";
   twistmsg.header.stamp = node_->now();
@@ -428,8 +445,13 @@ bool ScenarioAPIAutoware::isAutowareReadyRouting()
 
 bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
+  slog.info() << "Sending max-speed " << velocity << " to Autoware" << endlog;
+
   autoware_debug_msgs::msg::Float32Stamped floatmsg;
-  floatmsg.stamp = node_->now();
+  floatmsg.stamp = *node_->get_clock()->now();
   floatmsg.data = velocity;
   pub_max_velocity_->publish(floatmsg);
   return true;  // TODO check success
