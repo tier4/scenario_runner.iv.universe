@@ -1,4 +1,5 @@
 #include <entity_plugins/ego_entity.h>
+#include <scenario_logger/simple_logger.hpp>
 
 namespace entity_plugins
 {
@@ -34,15 +35,19 @@ catch (...)
 bool EgoEntity::init()
 try
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
+  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].InitialStates.Speed" << endlog;
   if (const auto speed_node {init_entity_["InitialStates"]["Speed"]})
   {
-    const auto speed {speed_node.as<float>()};
-    if (not api_->setMaxSpeed(speed))
+    if (not api_->setMaxSpeed(speed_node.as<float>()))
     {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set max-speed.");
     }
   }
 
+  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].InitialStates.InitialSpeed" << endlog;
   if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
   {
     if (not api_->sendStartVelocity(initial_speed.as<float>()))
@@ -58,6 +63,7 @@ try
     }
   }
 
+  slog.info() << "Parsing 'Story.Entity[" << name_ << "].InitialStates" << endlog;
   call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
   {
     const auto pose { read_essential<geometry_msgs::Pose>(node, "Pose") };

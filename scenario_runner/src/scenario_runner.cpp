@@ -28,10 +28,13 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 
   try
   {
+    slog.info() << "Loading scenario " << scenario_path_ << endlog;
     scenario_ = YAML::LoadFile(scenario_path_);
+    slog.info() << "Success to load the scenario" << endlog;
   }
   catch (...)
   {
+    slog.info() << "Failed to load the scenario" << endlog;
     SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to load YAML file \"" << scenario_path_ << "\".");
   }
 }
@@ -39,9 +42,15 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
 void ScenarioRunner::run()
 try
 {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
   context.define(simulator_);
 
-  call_with_essential(scenario_, "Entity", [&](const auto& node) mutable
+  slog.info() << "Parsing start" << endlog;
+
+  slog.info() << "Parsing 'Entity'" << endlog;
+  call_with_essential(scenario_, "Entity", [&](const auto& node)
   {
     context.define(
       entity_manager_ =
@@ -49,7 +58,8 @@ try
           node, simulator_));
   });
 
-  call_with_optional(scenario_, "Intersection", [&](const auto& node) mutable
+  slog.info() << "Parsing 'Intersections'" << endlog;
+  call_with_optional(scenario_, "Intersection", [&](const auto& node)
   {
     context.define(
       intersection_manager_ =
@@ -57,14 +67,20 @@ try
           node, simulator_));
   });
 
-  call_with_essential(scenario_, "Story", [&](const auto& node) mutable
+  slog.info() << "Parsing 'Story'" << endlog;
+  call_with_essential(scenario_, "Story", [&](const auto& node)
   {
+    slog.info() << "Setting 'Story' to entities" << endlog;
     context.entities().setStory(node);
+
+    slog.info() << "Initializing entities" << endlog;
     context.entities().initialize();
 
-    call_with_essential(node, "Init", [&](const auto& node) mutable
+    slog.info() << "Parsing 'Story.Init'" << endlog;
+    call_with_essential(node, "Init", [&](const auto& node)
     {
-      call_with_optional(node, "Intersection", [&](const auto& node) mutable
+      slog.info() << "Parsing 'Story.Init.Intersection'" << endlog;
+      call_with_optional(node, "Intersection", [&](const auto& node)
       {
         context.intersections().initialize(node);
       });
@@ -77,19 +93,23 @@ try
     //       context, node);
     // });
 
+    slog.info() << "Parsing 'Story.Act'" << endlog;
     sequence_manager_ =
       std::make_shared<scenario_sequence::SequenceManager>(
         context, node["Act"]);
 
-    call_with_essential(node, "EndCondition", [&](const auto& node) mutable
+    slog.info() << "Parsing 'Story.EndCondition'" << endlog;
+    call_with_essential(node, "EndCondition", [&](const auto& node)
     {
-      call_with_optional(node, "Success", [&](const auto& node) mutable
+      slog.info() << "Parsing 'Story.EndCondition.Success'" << endlog;
+      call_with_optional(node, "Success", [&](const auto& node)
       {
         success = scenario_expression::read(context, node);
         // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded success condition: " << success);
       });
 
-      call_with_optional(node, "Failure", [&](const auto& node) mutable
+      slog.info() << "Parsing 'Story.EndCondition.Failure'" << endlog;
+      call_with_optional(node, "Failure", [&](const auto& node)
       {
         failure = scenario_expression::read(context, node);
         // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded failure condition: " << failure);
@@ -97,19 +117,25 @@ try
     });
   });
 
-  SCENARIO_INFO_STREAM(CATEGORY(), "Waiting for the simulator API to be ready.");
+  slog.info() << "Parsing completed. There is no syntax-error" << endlog;
+
+  slog.info() << "Waiting for simulation APIs to be ready" << endlog;
   simulator_->waitAPIReady();
-  SCENARIO_INFO_STREAM(CATEGORY(), "Simulator API is ready.");
+  slog.info() << "Simulation APIs are ready" << endlog;
 
   timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
 
+  slog.info() << "Sending engage to Autoware" << endlog;
   if (not simulator_->sendEngage(true))
   {
     SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send engage.");
   }
-  SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner engaged Autoware.");
+  slog.info() << "Engaged" << endlog;
 
   scenario_logger::log.initialize(ros::Time::now()); // NOTE: initialize logger's clock here.
+  slog.info() << "Clock initialized" << endlog;
+
+  slog.info() << "Scenario parsed" << endlog;
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "Simulation started.");
 }
 catch (...)
