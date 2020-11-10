@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "entity_plugins/ego_entity.h"
+#include "scenario_logger/simple_logger.hpp"
 
 namespace entity_plugins
 {
@@ -49,15 +50,23 @@ try
 bool EgoEntity::init()
 try
 {
-  if (const auto speed_node {init_entity_["InitialStates"]["Speed"]}) {
-    const auto speed {speed_node.as<float>()};
-    if (not api_->setMaxSpeed(speed)) {
+  using scenario_logger::slog;
+  using scenario_logger::endlog;
+
+  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].InitialStates.Speed" << endlog;
+  if (const auto speed_node {init_entity_["InitialStates"]["Speed"]})
+  {
+    if (not api_->setMaxSpeed(speed_node.as<float>()))
+    {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set max-speed.");
     }
   }
 
-  if (const auto initial_speed {init_entity_["InitialStates"]["InitialSpeed"]}) {
-    if (not api_->sendStartVelocity(initial_speed.as<float>())) {
+  slog.info() << "Parsing 'Story.Init.Entity[" << name_ << "].InitialStates.InitialSpeed" << endlog;
+  if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
+  {
+    if (not api_->sendStartVelocity(initial_speed.as<float>()))
+    {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
     }
   } else {
@@ -66,8 +75,12 @@ try
     }
   }
 
-  call_with_essential(
-    init_entity_, "InitialStates", [&](const auto & node) mutable
+  slog.info() << "Parsing 'Story.Entity[" << name_ << "].InitialStates" << endlog;
+  call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
+  {
+    const auto pose { read_essential<geometry_msgs::msg::Pose>(node, "Pose") };
+
+    if (not api_->sendStartPoint(pose, true, read_optional<std::string>(node, "Shift", "Center")))
     {
       const auto pose {read_essential<geometry_msgs::msg::Pose>(node, "Pose")};
 
