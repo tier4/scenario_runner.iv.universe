@@ -22,12 +22,7 @@ int main(int argc, char * argv[]) try
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureFunction(&failureCallback);
 
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.open("/tmp/log", std::ios::trunc);
-
-  slog.info() << "test" << endlog;
+  scenario_logger::slog.open("/tmp/log", std::ios::trunc);
 
   ros::init(argc, argv, "scenario_runner_node");
   ros::NodeHandle nh;
@@ -39,19 +34,18 @@ int main(int argc, char * argv[]) try
   std::string scenario_id;
   pnh.getParam("scenario_id", scenario_id);
   scenario_logger::log.setScenarioID(scenario_id);
-  slog.info() << "Scenario ID is " << scenario_id << endlog;
+  LOG_SIMPLE(info() << "Scenario ID: " << scenario_id);
 
   std::string log_output_path;
   pnh.getParam("log_output_path", log_output_path);
   scenario_logger::log.setLogOutputPath(log_output_path);
 
-  slog.info() << "Sleep for 10 seconds" << endlog;
-  for (auto i { 10 }; 0 < i; --i)
+  LOG_SIMPLE(info() << "Sleep for 10 seconds");
+  for (auto i { 10 }; 0 < i; std::this_thread::sleep_for(std::chrono::seconds(1)))
   {
-    slog.info() << "Sleeping... " << i << endlog;
-    std::this_thread::sleep_for(std::chrono::seconds { 1 });
+    LOG_SIMPLE(info() << "Sleeping... " << --i);
   }
-  slog.info() << "Wake-up." << endlog;
+  LOG_SIMPLE(info() << "Wake-up");
 
   /*
    * setup scenario runner

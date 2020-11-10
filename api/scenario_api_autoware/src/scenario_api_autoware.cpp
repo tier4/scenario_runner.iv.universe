@@ -25,10 +25,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Connecting to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Connecting to Autoware");
 
   /* Get Parameter*/
   pnh_.param<std::string>("camera_frame_id", camera_frame_id_, "camera_link");
@@ -75,7 +72,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   pub_lane_change_permission_ =
     pnh_.advertise<std_msgs::Bool>("output/lane_change_permission", 1, true);
 
-  slog.info() << "Connection to Autoware established" << endlog;
+  LOG_SIMPLE(info() << "Connection to Autoware established");
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
@@ -115,22 +112,11 @@ void ScenarioAPIAutoware::callbackRoute(const autoware_planning_msgs::Route & ms
 
 void ScenarioAPIAutoware::callbackStatus(const autoware_system_msgs::AutowareState & msg)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
   autoware_state_ = msg.state;
   if (autoware_state_ != autoware_system_msgs::AutowareState::Emergency)
     is_autoware_ready_initialize = true;
 
-  static auto previous_state {
-    ((slog.info() << "Autoware state is " << autoware_state_ << endlog), autoware_state_)
-  };
-
-  if (autoware_state_ != previous_state)
-  {
-    slog.info() << "Autoware state changed: " << previous_state << " => " << autoware_state_ << endlog;
-    previous_state = autoware_state_;
-  }
+  LOG_TOGGLE("Autoware state", autoware_state_);
 }
 
 void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::TwistStamped::ConstPtr & msg)
@@ -209,10 +195,7 @@ bool ScenarioAPIAutoware::waitAPIReady()
 bool ScenarioAPIAutoware::sendStartPoint(
   const geometry_msgs::Pose pose, const bool wait_autoware_status, const std::string & frame_type)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Sending start-point to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Send start-point to Autoware");
 
   // ignore roll/pitch information
   const double yaw = yawFromQuat(pose.orientation);
@@ -334,10 +317,7 @@ bool ScenarioAPIAutoware::waitState(const std::string state)
 
 bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Sending initial-velocity " << velocity << " to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Send initial-velocity " << velocity << " to Autoware");
 
   geometry_msgs::TwistStamped twistmsg;
   twistmsg.header.frame_id = "base_link";
@@ -352,18 +332,15 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
   std_msgs::Bool boolmsg;
   boolmsg.data = engage;
   pub_autoware_engage_.publish(boolmsg);
-  return true;  // TODO check success
+  return true;
 }
 
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
   while (ros::ok()) {
-    slog.info() << "Waiting for Autoware to be initialized" << endlog;
+    LOG_SIMPLE(info() << "Waiting for Autoware to be initialized");
     if (isAutowareReadyInitialize()) {
-      slog.info() << "Autoware is initialized" << endlog;
+      LOG_SIMPLE(info() << "Initialized Autoware");
       return true;
     }
     ros::Rate(10.0).sleep();
@@ -381,10 +358,7 @@ bool ScenarioAPIAutoware::isAutowareReadyRouting()
 
 bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Sending max-speed " << velocity << " to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Sending max-speed " << velocity << " to Autoware");
 
   std_msgs::Float32 floatmsg;
   floatmsg.data = velocity;
