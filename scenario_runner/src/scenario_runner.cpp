@@ -171,7 +171,7 @@ try
 void ScenarioRunner::update() try
 {
   context.json << (indent++) << "{\n";
-  context.json << (indent++) << "ScenarioRunnerContext: {\n";
+  context.json << (indent++) << std::quoted("ScenarioRunnerContext") << ": {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 
@@ -182,11 +182,11 @@ void ScenarioRunner::update() try
   const auto fulfilled_failure_condition { failure.evaluate(context) };
   const auto fulfilled_success_condition { success.evaluate(context) };
 
-  context.json << (indent++) << "FailureConditions: [\n";
+  context.json << (indent++) << std::quoted("FailureConditions") << ": [\n";
   context.json << failure;
   context.json << (--indent) << "],\n";
 
-  context.json << (indent++) << "SuccessConditions: [\n";
+  context.json << (indent++) << std::quoted("SuccessConditions") << ": [\n";
   context.json << success;
   context.json << (--indent) << "],\n";
 
@@ -201,9 +201,9 @@ void ScenarioRunner::update() try
     currently = simulation_is::ongoing;
   }
 
-  context.json << (indent++) << "Current: {\n";
-  context.json << indent << "SequenceName: " << std::quoted((*sequence_manager_).current_sequence_name()) << ",\n";
-  context.json << indent << "EventName: "    << std::quoted((*sequence_manager_).current_event_name())    << "\n";
+  context.json << (indent++) << std::quoted("Current") << ": {\n";
+  context.json << indent << std::quoted("SequenceName") << ": " << std::quoted((*sequence_manager_).current_sequence_name()) << ",\n";
+  context.json << indent << std::quoted("EventName") << ": " << std::quoted((*sequence_manager_).current_event_name()) << "\n";
   context.json << (--indent) << "}\n";
 
   context.json << (--indent) << "}\n";
