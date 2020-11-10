@@ -324,12 +324,14 @@ protected:                                                                     \
   {                                                                            \
     std::unordered_map<std::string, std::size_t> occurrences {};               \
                                                                                \
-    for (const auto& each : operands)                                          \
+    for (auto iter { std::begin(operands) }; iter != std::end(operands); ++iter) \
     {                                                                          \
-      each.data->write(                                                        \
+      (*iter).data->write(                                                     \
         os,                                                                    \
         prefix + type() + "(" + std::to_string(occurrence) + ")/",             \
-        occurrences[each.data->type()]++);                                     \
+        occurrences[(*iter).data->type()]++);                                  \
+                                                                               \
+      os << (std::next(iter) != std::end(operands) ? ",\n" : "\n");            \
     }                                                                          \
                                                                                \
     return os;                                                                 \
@@ -366,9 +368,6 @@ protected:
 
   std::ostream & write(std::ostream & os, const std::string& prefix, std::size_t occurrence) const override
   {
-    // return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
-    // return os << *plugin;
-
     if ((*plugin).getName().empty())
     {
       (*plugin).rename(prefix + (*plugin).getType() + "(" + std::to_string(occurrence) + ")");
