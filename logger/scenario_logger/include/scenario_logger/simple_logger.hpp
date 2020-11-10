@@ -42,6 +42,7 @@ namespace scenario_logger { inline namespace simple
   } initializer;
 }} // namespace scenario_logger
 
+
 #define LOG_SIMPLE(...)                                                        \
 do                                                                             \
 {                                                                              \
@@ -51,6 +52,24 @@ do                                                                             \
   slog. __VA_ARGS__ << elog;                                                   \
 }                                                                              \
 while (false)
+
+
+#define LOG_SIMPLE_ONCE(...)                                                   \
+do                                                                             \
+{                                                                              \
+  using scenario_logger::slog;                                                 \
+  using scenario_logger::elog;                                                 \
+                                                                               \
+  static auto logged { false };                                                \
+                                                                               \
+  if (not logged)                                                              \
+  {                                                                            \
+    slog. __VA_ARGS__ << elog;                                                 \
+    logged = true;                                                             \
+  }                                                                            \
+}                                                                              \
+while (false)
+
 
 #define LOG_TOGGLE(TITLE, VARIABLE)                                            \
 do                                                                             \
