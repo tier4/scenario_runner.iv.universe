@@ -51,8 +51,8 @@ void Event::touch() const
   context_.json << (indent++) << "Conditions: [\n";
   context_.json << condition_;
   context_.json << (--indent) << "],\n";
-  context_.json << indent << "State: " << currently << ",\n";
-  context_.json << (--indent) << "},\n";
+  context_.json << indent << "State: " << currently << "\n";
+  context_.json << (--indent) << "}";
 }
 
 state_is Event::update(
@@ -78,7 +78,7 @@ state_is Event::update(
   }
 
   context_.json << indent << "State: " << currently << ",\n";
-  context_.json << (--indent) << "},\n";
+  context_.json << (--indent) << "}";
 
   return currently;
 }

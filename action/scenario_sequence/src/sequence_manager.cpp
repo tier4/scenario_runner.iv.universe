@@ -38,16 +38,21 @@ state_is SequenceManager::update(
   for (auto iter { std::begin(sequences_) }; iter != cursor; ++iter)
   {
     (*iter).touch();
+    context_.json << (std::next(iter) != std::end(sequences_) ? ",\n" : "\n");
   }
 
   if (cursor != std::end(sequences_))
   {
-    switch (currently = (*cursor).update(context_.intersections_pointer()))
+    currently = (*cursor).update(context_.intersections_pointer());
+    context_.json << (std::next(cursor) != std::end(sequences_) ? ",\n" : "\n");
+
+    switch (currently)
     {
     case state_is::finished:
       for (auto iter { ++cursor }; iter != std::end(sequences_); ++iter)
       {
         (*iter).touch();
+        context_.json << (std::next(iter) != std::end(sequences_) ? ",\n" : "\n");
       }
       break;
 
@@ -55,6 +60,7 @@ state_is SequenceManager::update(
       for (auto iter { std::next(cursor) }; iter != std::end(sequences_); ++iter)
       {
         (*iter).touch();
+        context_.json << (std::next(iter) != std::end(sequences_) ? ",\n" : "\n");
       }
       break;
     }
