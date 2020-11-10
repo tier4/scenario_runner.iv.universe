@@ -24,15 +24,18 @@ void EventManager::touch() const
   for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
   {
     (*iter).touch();
+    context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
   }
 
   if (cursor != std::end(events_))
   {
     (*cursor).touch();
+    context_.json << (std::next(cursor) != std::end(events_) ? ",\n" : "\n");
 
     for (auto iter { std::next(cursor) }; iter != std::end(events_); ++iter)
     {
       (*iter).touch();
+      context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
     }
   }
 
@@ -47,23 +50,37 @@ state_is EventManager::update(
   for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
   {
     (*iter).touch();
+    context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
   }
 
-  switch (currently = (*cursor).update(context_.intersections_pointer()))
+  if (cursor != std::end(events_))
   {
-  case state_is::finished:
-    for (auto iter { ++cursor }; iter != std::end(events_); ++iter)
-    {
-      (*iter).touch();
-    }
-    break;
+    currently = (*cursor).update(context_.intersections_pointer());
 
-  default:
-    for (auto iter { std::next(cursor) }; iter != std::end(events_); ++iter)
+    context_.json << (std::next(cursor) != std::end(events_) ? ",\n" : "\n");
+
+    switch (currently)
     {
-      (*iter).touch();
+    case state_is::finished:
+      for (auto iter { ++cursor }; iter != std::end(events_); ++iter)
+      {
+        (*iter).touch();
+        context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
+      }
+      break;
+
+    default:
+      for (auto iter { std::next(cursor) }; iter != std::end(events_); ++iter)
+      {
+        (*iter).touch();
+        context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
+      }
+      break;
     }
-    break;
+  }
+  else
+  {
+    return currently = state_is::finished;
   }
 
   context_.json << (--indent) << "],\n";

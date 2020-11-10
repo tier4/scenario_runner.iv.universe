@@ -180,8 +180,8 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
 
   context.json << (indent++) << "Current: {\n";
   context.json << indent << "SequenceName: " << std::quoted((*sequence_manager_).current_sequence_name()) << ",\n";
-  context.json << indent << "EventName: "    << std::quoted((*sequence_manager_).current_event_name())    << ",\n";
-  context.json << (--indent) << "},\n";
+  context.json << indent << "EventName: "    << std::quoted((*sequence_manager_).current_event_name())    << "\n";
+  context.json << (--indent) << "}\n";
 
   context.json << (--indent) << "}\n";
   context.json << (--indent) << "}" << std::endl;
@@ -196,9 +196,6 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
 
   std::stringstream ss {};
   std::swap(context.json, ss);
-
-  // context.json.str("");
-  // context.json.clear(std::stringstream::goodbit);
 }
 catch (...)
 {
