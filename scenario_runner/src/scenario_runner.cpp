@@ -136,8 +136,13 @@ catch (...)
 
 void ScenarioRunner::update(const ros::TimerEvent & event) try
 {
-  context.json << (indent++) << "{\n";
-  context.json << (indent++) << std::quoted("ScenarioRunnerContext") << ": {\n";
+  if (ros::isShuttingDown())
+  {
+    std::cout << "HOGE!!!!!!!!!!!" << std::endl;
+    return timer_.stop();
+  }
+
+  context.json << (indent++) << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 

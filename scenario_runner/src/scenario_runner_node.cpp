@@ -8,19 +8,22 @@
 #include <scenario_runner/scenario_terminater.h>
 #include <thread>
 
-
 static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
-
-static void failureCallback()
-{
-  SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly.");
-  scenario_logger::log.write();
-}
 
 int main(int argc, char * argv[]) try
 {
   google::InitGoogleLogging(argv[0]);
-  google::InstallFailureFunction(&failureCallback);
+
+  google::InstallFailureSignalHandler();
+
+  google::InstallFailureWriter([](const char* data, int size)
+  {
+    // std::cout << std::string(data, size) << std::endl;
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly.");
+    scenario_logger::log.write();
+    LOG_SIMPLE(error() << "FAILURE_CALLBACK");
+    std::exit(boost::exit_success);
+  });
 
   scenario_logger::slog.open("/tmp/log", std::ios::trunc);
 
@@ -86,19 +89,21 @@ int main(int argc, char * argv[]) try
       (ros::Time::now() - scenario_logger::log.begin()).toSec());
   }
 
-  if (runner.currently == simulation_is::ongoing)
-  {
-    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
-    scenario_logger::log.write();
-    terminator.sendTerminateRequest(boost::exit_failure);
-    return boost::exit_failure;
-  }
-  else
-  {
-    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
-    scenario_logger::log.write();
-    return boost::exit_exception_failure;
-  }
+  LOG_SIMPLE(error() << "ros::ok() == false");
+
+  // if (runner.currently == simulation_is::ongoing)
+  // {
+  //   SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
+  //   scenario_logger::log.write();
+  //   terminator.sendTerminateRequest(boost::exit_failure);
+  //   return boost::exit_failure;
+  // }
+  // else
+  // {
+  //   SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
+  //   scenario_logger::log.write();
+  //   return boost::exit_exception_failure;
+  // }
 }
 
 catch (const std::exception& e)
