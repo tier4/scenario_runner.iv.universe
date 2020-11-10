@@ -28,10 +28,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Connecting to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Connecting to Autoware");
 
   /* Get Parameter*/
   camera_frame_id_ = node_->declare_parameter<std::string>("camera_frame_id", "camera_link");
@@ -73,6 +70,8 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   sub_turn_signal_ = node_->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
     "input/signal_command", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackTurnSignal, this, std::placeholders::_1));
+
+  LOG_SIMPLE(info() << "Connection to Autoware established");
 
   /* register timer callbacks */
   auto fast_timer_callback = std::bind(&ScenarioAPIAutoware::timerCallbackFast, this);
@@ -161,21 +160,11 @@ void ScenarioAPIAutoware::callbackRoute(
 void ScenarioAPIAutoware::callbackStatus(
   const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
   autoware_state_ = msg->state;
   if (autoware_state_ != autoware_system_msgs::msg::AutowareState::EMERGENCY) {
     is_autoware_ready_initialize = true;
 
-    static auto previous_state {
-      ((slog.info() << "Autoware state is " << autoware_state_ << endlog), autoware_state_)
-    };
-
-    if (autoware_state_ != previous_state)
-    {
-      slog.info() << "Autoware state changed: " << previous_state << " => " << autoware_state_ << endlog;
-      previous_state = autoware_state_;
-    }
+  LOG_TOGGLE("Autoware state", autoware_state_);
 }
 
 void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
@@ -269,10 +258,7 @@ bool ScenarioAPIAutoware::sendStartPoint(
   const geometry_msgs::msg::Pose pose, const bool wait_autoware_status,
   const std::string & frame_type)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Sending start-point to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Send start-point to Autoware");
 
   // ignore roll/pitch information
   const double yaw = yawFromQuat(pose.orientation);
@@ -398,10 +384,7 @@ bool ScenarioAPIAutoware::waitState(const std::string state)
 
 bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Sending initial-velocity " << velocity << " to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Send initial-velocity " << velocity << " to Autoware");
 
   geometry_msgs::msg::TwistStamped twistmsg;
   twistmsg.header.frame_id = "base_link";
@@ -416,18 +399,15 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
   autoware_control_msgs::msg::EngageMode engage_msg;
   engage_msg.is_engaged = engage;
   pub_autoware_engage_->publish(engage_msg);
-  return true;  // TODO check success
+  return true;
 }
 
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
   while (rclcpp::ok()) {
-    slog.info() << "Waiting for Autoware to be initialized" << endlog;
+    LOG_SIMPLE(info() << "Waiting for Autoware to be initialized");
     if (isAutowareReadyInitialize()) {
-      slog.info() << "Autoware is initialized" << endlog;
+      LOG_SIMPLE(info() << "Initialized Autoware");
       return true;
     }
     rclcpp::Rate(10.0).sleep();
@@ -445,10 +425,7 @@ bool ScenarioAPIAutoware::isAutowareReadyRouting()
 
 bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
 {
-  using scenario_logger::slog;
-  using scenario_logger::endlog;
-
-  slog.info() << "Sending max-speed " << velocity << " to Autoware" << endlog;
+  LOG_SIMPLE(info() << "Sending max-speed " << velocity << " to Autoware");
 
   autoware_debug_msgs::msg::Float32Stamped floatmsg;
   floatmsg.stamp = *node_->get_clock()->now();
