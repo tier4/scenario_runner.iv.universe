@@ -35,8 +35,7 @@ ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
   }
 }
 
-void ScenarioRunner::run()
-try
+void ScenarioRunner::run() try
 {
   LOG_SIMPLE(info() << "Parse scenario");
   context.define(simulator_);

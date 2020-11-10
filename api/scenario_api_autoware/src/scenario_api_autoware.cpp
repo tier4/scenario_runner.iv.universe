@@ -25,8 +25,6 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
-  LOG_SIMPLE(info() << "Connecting to Autoware");
-
   /* Get Parameter*/
   pnh_.param<std::string>(        "camera_frame_id",       camera_frame_id_, "camera_link");
   LOG_SIMPLE(info() << "Parameter 'camera_frame_id' = " << camera_frame_id_);
@@ -119,8 +117,6 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   pub_lane_change_permission_ =
     pnh_.advertise<std_msgs::Bool>("output/lane_change_permission", 1, true);
   LOG_SIMPLE(info() << "Advertise topic 'output/lane_change_permission'");
-
-  LOG_SIMPLE(info() << "Connection to Autoware established");
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
@@ -146,23 +142,25 @@ void ScenarioAPIAutoware::callbackPointCloud(const sensor_msgs::PointCloud2::Con
 
 void ScenarioAPIAutoware::callbackMap(const autoware_lanelet2_msgs::MapBin & msg)
 {
-  ROS_INFO("Start loading lanelet");
+  LOG_SIMPLE(info() << "Receive autoware_lanelet2_msgs::MapBin");
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
     msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
-  ROS_INFO("Map is loaded");
 }
 
 void ScenarioAPIAutoware::callbackRoute(const autoware_planning_msgs::Route & msg)
 {
+  LOG_SIMPLE(info() << "Receive autoware_planning_msgs::Route");
   is_autoware_ready_routing = true;  // check autoware rady
 }
 
 void ScenarioAPIAutoware::callbackStatus(const autoware_system_msgs::AutowareState & msg)
 {
   autoware_state_ = msg.state;
-  if (autoware_state_ != autoware_system_msgs::AutowareState::Emergency)
+
+  if (autoware_state_ != autoware_system_msgs::AutowareState::Emergency) {
     is_autoware_ready_initialize = true;
+  }
 
   LOG_TOGGLE("Autoware state", autoware_state_);
 }
@@ -177,6 +175,7 @@ void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::TwistStamped::Const
   if (current_twist_ptr_ != nullptr) {
     previous_twist_ptr_ = std::make_shared<geometry_msgs::TwistStamped>(*current_twist_ptr_);
   }
+
   current_twist_ptr_ = std::make_shared<geometry_msgs::TwistStamped>(*msg);
 }
 
@@ -190,38 +189,45 @@ void ScenarioAPIAutoware::callbackTurnSignal(
 bool ScenarioAPIAutoware::isAPIReady()
 {
   if (current_pose_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "current_pose is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'current_pose'");
   }
 
   if (pcl_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "pointcloud is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'pointcloud'");
   }
 
   if (lanelet_map_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "lanelet_map is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'lanelet2_map'");
   }
 
   if (current_twist_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "current_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'current_twist'");
   }
 
   if (previous_twist_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "previous_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'previous_twist'");
   }
 
   if (second_previous_twist_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "second_previous_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'second_previous_twist'");
   }
 
   if (turn_signal_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "turn_signal is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'turn_signal'");
   }
 
   return true;
@@ -230,7 +236,9 @@ bool ScenarioAPIAutoware::isAPIReady()
 bool ScenarioAPIAutoware::waitAPIReady()
 {
   while (ros::ok()) {
+    LOG_SIMPLE(info() << "Connect to Autoware");
     if (isAPIReady()) {
+      LOG_SIMPLE(info() << "Established connection to Autoware");
       break;
     }
     ros::Rate(10.0).sleep();
