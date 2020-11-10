@@ -46,7 +46,11 @@ int main(int argc, char * argv[]) try
   scenario_logger::log.setLogOutputPath(log_output_path);
 
   slog.info() << "Sleep for 10 seconds" << endlog;
-  std::this_thread::sleep_for(std::chrono::seconds { 10 });
+  for (auto i { 10 }; 0 < i; --i)
+  {
+    slog.info() << "Sleeping... " << i << endlog;
+    std::this_thread::sleep_for(std::chrono::seconds { 1 });
+  }
   slog.info() << "Wake-up." << endlog;
 
   /*

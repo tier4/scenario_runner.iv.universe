@@ -135,7 +135,6 @@ try
   scenario_logger::log.initialize(ros::Time::now()); // NOTE: initialize logger's clock here.
   slog.info() << "Clock initialized" << endlog;
 
-  slog.info() << "Scenario parsed" << endlog;
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "Simulation started.");
 }
 catch (...)
