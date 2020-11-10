@@ -28,49 +28,97 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   LOG_SIMPLE(info() << "Connecting to Autoware");
 
   /* Get Parameter*/
-  pnh_.param<std::string>("camera_frame_id", camera_frame_id_, "camera_link");
+  pnh_.param<std::string>(        "camera_frame_id",       camera_frame_id_, "camera_link");
+  LOG_SIMPLE(info() << "Parameter 'camera_frame_id' = " << camera_frame_id_);
 
   //parameter for getMoveDistance
-  pnh_.param<bool>("rosparam/add_simulator_noise", add_simulator_noise_, true);
-  pnh_.param<double>("rosparam/simulator_pos_noise", simulator_noise_pos_dev_, 0.1);
-  pnh_.param<double>("rosparam/max_velocity", autoware_max_velocity_, 30.0);
+  pnh_.param<bool>(               "rosparam/add_simulator_noise",                         add_simulator_noise_, true);
+  LOG_SIMPLE(info() << "Parameter 'rosparam/add_simulator_noise' = " << std::boolalpha << add_simulator_noise_);
+
+  pnh_.param<double>(             "rosparam/simulator_pos_noise",       simulator_noise_pos_dev_, 0.1);
+  LOG_SIMPLE(info() << "Parameter 'rosparam/simulator_pos_noise' = " << simulator_noise_pos_dev_);
+
+  pnh_.param<double>(             "rosparam/max_velocity",       autoware_max_velocity_, 30.0);
+  LOG_SIMPLE(info() << "Parameter 'rosparam/max_velocity' = " << autoware_max_velocity_);
 
   /* Scenario parameters*/
   vehicle_data_.wheel_radius = waitForParam<double>(pnh_, "/vehicle_info/wheel_radius");
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_radius' = " << vehicle_data_.wheel_radius);
+
   vehicle_data_.wheel_width = waitForParam<double>(pnh_, "/vehicle_info/wheel_width");
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_width' = " << vehicle_data_.wheel_width);
+
   vehicle_data_.wheel_base = waitForParam<double>(pnh_, "/vehicle_info/wheel_base");
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_base' = " << vehicle_data_.wheel_base);
+
   vehicle_data_.wheel_tread = waitForParam<double>(pnh_, "/vehicle_info/wheel_tread");
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_tread' = " << vehicle_data_.wheel_tread);
+
   vehicle_data_.front_overhang = waitForParam<double>(pnh_, "/vehicle_info/front_overhang");
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/front_overhang' = " << vehicle_data_.front_overhang);
+
   vehicle_data_.rear_overhang = waitForParam<double>(pnh_, "/vehicle_info/rear_overhang");
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/rear_overhang' = " << vehicle_data_.rear_overhang);
+
   vehicle_data_.vehicle_height = waitForParam<double>(pnh_, "/vehicle_info/vehicle_height");
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/vehicle_height' = " << vehicle_data_.vehicle_height);
 
   /* register callback*/
   sub_pcl_ = pnh_.subscribe("input/pointcloud", 1, &ScenarioAPIAutoware::callbackPointCloud, this);
+  LOG_SIMPLE(info() << "Register callback for topic 'input/pointcloud'");
+
   sub_map_ = pnh_.subscribe("input/vectormap", 10, &ScenarioAPIAutoware::callbackMap, this);
+  LOG_SIMPLE(info() << "Register callback for topic 'input/vectormap'");
+
   sub_route_ = pnh_.subscribe("input/route", 1, &ScenarioAPIAutoware::callbackRoute, this);
+  LOG_SIMPLE(info() << "Register callback for topic 'input/route'");
+
   sub_state_ =
     pnh_.subscribe("input/autoware_state", 1, &ScenarioAPIAutoware::callbackStatus, this);
+  LOG_SIMPLE(info() << "Register callback for topic 'input/autoware_state'");
+
   sub_twist_ = pnh_.subscribe("input/vehicle_twist", 1, &ScenarioAPIAutoware::callbackTwist, this);
+  LOG_SIMPLE(info() << "Register callback for topic 'input/vehicle_twist'");
+
   sub_turn_signal_ =
     pnh_.subscribe("input/signal_command", 1, &ScenarioAPIAutoware::callbackTurnSignal, this);
+  LOG_SIMPLE(info() << "Register callback for topic 'input/signal_command'");
+
   timer_control_fast_ = pnh_.createTimer(
     ros::Duration(fast_time_control_dt_), &ScenarioAPIAutoware::timerCallbackFast, this);
+
   timer_control_slow_ = pnh_.createTimer(
     ros::Duration(slow_time_control_dt_), &ScenarioAPIAutoware::timerCallbackSlow, this);
 
   /* register publisher */
   pub_start_point_ =
     pnh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("output/start_point", 1, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/start_point'");
+
   pub_goal_point_ = pnh_.advertise<geometry_msgs::PoseStamped>("output/goal_point", 1, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/goal_point'");
+
   pub_check_point_ = pnh_.advertise<geometry_msgs::PoseStamped>("output/check_point", 10, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/check_point'");
+
   pub_start_velocity_ =
     pnh_.advertise<geometry_msgs::TwistStamped>("output/initial_velocity", 1, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/initial_velocity'");
+
   pub_autoware_engage_ = pnh_.advertise<std_msgs::Bool>("output/autoware_engage", 1, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/autoware_engage'");
+
   pub_max_velocity_ = pnh_.advertise<std_msgs::Float32>("output/limit_velocity", 1, true);
-  pub_traffic_detection_result_ = pnh_.advertise<autoware_perception_msgs::TrafficLightStateArray>(
-    "output/traffic_detection_result", 10, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/limit_velocity'");
+
+  pub_traffic_detection_result_ =
+    pnh_.advertise<autoware_perception_msgs::TrafficLightStateArray>(
+      "output/traffic_detection_result", 10, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/traffic_detection_result'");
+
   pub_lane_change_permission_ =
     pnh_.advertise<std_msgs::Bool>("output/lane_change_permission", 1, true);
+  LOG_SIMPLE(info() << "Advertise topic 'output/lane_change_permission'");
 
   LOG_SIMPLE(info() << "Connection to Autoware established");
 }

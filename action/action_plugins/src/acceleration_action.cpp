@@ -45,9 +45,8 @@ catch (...)
   SCENARIO_RETHROW_ERROR_FROM_ACTION_CONFIGURATION();
 }
 
-auto AccelerationAction::run(
+void AccelerationAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
-  -> void
 {
   for (const auto& actor : actors_)
   {
