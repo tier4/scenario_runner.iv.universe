@@ -44,6 +44,10 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   vehicle_data_.front_overhang = vehicle_info_.front_overhang_m_;
   vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m_;
   vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
+  vehicle_data_.max_longitudinal_offset = vehicle_info_.max_longitudinal_offset_m_;
+  vehicle_data_.min_longitudinal_offset = vehicle_info_.min_longitudinal_offset_m_;
+  vehicle_data_.max_height_offset = vehicle_info_.max_height_offset_m_;
+  vehicle_data_.min_height_offset = vehicle_info_.min_height_offset_m_;
 
   /* register data callback*/
   sub_pcl_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
@@ -439,9 +443,9 @@ geometry_msgs::msg::PoseStamped ScenarioAPIAutoware::getCurrentPoseRos() { retur
 
 Polygon ScenarioAPIAutoware::getSelfPolygon2D() { return getSelfPolygon2D(vehicle_data_); }
 
-double ScenarioAPIAutoware::getVehicleTopFromBase() { return vehicle_data_.top_from_base(); }
+double ScenarioAPIAutoware::getVehicleTopFromBase() { return vehicle_data_.max_height_offset; }
 
-double ScenarioAPIAutoware::getVehicleBottomFromBase() { return vehicle_data_.bottom_from_base(); }
+double ScenarioAPIAutoware::getVehicleBottomFromBase() { return vehicle_data_.min_height_offset; }
 
 double ScenarioAPIAutoware::getVelocity() { return current_twist_ptr_->twist.linear.x; }
 
@@ -1133,7 +1137,7 @@ bool ScenarioAPIAutoware::checkOverTrafficLine(
     return true;
   }
 
-  if (distance2line < vehicle_data_.front_from_base()) {
+  if (distance2line < vehicle_data_.max_longitudinal_offset) {
     //front of the car is over the line
     over_line = true;
     return true;
@@ -1232,10 +1236,8 @@ Polygon ScenarioAPIAutoware::getSelfPolygon2D(VehicleData vd)
 {
   double left = vd.left_from_base();
   double right = vd.right_from_base();
-  double front = vd.front_from_base();
-  double rear = vd.rear_from_base();
-  double top = vd.top_from_base();
-  double bottom = vd.bottom_from_base();
+  double front = vd.max_longitudinal_offset;
+  double rear = vd.min_longitudinal_offset;
 
   // create polygon of self body shape
   Polygon poly;

@@ -77,12 +77,12 @@ struct VehicleData
   double front_overhang;
   double rear_overhang;
   double vehicle_height;
-  double front_from_base() { return front_overhang + wheel_base; };
-  double rear_from_base() { return -rear_overhang; };
+  double max_longitudinal_offset;
+  double min_longitudinal_offset;
+  double max_height_offset;
+  double min_height_offset;
   double left_from_base() { return wheel_tread / 2.0 + wheel_width / 2.0; };
   double right_from_base() { return -(wheel_tread / 2.0 + wheel_width / 2.0); };
-  double top_from_base() { return vehicle_height; };
-  double bottom_from_base() { return 0.0; };
 };
 
 namespace bg = boost::geometry;
