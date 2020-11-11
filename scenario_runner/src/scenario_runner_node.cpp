@@ -6,30 +6,45 @@
 #include <scenario_logger/simple_logger.hpp>
 #include <scenario_runner/scenario_runner.h>
 #include <scenario_runner/scenario_terminater.h>
+#include <signal.h>
 #include <thread>
 
 static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
 
+static void terminate(int signal)
+{
+  ros::shutdown();
+  SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly (" << signal << ").");
+  scenario_logger::log.write();
+  LOG_SIMPLE(error() << "Terminate (" << signal << ")");
+  std::quick_exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char * argv[]) try
 {
-  google::InitGoogleLogging(argv[0]);
-
-  google::InstallFailureSignalHandler();
-
-  google::InstallFailureWriter([](const char* data, int size)
-  {
-    // std::cout << std::string(data, size) << std::endl;
-    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly.");
-    scenario_logger::log.write();
-    LOG_SIMPLE(error() << "FAILURE_CALLBACK");
-    std::exit(boost::exit_success);
-  });
-
   scenario_logger::slog.open("/tmp/log", std::ios::trunc);
 
-  ros::init(argc, argv, "scenario_runner_node");
+  ros::init(argc, argv, "scenario_runner_node", ros::init_options::NoSigintHandler);
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
+
+  google::InitGoogleLogging(argv[0]);
+  google::InstallFailureSignalHandler();
+  google::InstallFailureWriter([](const char*, int)
+  {
+    return terminate(0);
+  });
+
+  struct sigaction action {};
+  memset(&action, 0, sizeof(struct sigaction));
+  sigemptyset(&action.sa_mask);
+  action.sa_flags |= SA_SIGINFO;
+  action.sa_handler = &terminate;
+
+  if (sigaction(SIGINT, &action, nullptr) < 0)
+  {
+    LOG_SIMPLE(error() << "Failed to install SIGINT handler");
+  }
 
   scenario_logger::log.setStartDatetime(ros::Time::now());
   SCENARIO_LOG_STREAM(CATEGORY("simulation", "progress"), "Logging started.");
@@ -89,7 +104,7 @@ int main(int argc, char * argv[]) try
       (ros::Time::now() - scenario_logger::log.begin()).toSec());
   }
 
-  LOG_SIMPLE(error() << "ros::ok() == false");
+  // LOG_SIMPLE(error() << "ros::ok() == false");
 
   // if (runner.currently == simulation_is::ongoing)
   // {
@@ -104,6 +119,8 @@ int main(int argc, char * argv[]) try
   //   scenario_logger::log.write();
   //   return boost::exit_exception_failure;
   // }
+
+  return EXIT_FAILURE;
 }
 
 catch (const std::exception& e)
