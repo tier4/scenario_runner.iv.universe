@@ -129,11 +129,11 @@ void ScenarioAPIAutoware::callbackPointCloud(const sensor_msgs::msg::PointCloud2
 
 void ScenarioAPIAutoware::callbackMap(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
 {
-  // ROS_INFO("Start loading lanelet");
+  RCLCPP_INFO(this->get_logger(), "Start loading lanelet");
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
     *msg, lanelet_map_ptr_);
-  // ROS_INFO("Map is loaded");
+  RCLCPP_INFO(this->get_logger(), "Map is loaded");
 }
 
 void ScenarioAPIAutoware::callbackRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
@@ -171,37 +171,51 @@ void ScenarioAPIAutoware::callbackTurnSignal(
 bool ScenarioAPIAutoware::isAPIReady()
 {
   if (current_pose_ptr_ == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "current_pose is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "current_pose is nullptr");
     return false;
   }
 
   if (pcl_ptr_ == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "pointcloud is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "pointcloud is nullptr");
     return false;
   }
 
   if (lanelet_map_ptr_ == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "lanelet_map is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "lanelet_map is nullptr");
     return false;
   }
 
   if (current_twist_ptr_ == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "current_twist is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "current_twist is nullptr");
     return false;
   }
 
   if (previous_twist_ptr_ == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "previous_twist is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "previous_twist is nullptr");
     return false;
   }
 
   if (second_previous_twist_ptr_ == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "second_previous_twist is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "second_previous_twist is nullptr");
     return false;
   }
 
   if (turn_signal_ptr_ == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "turn_signal is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "turn_signal is nullptr");
     return false;
   }
 
@@ -238,12 +252,12 @@ bool ScenarioAPIAutoware::sendStartPoint(
     return false;
   }
 
-  // pub_start_point_.publish(posewcs);
+  pub_start_point_->publish(posewcs);
 
   //publish recurssively until self-pose tf is published
   while (!current_pose_ptr_) {
     // ros::Rate(2.0).sleep();
-    // pub_start_point_.publish(posewcs);
+    pub_start_point_->publish(posewcs);
     // ros::spinOnce();
   }
 
@@ -252,7 +266,7 @@ bool ScenarioAPIAutoware::sendStartPoint(
     while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE)) {
       // ros::Rate(2.0).sleep();
       posewcs.header.stamp = this->now();
-      // pub_start_point_.publish(posewcs);
+      pub_start_point_->publish(posewcs);
       // ros::spinOnce();
     }
   }
@@ -279,14 +293,14 @@ bool ScenarioAPIAutoware::sendGoalPoint(
     return false;
   }
 
-  // pub_goal_point_.publish(posestmp);
+  pub_goal_point_->publish(posestmp);
 
   if (wait_autoware_status) {
     //publish recurssively until state changes
     while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE)) {
       // ros::Rate(1.0).sleep();
       posestmp.header.stamp = this->now();
-      // pub_goal_point_.publish(posestmp);
+      pub_goal_point_->publish(posestmp);
       // ros::spinOnce();
     }
   }
@@ -315,7 +329,7 @@ bool ScenarioAPIAutoware::sendCheckPoint(
     return false;
   }
 
-  // pub_check_point_.publish(posestmp);
+  pub_check_point_->publish(posestmp);
   if (wait_autoware_status) {
     // wait for message-received and planning
     waitState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE);
@@ -325,7 +339,9 @@ bool ScenarioAPIAutoware::sendCheckPoint(
 
 bool ScenarioAPIAutoware::checkState(const std::string state)
 {
-  // ROS_INFO_STREAM("autoware_state:" << autoware_state_ << ", target_state" << state << std::endl);
+  RCLCPP_INFO_STREAM(
+    this->get_logger(),
+    "autoware_state:" << autoware_state_ << ", target_state" << state << std::endl);
   return autoware_state_ == state;
 }
 
@@ -348,7 +364,7 @@ bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
   twistmsg.header.frame_id = "base_link";
   twistmsg.header.stamp = this->now();
   twistmsg.twist.linear.x = velocity;
-  // pub_start_velocity_.publish(twistmsg);
+  pub_start_velocity_->publish(twistmsg);
   return true;  // TODO check success
 }
 
@@ -356,7 +372,7 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
 {
   std_msgs::msg::Bool boolmsg;
   boolmsg.data = engage;
-  // pub_autoware_engage_.publish(boolmsg);
+  pub_autoware_engage_->publish(boolmsg);
   return true;  // TODO check success
 }
 
@@ -381,9 +397,10 @@ bool ScenarioAPIAutoware::isAutowareReadyRouting()
 
 bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
 {
-  // std_msgs::Float32 floatmsg;
-  // floatmsg.data = velocity;
-  // pub_max_velocity_.publish(floatmsg);
+  autoware_debug_msgs::msg::Float32Stamped floatmsg;
+  floatmsg.stamp = this->now();
+  floatmsg.data = velocity;
+  pub_max_velocity_->publish(floatmsg);
   return true;  // TODO check success
 }
 
@@ -395,7 +412,9 @@ void ScenarioAPIAutoware::getCurrentPoseFromTF(void)
   try {
     transform = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "cannot get map to base_link transform. %s", ex.what());
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "cannot get map to base_link transform. %s", ex.what());
     return;
   }
 
@@ -444,7 +463,7 @@ double ScenarioAPIAutoware::getAccel(
   double c_time = current_twist_ptr->header.stamp.sec;
   double p_time = previous_twist_ptr->header.stamp.sec;
   if (c_time - p_time <= 0) {
-    // ROS_WARN("return invalid accel because of invalid timestamp(twist_ptr)");
+    RCLCPP_WARN(this->get_logger(), "return invalid accel because of invalid timestamp(twist_ptr)");
   }
   return (c_x - p_x) / (c_time - p_time);  // TODO refine this(use low pass filter?)
 }
@@ -462,7 +481,7 @@ double ScenarioAPIAutoware::getJerk(
     (previous_twist_ptr->header.stamp.sec + second_previous_twist_ptr->header.stamp.sec) /
     2.0;
   if (c_time - p_time <= 0) {
-    // ROS_WARN("return invalid jerk because of invalid timestamp(twist_ptr)");
+    RCLCPP_WARN(this->get_logger(), "return invalid jerk because of invalid timestamp(twist_ptr)");
   }
   return (c_a - p_a) / (c_time - p_time);
 }
@@ -497,8 +516,9 @@ void ScenarioAPIAutoware::updateTotalMoveDistance()
     return;
   }
   if (std::fabs(v) > valid_max_velocity_thresh_) {
-    // ROS_ERROR_STREAM(
-    //   "Detect invalid movement. Do not add delta-pose to total-move-distance. v=( " << v << " )");
+    RCLCPP_ERROR_STREAM(
+      this->get_logger(),
+      "Detect invalid movement. Do not add delta-pose to total-move-distance. v=( " << v << " )");
     previous_pose_ptr_ = *current_pose_ptr_;
     return;
   }
@@ -536,16 +556,19 @@ bool ScenarioAPIAutoware::shiftEgoPose(
     return true;
   }
 
-  // ROS_ERROR_STREAM(
-  //   "shiftEGoPose supports only base_link, front_link, and rear_link as frame_type. "
-  //   << "Now, frame_type is " << frame_type << ".");
+  RCLCPP_ERROR_STREAM(
+    this->get_logger(),
+    "shiftEGoPose supports only base_link, front_link, and rear_link as frame_type. "
+      << "Now, frame_type is " << frame_type << ".");
   return false;
 }
 
 // additonal self vehicle API
 bool ScenarioAPIAutoware::willLaneChange()
 {
-  // ROS_WARN_DELAYED_THROTTLE(5.0, "willLaneChange is not perfectly implemented yet.");
+  RCLCPP_WARN_SKIPFIRST_THROTTLE(
+    this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+    "willLaneChange is not perfectly implemented yet.");
   // TODO fix this (Now, this returns true when left/right turn)
   return (getLeftBlinker() || getRightBlinker());
 }
@@ -569,7 +592,7 @@ bool ScenarioAPIAutoware::approveLaneChange(bool approve_lane_change)
 {
   std_msgs::msg::Bool boolmsg;
   boolmsg.data = approve_lane_change;
-  // pub_lane_change_permission_.publish(boolmsg);
+  pub_lane_change_permission_->publish(boolmsg);
   return true;  // TODO check successs
 }
 
@@ -618,7 +641,7 @@ bool ScenarioAPIAutoware::getCurrentLeftLaneID(
   int & current_left_id, const std::shared_ptr<lanelet::Lanelet> current_lane)
 {
   if (current_lane == nullptr) {
-    // ROS_WARN("cannot get left lane id (current_lane is nullptr)");
+    RCLCPP_WARN(this->get_logger(), "cannot get left lane id (current_lane is nullptr)");
     return false;
   }
 
@@ -633,7 +656,7 @@ bool ScenarioAPIAutoware::getCurrentLeftLaneID(
 
 bool ScenarioAPIAutoware::isChangeLaneID()
 {
-  // ROS_WARN("isChangeLaneID is not implemented yet.");
+  RCLCPP_WARN(this->get_logger(), "isChangeLaneID is not implemented yet.");
   // TODO
   return false;
 }
@@ -657,13 +680,17 @@ bool ScenarioAPIAutoware::getDistancefromCenterLine(
   std::shared_ptr<lanelet::Lanelet> current_lanelet)
 {
   if (current_lanelet == nullptr or current_pose == nullptr) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "cannot get distance from centerline (nullptr)");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "cannot get distance from centerline (nullptr)");
     return false;
   }
 
   const auto centerline = current_lanelet->centerline2d();
   if (centerline.empty()) {
-    // ROS_WARN_DELAYED_THROTTLE(5.0, "cannot get distance from centerline (invalid centerline)");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "cannot get distance from centerline (invalid centerline)");
     return false;
   }
 
@@ -891,8 +918,9 @@ bool ScenarioAPIAutoware::getTrafficLightColor(
 {
   lanelet::LineStringsOrPolygons3d traffic_lights;
   if (!getTrafficLights(traffic_relation_id, traffic_lights)) {
-    // ROS_WARN_STREAM(
-    //   "traffic light id:" << traffic_relation_id << " is invalid. cannot get traffic light");
+    RCLCPP_WARN_STREAM(
+      this->get_logger(),
+      "traffic light id:" << traffic_relation_id << " is invalid. cannot get traffic light");
     return false;
   }
   for (const auto & traffic_light : traffic_lights) {
@@ -914,7 +942,7 @@ bool ScenarioAPIAutoware::getTrafficLightColor(
     *traffic_color = "";
     return true;
   }
-  // ROS_WARN_STREAM("traffic light id:" << traffic_relation_id << "is not registered");
+  RCLCPP_WARN_STREAM(this->get_logger(), "traffic light id:" << traffic_relation_id << "is not registered");
   return false;
 }
 
@@ -923,8 +951,9 @@ bool ScenarioAPIAutoware::getTrafficLightArrow(
 {
   lanelet::LineStringsOrPolygons3d traffic_lights;
   if (!getTrafficLights(traffic_relation_id, traffic_lights)) {
-    // ROS_WARN_STREAM(
-    //   "traffic light id:" << traffic_relation_id << " is invalid. cannot get traffic light");
+    RCLCPP_WARN_STREAM(
+      this->get_logger(),
+      "traffic light id:" << traffic_relation_id << " is invalid. cannot get traffic light");
     return false;
   }
   traffic_arrow->clear();
@@ -945,7 +974,7 @@ bool ScenarioAPIAutoware::getTrafficLightArrow(
       }
     }
   }
-  // ROS_WARN_STREAM("color of traffic light id:" << traffic_relation_id << "is not registered");
+  RCLCPP_WARN_STREAM(this->get_logger(), "color of traffic light id:" << traffic_relation_id << "is not registered");
   return false;
 }
 
@@ -972,8 +1001,9 @@ bool ScenarioAPIAutoware::getTrafficLineCenterPosition(
   const int traffic_relation_id, geometry_msgs::msg::Point & line_center)
 {
   if (!lanelet_map_ptr_->regulatoryElementLayer.exists(traffic_relation_id)) {
-    // ROS_WARN_STREAM(
-    //   "RegulatoryElement, id:" << traffic_relation_id << "does not exist. Check the traffic id");
+    RCLCPP_WARN_STREAM(
+      this->get_logger(),
+      "RegulatoryElement, id:" << traffic_relation_id << "does not exist. Check the traffic id");
     return false;
   }
 
@@ -981,17 +1011,18 @@ bool ScenarioAPIAutoware::getTrafficLineCenterPosition(
 
   auto traffic_light_reg_elem = std::dynamic_pointer_cast<lanelet::TrafficLight>(traffic_element);
   if (!traffic_light_reg_elem) {
-    // ROS_WARN_STREAM(
-    //   "Result of dynamic pointer cast of regulatoryElement, id:"
-    //   << traffic_relation_id << "is nullptr. Check the traffic id");
+    RCLCPP_WARN_STREAM(
+      this->get_logger(), "Result of dynamic pointer cast of regulatoryElement, id:"
+                            << traffic_relation_id << "is nullptr. Check the traffic id");
     return false;
   }
 
   lanelet::ConstLineString3d stop_line = *(traffic_light_reg_elem->stopLine());
   const int sl_size = stop_line.size();
   if (sl_size == 0) {
-    // ROS_WARN_STREAM(
-    //   "Stop line of traffic_relation id:" << traffic_relation_id << " does not exist");
+    RCLCPP_WARN_STREAM(
+      this->get_logger(),
+      "Stop line of traffic_relation id:" << traffic_relation_id << " does not exist");
     return false;
   }
 
@@ -1022,7 +1053,7 @@ bool ScenarioAPIAutoware::getTrafficLineCenterPose(
 
   //get stop line orientation(input orientation of nearest lane)
   if (nearest_lanelet.empty()) {
-    // ROS_WARN_STREAM("Failed to find the closest lane of stop line");
+    RCLCPP_WARN_STREAM(this->get_logger(), "Failed to find the closest lane of stop line");
     return false;
   }
 
@@ -1115,17 +1146,18 @@ bool ScenarioAPIAutoware::getTrafficLights(
   const int traffic_relation_id, lanelet::LineStringsOrPolygons3d & traffic_lights)
 {
   if (!lanelet_map_ptr_->regulatoryElementLayer.exists(traffic_relation_id)) {
-    // ROS_WARN_STREAM(
-    //   "regulatoryElement, id:" << traffic_relation_id << "does not exist. Check the traffic id");
+    RCLCPP_WARN_STREAM(
+      this->get_logger(),
+      "regulatoryElement, id:" << traffic_relation_id << "does not exist. Check the traffic id");
     return false;
   }
   auto traffic_element = lanelet_map_ptr_->regulatoryElementLayer.get(traffic_relation_id);
 
   auto traffic_light_reg_elem = std::dynamic_pointer_cast<lanelet::TrafficLight>(traffic_element);
   if (!traffic_light_reg_elem) {
-    // ROS_WARN_STREAM(
-    //   "Result of dynamic pointer cast of regulatoryElement, id:"
-    //   << traffic_relation_id << "is nullptr. Check the traffic id");
+    RCLCPP_WARN_STREAM(
+      this->get_logger(), "Result of dynamic pointer cast of regulatoryElement, id:"
+                            << traffic_relation_id << "is nullptr. Check the traffic id");
     return false;
   }
 
@@ -1154,7 +1186,9 @@ uint8_t ScenarioAPIAutoware::getTrafficLampStateFromString(const std::string & t
   } else if (traffic_state_sc == "RIGHT") {
     return autoware_perception_msgs::msg::LampState::RIGHT;
   }
-  // ROS_ERROR_STREAM("invalid traffic_state in getTrafficLampStateFromString: " << traffic_state_sc);
+  RCLCPP_ERROR_STREAM(
+    this->get_logger(),
+    "invalid traffic_state in getTrafficLampStateFromString: " << traffic_state_sc);
   return 0;
 }
 
@@ -1182,7 +1216,7 @@ std::string ScenarioAPIAutoware::getTrafficLampStringFromState(const uint8_t lam
   if (lamp_state == autoware_perception_msgs::msg::LampState::RIGHT) {
     return "Right";
   }
-  // ROS_ERROR_STREAM("invalid lamp state in getTrafficLampStringFromState");
+  RCLCPP_ERROR_STREAM(this->get_logger(), "invalid lamp state in getTrafficLampStringFromState");
   return "";
 }
 
@@ -1190,7 +1224,7 @@ void ScenarioAPIAutoware::pubTrafficLight()
 {
   traffic_light_state_.header.frame_id = camera_frame_id_;
   traffic_light_state_.header.stamp = this->now();
-  // pub_traffic_detection_result_.publish(traffic_light_state_);
+  pub_traffic_detection_result_->publish(traffic_light_state_);
 }
 
 // util
