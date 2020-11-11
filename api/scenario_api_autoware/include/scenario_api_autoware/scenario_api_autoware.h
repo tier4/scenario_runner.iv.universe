@@ -174,13 +174,18 @@ public:
     double judge_dist_thresh = 30.0);
 
 private:
-  // ros::Subscriber sub_state_;  //!< @brief topic subscriber for autoware state
-  // ros::Subscriber sub_pcl_;    //!< @brief topic subscriber for pcl
-  // ros::Subscriber sub_map_;    //!< @brief topic subscriber for map
-  // ros::Subscriber
-  //   sub_route_;  //!< @brief topic subscriber for current route (for check of autoware ready)
-  // ros::Subscriber sub_twist_;           //!< @brief topic subscriber for twist
-  // ros::Subscriber sub_turn_signal_;     //!< @brief topic subscriber for turn signal(blinker)
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr
+    sub_pcl_;  //!< @brief topic subscriber for pcl
+  rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr
+    sub_map_;  //!< @brief topic subscriber for map
+  rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr
+    sub_route_;  //!< @brief topic subscriber for current route (for check of autoware ready)
+  rclcpp::Subscription<autoware_system_msgs::msg::AutowareState>::SharedPtr
+    sub_state_;  //!< @brief topic subscriber for autoware state
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
+    sub_twist_;  //!< @brief topic subscriber for twist
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr
+    sub_turn_signal_;  //!< @brief topic subscriber for turn signal(blinker)
   // ros::Timer timer_control_fast_;       //!< @brief timer for getting self-position etc
   // ros::Timer timer_control_slow_;       //!< @brief timer for getting total-move distance etc
   // ros::Publisher pub_start_point_;      //!< @brief topic pubscriber for start point

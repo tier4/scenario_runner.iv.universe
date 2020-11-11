@@ -46,14 +46,24 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
 
   /* register callback*/
-  // sub_pcl_ = pnh_.subscribe("input/pointcloud", 1, &ScenarioAPIAutoware::callbackPointCloud, this);
-  // sub_map_ = pnh_.subscribe("input/vectormap", 10, &ScenarioAPIAutoware::callbackMap, this);
-  // sub_route_ = pnh_.subscribe("input/route", 1, &ScenarioAPIAutoware::callbackRoute, this);
-  // sub_state_ =
-  //   pnh_.subscribe("input/autoware_state", 1, &ScenarioAPIAutoware::callbackStatus, this);
-  // sub_twist_ = pnh_.subscribe("input/vehicle_twist", 1, &ScenarioAPIAutoware::callbackTwist, this);
-  // sub_turn_signal_ =
-  //   pnh_.subscribe("input/signal_command", 1, &ScenarioAPIAutoware::callbackTurnSignal, this);
+  sub_pcl_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "input/pointcloud", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackPointCloud, this, std::placeholders::_1));
+  sub_map_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
+    "input/vectormap", rclcpp::QoS{10},
+    std::bind(&ScenarioAPIAutoware::callbackMap, this, std::placeholders::_1));
+  sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(
+    "input/route", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackRoute, this, std::placeholders::_1));
+  sub_state_ = this->create_subscription<autoware_system_msgs::msg::AutowareState>(
+    "input/autoware_state", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackStatus, this, std::placeholders::_1));
+  sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
+    "input/vehicle_twist", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackTwist, this, std::placeholders::_1));
+  sub_turn_signal_ = this->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
+    "input/signal_command", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackTurnSignal, this, std::placeholders::_1));
   // timer_control_fast_ = pnh_.createTimer(
   //   ros::Duration(fast_time_control_dt_), &ScenarioAPIAutoware::timerCallbackFast, this);
   // timer_control_slow_ = pnh_.createTimer(
