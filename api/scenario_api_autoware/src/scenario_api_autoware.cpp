@@ -45,7 +45,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m_;
   vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
 
-  /* register callback*/
+  /* register data callback*/
   sub_pcl_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
     "input/pointcloud", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackPointCloud, this, std::placeholders::_1));
@@ -64,24 +64,46 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   sub_turn_signal_ = this->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
     "input/signal_command", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackTurnSignal, this, std::placeholders::_1));
-  // timer_control_fast_ = pnh_.createTimer(
-  //   ros::Duration(fast_time_control_dt_), &ScenarioAPIAutoware::timerCallbackFast, this);
-  // timer_control_slow_ = pnh_.createTimer(
-  //   ros::Duration(slow_time_control_dt_), &ScenarioAPIAutoware::timerCallbackSlow, this);
+
+  /* register timer callbacks */
+  auto fast_timer_callback = std::bind(&ScenarioAPIAutoware::timerCallbackFast, this);
+  auto fast_period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(fast_time_control_dt_));
+
+  timer_control_fast_ = std::make_shared<rclcpp::GenericTimer<decltype(fast_timer_callback)>>(
+    this->get_clock(), fast_period, std::move(fast_timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_control_fast_, nullptr);
+
+  auto slow_timer_callback = std::bind(&ScenarioAPIAutoware::timerCallbackSlow, this);
+  auto slow_period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(slow_time_control_dt_));
+
+  timer_control_slow_ = std::make_shared<rclcpp::GenericTimer<decltype(slow_timer_callback)>>(
+    this->get_clock(), slow_period, std::move(slow_timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_control_slow_, nullptr);
 
   /* register publisher */
-  // pub_start_point_ =
-  //   pnh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("output/start_point", 1, true);
-  // pub_goal_point_ = pnh_.advertise<geometry_msgs::PoseStamped>("output/goal_point", 1, true);
-  // pub_check_point_ = pnh_.advertise<geometry_msgs::PoseStamped>("output/check_point", 10, true);
-  // pub_start_velocity_ =
-  //   pnh_.advertise<geometry_msgs::TwistStamped>("output/initial_velocity", 1, true);
-  // pub_autoware_engage_ = pnh_.advertise<std_msgs::Bool>("output/autoware_engage", 1, true);
-  // pub_max_velocity_ = pnh_.advertise<std_msgs::Float32>("output/limit_velocity", 1, true);
-  // pub_traffic_detection_result_ = pnh_.advertise<autoware_perception_msgs::TrafficLightStateArray>(
-  //   "output/traffic_detection_result", 10, true);
-  // pub_lane_change_permission_ =
-  //   pnh_.advertise<std_msgs::Bool>("output/lane_change_permission", 1, true);
+  rclcpp::QoS durable_qos{1};
+  durable_qos.transient_local();
+  pub_start_point_ = this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    "output/start_point", durable_qos);
+  pub_goal_point_ =
+    this->create_publisher<geometry_msgs::msg::PoseStamped>("output/goal_point", durable_qos);
+  pub_start_velocity_ =
+    this->create_publisher<geometry_msgs::msg::TwistStamped>("output/initial_velocity", durable_qos);
+  pub_autoware_engage_ =
+    this->create_publisher<std_msgs::msg::Bool>("output/autoware_engage", durable_qos);
+  pub_max_velocity_ =
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("output/limit_velocity", durable_qos);
+  pub_lane_change_permission_ =
+    this->create_publisher<std_msgs::msg::Bool>("output/lane_change_permission", durable_qos);
+  pub_check_point_ =
+    this->create_publisher<geometry_msgs::msg::PoseStamped>("output/check_point", rclcpp::QoS{10}.transient_local());
+  pub_traffic_detection_result_ =
+    this->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
+      "output/traffic_detection_result", rclcpp::QoS{10}.transient_local());
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}

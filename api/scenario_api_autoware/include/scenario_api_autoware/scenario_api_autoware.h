@@ -23,6 +23,7 @@
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_system_msgs/msg/autoware_state.hpp>
 #include <autoware_vehicle_msgs/msg/turn_signal.hpp>
+#include <autoware_debug_msgs/msg/float32_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -174,6 +175,7 @@ public:
     double judge_dist_thresh = 30.0);
 
 private:
+  /* Subscribers */
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr
     sub_pcl_;  //!< @brief topic subscriber for pcl
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr
@@ -186,18 +188,28 @@ private:
     sub_twist_;  //!< @brief topic subscriber for twist
   rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr
     sub_turn_signal_;  //!< @brief topic subscriber for turn signal(blinker)
-  // ros::Timer timer_control_fast_;       //!< @brief timer for getting self-position etc
-  // ros::Timer timer_control_slow_;       //!< @brief timer for getting total-move distance etc
-  // ros::Publisher pub_start_point_;      //!< @brief topic pubscriber for start point
-  // ros::Publisher pub_goal_point_;       //!< @brief topic pubscriber for goal point
-  // ros::Publisher pub_check_point_;      //!< @brief topic pubscriber for check point
-  // ros::Publisher pub_start_velocity_;   //!< @brief topic @publisher for initial velocity
-  // ros::Publisher pub_max_velocity_;     //!< @brief topic pubscriber for max velocity
-  // ros::Publisher pub_autoware_engage_;  //!< @brief topic pubscriber for autoware engage
-  // ros::Publisher
-  //   pub_traffic_detection_result_;  //!< @brief topic pubscriber for traffic detection result
-  // ros::Publisher
-  //   pub_lane_change_permission_;  //!< @brief topic pubscriber for approval of lane change
+
+  /* Timers */
+  rclcpp::TimerBase::SharedPtr timer_control_fast_;       //!< @brief timer for getting self-position etc
+  rclcpp::TimerBase::SharedPtr timer_control_slow_;       //!< @brief timer for getting total-move distance etc
+
+  /* Publishers */
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
+    pub_start_point_;  //!< @brief topic pubscriber for start point
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr
+    pub_goal_point_;  //!< @brief topic pubscriber for goal point
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr
+    pub_start_velocity_;  //!< @brief topic @publisher for initial velocity
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr
+    pub_autoware_engage_;  //!< @brief topic pubscriber for autoware engage
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
+    pub_max_velocity_;  //!< @brief topic pubscriber for max velocity
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr
+    pub_lane_change_permission_;  //!< @brief topic pubscriber for approval of lane change
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr
+    pub_check_point_;  //!< @brief topic pubscriber for check point
+  rclcpp::Publisher<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
+    pub_traffic_detection_result_;  //!< @brief topic pubscriber for traffic detection result
 
   // TF
   tf2_ros::Buffer tf_buffer_;

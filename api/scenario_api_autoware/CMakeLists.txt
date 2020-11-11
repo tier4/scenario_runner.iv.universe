@@ -18,6 +18,7 @@ find_package(autoware_planning_msgs REQUIRED)
 find_package(autoware_system_msgs REQUIRED)
 find_package(autoware_perception_msgs REQUIRED)
 find_package(autoware_vehicle_msgs REQUIRED)
+find_package(autoware_debug_msgs REQUIRED)
 find_package(dummy_perception_publisher REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -56,6 +57,7 @@ set(SCENARIO_API_AUTOWARE_DEPENDENCIES
   autoware_system_msgs
   autoware_perception_msgs
   autoware_vehicle_msgs
+  autoware_debug_msgs
   dummy_perception_publisher
   rclcpp
   tf2_ros
