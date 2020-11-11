@@ -9,7 +9,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
 endif()
 
-# find_package(catkin REQUIRED COMPONENTS
 find_package(ament_cmake_auto REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -27,24 +26,11 @@ find_package(pcl_conversions REQUIRED)
 find_package(lanelet2_extension REQUIRED)
 find_package(scenario_api_utils REQUIRED)
 find_package(vehicle_info_util REQUIRED)
-# )
 
 ### Includes
 include_directories(include)
 
-
-# catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES scenario_api_autoware
-#  CATKIN_DEPENDS scenario_api_utils sensor_msgs geometry_msgs std_msgs autoware_planning_msgs autoware_system_msgs autoware_perception_msgs autoware_vehicle_msgs dummy_perception_publisher roscpp tf2_ros pcl_ros pcl_conversions lanelet2_extension
-# )
-
-# include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
-# )
-
-add_executable(scenario_api_autoware
+add_library(scenario_api_autoware
   src/scenario_api_autoware.cpp
 )
 
@@ -67,12 +53,22 @@ set(SCENARIO_API_AUTOWARE_DEPENDENCIES
   vehicle_info_util
 )
 
-ament_target_dependencies(scenario_api_autoware ${SCENARIO_API_AUTOWARE_DEPENDENCIES})
-# add_dependencies(scenario_api_autoware ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# target_link_libraries(scenario_api_autoware
-#   ${catkin_LIBRARIES}
-#   ${YAML_CPP_LIBRARIES}
-# )
+target_include_directories(scenario_api_autoware
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+ament_target_dependencies(scenario_api_autoware PUBLIC ${SCENARIO_API_AUTOWARE_DEPENDENCIES})
+target_compile_definitions(scenario_api_autoware PUBLIC ${PCL_DEFINITIONS})
+target_include_directories(scenario_api_autoware PUBLIC ${PCL_INCLUDE_DIRS})
+target_link_libraries(scenario_api_autoware PUBLIC ${PCL_LIBRARIES})
+target_link_directories(scenario_api_autoware PUBLIC ${PCL_LIBRARY_DIRS})
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
 
 install(TARGETS scenario_api_autoware
   DESTINATION lib/${PROJECT_NAME}
