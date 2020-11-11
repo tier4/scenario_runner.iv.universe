@@ -11,12 +11,45 @@
 
 static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
 
-static void terminate(int signal)
+auto to_signal_name = [](int signal) -> std::string
+{
+  switch (signal)
+  {
+    case SIGABRT: return "SIGABRT";
+    case SIGFPE:  return "SIGPE";
+    case SIGILL:  return "SIGILL";
+    case SIGINT:  return "SIGINT";
+    case SIGSEGV: return "SIGSEGV";
+    case SIGTERM: return "SIGTERM";
+    default:      return "";
+  }
+};
+
+static void abort(int signal)
 {
   ros::shutdown();
-  SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly (" << signal << ").");
+
+  const auto signal_name { to_signal_name(signal) };
+
+  if (signal_name.empty())
+  {
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly");
+  }
+  else
+  {
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly (" << signal_name << ")");
+  }
   scenario_logger::log.write();
-  LOG_SIMPLE(error() << "Terminate (" << signal << ")");
+
+  if (signal_name.empty())
+  {
+    LOG_SIMPLE(error() << "Abort simulation");
+  }
+  else
+  {
+    LOG_SIMPLE(error() << "Abort simulation (" << signal_name << ")");
+  }
+
   std::quick_exit(EXIT_SUCCESS);
 }
 
@@ -32,14 +65,14 @@ int main(int argc, char * argv[]) try
   google::InstallFailureSignalHandler();
   google::InstallFailureWriter([](const char*, int)
   {
-    return terminate(0);
+    return abort(0);
   });
 
   struct sigaction action {};
   memset(&action, 0, sizeof(struct sigaction));
   sigemptyset(&action.sa_mask);
   action.sa_flags |= SA_SIGINFO;
-  action.sa_handler = &terminate;
+  action.sa_handler = &abort;
 
   if (sigaction(SIGINT, &action, nullptr) < 0)
   {
