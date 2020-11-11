@@ -17,8 +17,6 @@
 #ifndef SCENARIO_API_SCENARIO_API_AUTOWARE_H_INCLUDED
 #define SCENARIO_API_SCENARIO_API_AUTOWARE_H_INCLUDED
 
-#include <autoware_perception_msgs/msg/semantic.hpp>
-#include <autoware_perception_msgs/msg/shape.hpp>
 #include <autoware_perception_msgs/msg/traffic_light_state_array.hpp>
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_system_msgs/msg/autoware_state.hpp>
@@ -26,40 +24,29 @@
 #include <autoware_debug_msgs/msg/float32_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
-#include <geometry_msgs/msg/polygon.hpp>
 #include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_core/geometry/BoundingBox.h>
 #include <lanelet2_core/geometry/Lanelet.h>
-#include <lanelet2_core/geometry/Point.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 #include <lanelet2_extension/utility/message_conversion.h>
 #include <lanelet2_extension/utility/utilities.h>
 #include <lanelet2_routing/RoutingGraph.h>
-#include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 #include <rclcpp/rclcpp.hpp>
 #include <scenario_api_utils/scenario_api_utils.h>
-#include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <tf2/convert.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
-#include <unistd.h>
 #include <vehicle_info_util/vehicle_info.hpp>
 
-#include <boost/uuid/uuid_generators.hpp>
 #include <boost/geometry.hpp>
 #include <chrono>
-#include <deque>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 /* define vehicle shape structure*/
@@ -209,7 +196,6 @@ private:
   // TF
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
-  tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
 
   // Get Vehicle dimensions
   vehicle_info_util::VehicleInfo vehicle_info_;

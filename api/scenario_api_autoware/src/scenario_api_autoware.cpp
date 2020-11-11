@@ -22,7 +22,6 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
 : Node("scenario_api_autoware"),
   tf_buffer_(this->get_clock()),
   tf_listener_(tf_buffer_),
-  static_tf_broadcaster_(*this),
   vehicle_info_(vehicle_info_util::VehicleInfo::create(*this)),
   is_autoware_ready_initialize(false),
   is_autoware_ready_routing(false),
