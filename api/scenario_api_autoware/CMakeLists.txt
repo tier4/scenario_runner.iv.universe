@@ -25,6 +25,7 @@ find_package(PCL REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(lanelet2_extension REQUIRED)
 find_package(scenario_api_utils REQUIRED)
+find_package(vehicle_info_util REQUIRED)
 # )
 
 ### Includes
@@ -61,6 +62,7 @@ set(SCENARIO_API_AUTOWARE_DEPENDENCIES
   PCL
   pcl_conversions
   lanelet2_extension
+  vehicle_info_util
 )
 
 ament_target_dependencies(scenario_api_autoware ${SCENARIO_API_AUTOWARE_DEPENDENCIES})

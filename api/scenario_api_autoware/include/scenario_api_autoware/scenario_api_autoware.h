@@ -53,6 +53,7 @@
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
 #include <unistd.h>
+#include <vehicle_info_util/vehicle_info.hpp>
 
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/geometry.hpp>
@@ -197,6 +198,9 @@ private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
   tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
+
+  // Get Vehicle dimensions
+  vehicle_info_util::VehicleInfo vehicle_info_;
 
   const double fast_time_control_dt_ = 0.01;
   const double slow_time_control_dt_ = 0.2;

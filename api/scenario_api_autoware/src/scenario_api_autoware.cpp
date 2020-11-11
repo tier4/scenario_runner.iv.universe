@@ -23,26 +23,27 @@ ScenarioAPIAutoware::ScenarioAPIAutoware()
   tf_buffer_(this->get_clock()),
   tf_listener_(tf_buffer_),
   static_tf_broadcaster_(*this),
+  vehicle_info_(vehicle_info_util::VehicleInfo::create(*this)),
   is_autoware_ready_initialize(false),
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
   /* Get Parameter*/
-  // pnh_.param<std::string>("camera_frame_id", camera_frame_id_, "camera_link");
+  camera_frame_id_ = this->declare_parameter<std::string>("camera_frame_id", "camera_link");
 
   //parameter for getMoveDistance
-  // pnh_.param<bool>("rosparam/add_simulator_noise", add_simulator_noise_, true);
-  // pnh_.param<double>("rosparam/simulator_pos_noise", simulator_noise_pos_dev_, 0.1);
-  // pnh_.param<double>("rosparam/max_velocity", autoware_max_velocity_, 30.0);
+  add_simulator_noise_ = this->declare_parameter<bool>("rosparam/add_simulator_noise", true);
+  simulator_noise_pos_dev_ = this->declare_parameter<double>("rosparam/simulator_pos_noise", 0.1);
+  autoware_max_velocity_ = this->declare_parameter<double>("rosparam/max_velocity", 30.0);
 
   /* Scenario parameters*/
-  // vehicle_data_.wheel_radius = waitForParam<double>(pnh_, "/vehicle_info/wheel_radius");
-  // vehicle_data_.wheel_width = waitForParam<double>(pnh_, "/vehicle_info/wheel_width");
-  // vehicle_data_.wheel_base = waitForParam<double>(pnh_, "/vehicle_info/wheel_base");
-  // vehicle_data_.wheel_tread = waitForParam<double>(pnh_, "/vehicle_info/wheel_tread");
-  // vehicle_data_.front_overhang = waitForParam<double>(pnh_, "/vehicle_info/front_overhang");
-  // vehicle_data_.rear_overhang = waitForParam<double>(pnh_, "/vehicle_info/rear_overhang");
-  // vehicle_data_.vehicle_height = waitForParam<double>(pnh_, "/vehicle_info/vehicle_height");
+  vehicle_data_.wheel_radius = vehicle_info_.wheel_radius_m_;
+  vehicle_data_.wheel_width = vehicle_info_.wheel_width_m_;
+  vehicle_data_.wheel_base = vehicle_info_.wheel_base_m_;
+  vehicle_data_.wheel_tread = vehicle_info_.wheel_tread_m_;
+  vehicle_data_.front_overhang = vehicle_info_.front_overhang_m_;
+  vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m_;
+  vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
 
   /* register callback*/
   // sub_pcl_ = pnh_.subscribe("input/pointcloud", 1, &ScenarioAPIAutoware::callbackPointCloud, this);
