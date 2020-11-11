@@ -1,48 +1,28 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(scenario_utility)
 
-add_compile_options(-std=c++14)
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  geometry_msgs
-  tf2_ros
-  tf2_geometry_msgs
-  scenario_logger
-  scenario_logger_msgs
-)
+### Dependencies
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(yaml-cpp REQUIRED)
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES scenario_utility
-  CATKIN_DEPENDS roscpp geometry_msgs tf2_ros tf2_geometry_msgs scenario_logger scenario_logger_msgs
-#  DEPENDS system_lib
-)
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
-
-add_library(scenario_utility SHARED
+### Target executable
+set(SCENARIO_UTILITY_SRC
   src/converter.cpp
   src/misc.cpp
   src/parse.cpp
 )
-add_dependencies(scenario_utility ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(scenario_utility
-  ${catkin_LIBRARIES}
-  ${YAML_CPP_LIBRARIES}
+
+ament_auto_add_library(scenario_utility SHARED
+  ${SCENARIO_UTILITY_SRC}
 )
 
-install(TARGETS scenario_utility
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
+ament_auto_package()
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)

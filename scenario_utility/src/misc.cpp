@@ -17,6 +17,9 @@ std::ostream& operator<<(std::ostream& os, const simulation_is& is)
 
   case simulation_is::succeeded:
     return os << "Succeeded";
+
+  default:
+    return os << "Error";
   }
 }
 

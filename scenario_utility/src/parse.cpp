@@ -13,9 +13,9 @@ inline namespace parse
   static_assert(true, "semicolon required after this macro")
 
 template <>
-geometry_msgs::Point read_as<geometry_msgs::Point>(const YAML::Node& node)
+geometry_msgs::msg::Point read_as<geometry_msgs::msg::Point>(const YAML::Node& node)
 {
-  geometry_msgs::Point point {};
+  geometry_msgs::msg::Point point {};
 
   point.x = read_essential<float>(node, "X");
   point.y = read_essential<float>(node, "Y");
@@ -24,12 +24,12 @@ geometry_msgs::Point read_as<geometry_msgs::Point>(const YAML::Node& node)
   return point;
 }
 
-DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::Point);
+DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::msg::Point);
 
 template <>
-geometry_msgs::Quaternion read_as<geometry_msgs::Quaternion>(const YAML::Node& node)
+geometry_msgs::msg::Quaternion read_as<geometry_msgs::msg::Quaternion>(const YAML::Node& node)
 {
-  geometry_msgs::Quaternion quaternion {};
+  geometry_msgs::msg::Quaternion quaternion {};
 
   quaternion.x = read_essential<float>(node, "X");
   quaternion.y = read_essential<float>(node, "Y");
@@ -39,36 +39,36 @@ geometry_msgs::Quaternion read_as<geometry_msgs::Quaternion>(const YAML::Node& n
   return quaternion;
 }
 
-DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::Quaternion);
+DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::msg::Quaternion);
 
 template <>
-geometry_msgs::Pose read_as<geometry_msgs::Pose>(const YAML::Node& node)
+geometry_msgs::msg::Pose read_as<geometry_msgs::msg::Pose>(const YAML::Node& node)
 {
-  geometry_msgs::Pose pose {};
+  geometry_msgs::msg::Pose pose {};
 
-  pose.position = read_essential<geometry_msgs::Point>(node, "Position");
-  pose.orientation = read_essential<geometry_msgs::Quaternion>(node, "Orientation");
+  pose.position = read_essential<geometry_msgs::msg::Point>(node, "Position");
+  pose.orientation = read_essential<geometry_msgs::msg::Quaternion>(node, "Orientation");
 
   return pose;
 }
 
-DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::Pose);
+DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::msg::Pose);
 
 template <>
-geometry_msgs::PoseStamped read_as<geometry_msgs::PoseStamped>(const YAML::Node& node)
+geometry_msgs::msg::PoseStamped read_as<geometry_msgs::msg::PoseStamped>(const YAML::Node& node)
 {
-  geometry_msgs::PoseStamped pose_stamped {};
+  geometry_msgs::msg::PoseStamped pose_stamped {};
 
   pose_stamped.header.frame_id = read_optional<std::string>(node, "FrameId", "/map");
-  pose_stamped.header.stamp = ros::Time::now();
-  // pose_stamped.pose = read_essential<geometry_msgs::Pose>(node, "Pose");
-  pose_stamped.pose.position = read_essential<geometry_msgs::Point>(node, "Position");
-  pose_stamped.pose.orientation = read_essential<geometry_msgs::Quaternion>(node, "Orientation");
+  // pose_stamped.header.stamp = ros::Time::now();
+  // pose_stamped.pose = read_essential<geometry_msgs::msg::Pose>(node, "Pose");
+  pose_stamped.pose.position = read_essential<geometry_msgs::msg::Point>(node, "Position");
+  pose_stamped.pose.orientation = read_essential<geometry_msgs::msg::Quaternion>(node, "Orientation");
 
   return pose_stamped;
 }
 
-DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::PoseStamped);
+DEFINE_READ_ESSENTIAL_SPECIALIZATION(geometry_msgs::msg::PoseStamped);
 
 std::vector<std::string> split(std::string s)
 {

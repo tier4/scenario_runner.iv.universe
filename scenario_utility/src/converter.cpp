@@ -6,9 +6,9 @@ namespace scenario_utility
 {
 namespace converter
 {
-geometry_msgs::Quaternion convert(geometry_msgs::Vector3 rpy)
+geometry_msgs::msg::Quaternion convert(geometry_msgs::msg::Vector3 rpy)
 {
-  geometry_msgs::Quaternion quat;
+  geometry_msgs::msg::Quaternion quat;
   tf2::Quaternion q;
   q.setRPY(rpy.x, rpy.y, rpy.z);
   quat.x = q.x();
@@ -18,13 +18,13 @@ geometry_msgs::Quaternion convert(geometry_msgs::Vector3 rpy)
   return quat;
 }
 
-geometry_msgs::Vector3 convert(geometry_msgs::Quaternion quat)
+geometry_msgs::msg::Vector3 convert(geometry_msgs::msg::Quaternion quat)
 {
   tf2::Quaternion q(quat.x, quat.y, quat.z, quat.w);
   tf2::Matrix3x3 m(q);
   double roll, pitch, yaw;
   m.getRPY(roll, pitch, yaw);
-  geometry_msgs::Vector3 rpy;
+  geometry_msgs::msg::Vector3 rpy;
   rpy.x = roll;
   rpy.y = pitch;
   rpy.z = yaw;
