@@ -112,7 +112,7 @@ ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
 
 void ScenarioAPIAutoware::timerCallbackFast()
 {
-  // ros::spinOnce();
+  rclcpp::spin_some(this->get_node_base_interface());
   getCurrentPoseFromTF();
   pubTrafficLight();
 }
@@ -224,13 +224,13 @@ bool ScenarioAPIAutoware::isAPIReady()
 
 bool ScenarioAPIAutoware::waitAPIReady()
 {
-  // while (ros::ok()) {
-  //   if (isAPIReady()) {
-  //     break;
-  //   }
-  //   ros::Rate(10.0).sleep();
-  //   ros::spinOnce();
-  // }
+  while (rclcpp::ok()) {
+    if (isAPIReady()) {
+      break;
+    }
+    rclcpp::Rate(10.0).sleep();
+    rclcpp::spin_some(this->get_node_base_interface());
+  }
   return true;  // TODO set timeout
 }
 
@@ -256,18 +256,18 @@ bool ScenarioAPIAutoware::sendStartPoint(
 
   //publish recurssively until self-pose tf is published
   while (!current_pose_ptr_) {
-    // ros::Rate(2.0).sleep();
+    rclcpp::Rate(2.0).sleep();
     pub_start_point_->publish(posewcs);
-    // ros::spinOnce();
+    rclcpp::spin_some(this->get_node_base_interface());
   }
 
   if (wait_autoware_status) {
     //publish recurssively until state changes
     while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE)) {
-      // ros::Rate(2.0).sleep();
+      rclcpp::Rate(2.0).sleep();
       posewcs.header.stamp = this->now();
       pub_start_point_->publish(posewcs);
-      // ros::spinOnce();
+      rclcpp::spin_some(this->get_node_base_interface());
     }
   }
   //In some cases, goalpoint is send soon after startpoint, mission planner cannot plan route.
@@ -298,16 +298,16 @@ bool ScenarioAPIAutoware::sendGoalPoint(
   if (wait_autoware_status) {
     //publish recurssively until state changes
     while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE)) {
-      // ros::Rate(1.0).sleep();
+      rclcpp::Rate(1.0).sleep();
       posestmp.header.stamp = this->now();
       pub_goal_point_->publish(posestmp);
-      // ros::spinOnce();
+      rclcpp::spin_some(this->get_node_base_interface());
     }
   }
   //sleep for initial velocity start
   //if there are no sleep from sendgoal to engage,
   //ego vehicle decelerates soon after start
-  // ros::Rate(1.0).sleep();
+  rclcpp::Rate(1.0).sleep();
 
   return true;  // TODO check success(add timeout function)
 }
@@ -348,13 +348,13 @@ bool ScenarioAPIAutoware::checkState(const std::string state)
 bool ScenarioAPIAutoware::waitState(const std::string state)
 {
   // wait for state change
-  // while (ros::ok()) {
-  //   if (autoware_state_ == state) {
-  //     break;
-  //   }
-  //   ros::Rate(10.0).sleep();
-  //   ros::spinOnce();
-  // }
+  while (rclcpp::ok()) {
+    if (autoware_state_ == state) {
+      break;
+    }
+    rclcpp::Rate(10.0).sleep();
+    rclcpp::spin_some(this->get_node_base_interface());
+  }
   return true;  // TODO: set timeout
 }
 
@@ -378,13 +378,13 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
 
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
-  // while (ros::ok()) {
-  //   if (isAutowareReadyInitialize()) {
-  //     break;
-  //   }
-  //   ros::Rate(10.0).sleep();
-  //   ros::spinOnce();
-  // }
+  while (rclcpp::ok()) {
+    if (isAutowareReadyInitialize()) {
+      break;
+    }
+    rclcpp::Rate(10.0).sleep();
+    rclcpp::spin_some(this->get_node_base_interface());
+  }
   return true;
 }
 
