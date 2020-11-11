@@ -18,6 +18,7 @@
 #include "scenario_runner/scenario_runner.h"
 #include "boost/cstdlib.hpp"
 #include <exception>
+#include <signal.h>
 #include "rclcpp/rclcpp.hpp"
 
 static void failureCallback()
@@ -52,11 +53,17 @@ void dump_diagnostics(const std::string & path, double mileage, double duration,
   boost::property_tree::write_json(path, pt);
 }
 
+static void terminate(int signal)
+{
+  rclcpp::shutdown();
+  SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly (" << signal << ").");
+  scenario_logger::log.write();
+  LOG_SIMPLE(error() << "Terminate (" << signal << ")");
+  std::quick_exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char * argv[])
 {
-  google::InitGoogleLogging(argv[0]);
-  google::InstallFailureFunction(&failureCallback);
-
   scenario_logger::slog.open("/tmp/log", std::ios::trunc);
 
   /*
@@ -66,6 +73,24 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   const auto runner_ptr = std::make_shared<scenario_runner::ScenarioRunner>();
+
+  google::InitGoogleLogging(argv[0]);
+  google::InstallFailureFunction(&failureCallback);
+  google::InstallFailureWriter([](const char*, int)
+  {
+    return terminate(0);
+  });
+
+  struct sigaction action {};
+  memset(&action, 0, sizeof(struct sigaction));
+  sigemptyset(&action.sa_mask);
+  action.sa_flags |= SA_SIGINFO;
+  action.sa_handler = &terminate;
+
+  if (sigaction(SIGINT, &action, nullptr) < 0)
+  {
+    LOG_SIMPLE(error() << "Failed to install SIGINT handler");
+  }
 
   scenario_logger::log.setStartDatetime(runner_ptr->now());
   SCENARIO_LOG_STREAM(CATEGORY("simulation", "progress"), "Logging started.");
@@ -140,6 +165,8 @@ int main(int argc, char * argv[])
       rclcpp::shutdown();
       return boost::exit_exception_failure;
     }
+
+    // return EXIT_FAILURE;
   } catch (const std::exception & e) {
     SCENARIO_ERROR_STREAM(
       CATEGORY(

@@ -162,8 +162,7 @@ void ScenarioRunner::run() try
 
 void ScenarioRunner::update() try
 {
-  context.json << (indent++) << "{\n";
-  context.json << (indent++) << std::quoted("ScenarioRunnerContext") << ": {\n";
+  context.json << (indent++) << "ScenarioRunnerContext: {\n";
 
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 
