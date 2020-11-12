@@ -63,7 +63,7 @@ state_is Event::update(
     currently = state_is::running;
   }
 
-  context_.json << indent << std::quoted("State") << ": " << currently << ",\n";
+  context_.json << indent << std::quoted("State") << ": " << currently << "\n";
   context_.json << (--indent) << "}";
 
   return currently;
