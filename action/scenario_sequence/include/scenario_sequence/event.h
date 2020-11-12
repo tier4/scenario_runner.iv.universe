@@ -1,6 +1,9 @@
 #ifndef SCENARIO_SEQUENCE_EVENT_H_INCLUDED
 #define SCENARIO_SEQUENCE_EVENT_H_INCLUDED
 
+#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
+
 #include <scenario_actions/action_manager.h>
 #include <scenario_entities/entity_manager.h>
 #include <scenario_expression/expression.h>
@@ -16,17 +19,6 @@ enum class state_is
 };
 
 std::ostream& operator <<(std::ostream&, const state_is&);
-
-struct state_color
-{
-  const state_is value;
-
-  explicit state_color(state_is value)
-    : value { value }
-  {}
-};
-
-std::ostream& operator <<(std::ostream&, const state_color&);
 
 class Event
 {
@@ -50,7 +42,16 @@ public:
     return name_;
   }
 
-  void touch() const;
+  boost::property_tree::ptree property() const
+  {
+    boost::property_tree::ptree result {};
+
+    result.put("Name", name());
+    result.put("State", boost::lexical_cast<std::string>(currently));
+    result.add_child("Conditions", condition_.property());
+
+    return result;
+  }
 
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);

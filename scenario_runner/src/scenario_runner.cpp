@@ -1,11 +1,13 @@
 #include <chrono>
 #include <thread>
 
-#include <scenario_runner_msgs/StringStamped.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include <scenario_logger/logger.h>
 #include <scenario_logger/simple_logger.hpp>
 #include <scenario_runner/scenario_runner.h>
+#include <scenario_runner_msgs/StringStamped.h>
 
 namespace scenario_runner
 {
@@ -136,22 +138,12 @@ catch (...)
 
 void ScenarioRunner::update(const ros::TimerEvent & event) try
 {
-  context.json << (indent++) << "ScenarioRunnerContext: {\n";
-
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
 
   (*sequence_manager_).update(intersection_manager_);
 
   const auto fulfilled_failure_condition { failure.evaluate(context) };
   const auto fulfilled_success_condition { success.evaluate(context) };
-
-  context.json << (indent++) << std::quoted("FailureConditions") << ": [\n";
-  context.json << failure;
-  context.json << (--indent) << "],\n";
-
-  context.json << (indent++) << std::quoted("SuccessConditions") << ": [\n";
-  context.json << success;
-  context.json << (--indent) << "],\n";
 
   if (fulfilled_failure_condition)
   {
@@ -166,24 +158,47 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
     currently = simulation_is::ongoing;
   }
 
-  context.json << (indent++) << std::quoted("Current") << ": {\n";
-  context.json << indent << std::quoted("SequenceName") << ": " << std::quoted((*sequence_manager_).current_sequence_name()) << ",\n";
-  context.json << indent << std::quoted("EventName") << ": " << std::quoted((*sequence_manager_).current_event_name()) << "\n";
-  context.json << (--indent) << "}\n";
+  auto make_context = [&]()
+  {
+    auto scenario_runner_context = [&]()
+    {
+      auto current = [&]()
+      {
+        boost::property_tree::ptree result {};
 
-  context.json << (--indent) << "}\n";
-  context.json << (--indent) << "}" << std::endl;
+        result.put("SequenceName", (*sequence_manager_).current_sequence_name());
+        result.put("EventName",    (*sequence_manager_).current_event_name());
+
+        return result;
+      };
+
+      boost::property_tree::ptree result {};
+
+      result.add_child("Current", current());
+      result.add_child("Sequences", (*sequence_manager_).property());
+      result.add_child("FailureConditions", failure.property());
+      result.add_child("SuccessConditions", success.property());
+
+      return result;
+    };
+
+    boost::property_tree::ptree result {};
+
+    result.add_child("ScenarioRunnerContext", scenario_runner_context());
+
+    return result;
+  };
+
+  std::stringstream ss {};
+  boost::property_tree::write_json(ss, make_context());
 
   scenario_runner_msgs::StringStamped message {};
   message.header.stamp = ros::Time::now();
-  message.data = context.json.str();
+  message.data = ss.str();
 
   std::cout << message.data.c_str() << std::endl;
 
   publisher_.publish(message);
-
-  std::stringstream ss {};
-  std::swap(context.json, ss);
 }
 catch (...)
 {

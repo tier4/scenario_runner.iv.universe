@@ -17,75 +17,25 @@ EventManager::EventManager(
   cursor = std::begin(events_);
 }
 
-void EventManager::touch() const
-{
-  context_.json << (indent++) << std::quoted("Events") << ": [\n";
-
-  for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
-  {
-    (*iter).touch();
-    context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
-  }
-
-  if (cursor != std::end(events_))
-  {
-    (*cursor).touch();
-    context_.json << (std::next(cursor) != std::end(events_) ? ",\n" : "\n");
-
-    for (auto iter { std::next(cursor) }; iter != std::end(events_); ++iter)
-    {
-      (*iter).touch();
-      context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
-    }
-  }
-
-  context_.json << (--indent) << "],\n";
-}
-
 state_is EventManager::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  context_.json << (indent++) << std::quoted("Events") << ": [\n";
-
-  for (auto iter { std::begin(events_) }; iter != cursor; ++iter)
-  {
-    (*iter).touch();
-    context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
-  }
-
   if (cursor != std::end(events_))
   {
-    currently = (*cursor).update(context_.intersections_pointer());
-
-    context_.json << (std::next(cursor) != std::end(events_) ? ",\n" : "\n");
-
-    switch (currently)
+    switch (currently = (*cursor).update(context_.intersections_pointer()))
     {
     case state_is::finished:
-      for (auto iter { ++cursor }; iter != std::end(events_); ++iter)
-      {
-        (*iter).touch();
-        context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
-      }
-      break;
+      ++cursor;
+      return currently = state_is::running;
 
     default:
-      for (auto iter { std::next(cursor) }; iter != std::end(events_); ++iter)
-      {
-        (*iter).touch();
-        context_.json << (std::next(iter) != std::end(events_) ? ",\n" : "\n");
-      }
-      break;
+      return currently;
     }
   }
   else
   {
     return currently = state_is::finished;
   }
-
-  context_.json << (--indent) << "],\n";
-
-  return currently;
 }
 
 } // namespace scenario_sequence

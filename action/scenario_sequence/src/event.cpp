@@ -30,43 +30,18 @@ Event::Event(
   }
 }
 
-void Event::touch() const
-{
-  context_.json << (indent++) << "{\n";
-  context_.json << indent << std::quoted("Name") << ": " << std::quoted(name_) << ",\n";
-  context_.json << (indent++) << std::quoted("Conditions") << ": [\n";
-  context_.json << condition_;
-  context_.json << (--indent) << "],\n";
-  context_.json << indent << std::quoted("State") << ": " << currently << "\n";
-  context_.json << (--indent) << "}";
-}
-
 state_is Event::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  context_.json << (indent++) << "{\n";
-  context_.json << indent << std::quoted("Name") << ": " << std::quoted(name_) << ",\n";
-
-  context_.json << (indent++) << std::quoted("Conditions") << ": [\n";
-  context_.json << condition_;
-  context_.json << (--indent) << "],\n";
-
-  ignited_ = condition_.evaluate(context_);
-
-  if (ignited_)
+  if (ignited_ or (ignited_ = condition_.evaluate(context_)))
   {
     (*action_manager_).run(context_.intersections_pointer());
-    currently = state_is::finished;
+    return currently = state_is::finished;
   }
   else
   {
-    currently = state_is::running;
+    return currently = state_is::running;
   }
-
-  context_.json << indent << std::quoted("State") << ": " << currently << "\n";
-  context_.json << (--indent) << "}";
-
-  return currently;
 }
 
 std::ostream& operator <<(std::ostream& os, const state_is& currently)
@@ -74,40 +49,15 @@ std::ostream& operator <<(std::ostream& os, const state_is& currently)
   switch (currently)
   {
   case state_is::sleeping:
-    return os // << "\x1b[33m"
-              << std::quoted("NotRunning")
-              // << "\x1b[0m"
-              ;
+    return os << "NotRunning";
 
   case state_is::running:
-    return os // << "\x1b[32m"
-              << std::quoted("Running")
-              // << "\x1b[0m"
-              ;
+    return os << "Running";
 
   case state_is::finished:
-    return os // << "\x1b[31m"
-              << std::quoted("Finished")
-              // << "\x1b[0m"
-              ;
+    return os << "Finished";
   }
 }
 
-std::ostream& operator <<(std::ostream& os, const state_color& datum)
-{
-  os << "\x1b[0m";
-
-  switch (datum.value)
-  {
-  case state_is::finished:
-    return os << "\x1b[2m";
-
-  case state_is::running:
-    return os << "\x1b[32m";
-
-  case state_is::sleeping:
-    return os;
-  }
-}
 } // namespace scenario_sequence
 
