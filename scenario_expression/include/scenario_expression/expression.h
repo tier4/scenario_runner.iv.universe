@@ -24,6 +24,10 @@
 #include <yaml-cpp/yaml.h>
 
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <functional>
 #include <ios>
 #include <iostream>
@@ -75,9 +79,6 @@ public: \
   boilerplate(scenario_intersection::IntersectionManager, intersections);
 
 #undef boilerplate
-
-public:
-  static std::stringstream json;
 };
 
 /* -----------------------------------------------------------------------------
@@ -190,14 +191,15 @@ public:
     std::swap(data, e.data);
   }
 
-  virtual std::ostream & write(std::ostream & os, const std::string&, std::size_t) const
+  virtual boost::property_tree::ptree property(
+    const std::string& prefix = "", std::size_t occurrence = 0) const
   {
-    return os;
+    return data ? data->property(prefix, occurrence) : boost::property_tree::ptree();
   }
 
   friend std::ostream & operator<<(std::ostream & os, const Expression & expression)
   {
-    return expression.data ? expression.data->write(os, "", 0) : os;
+    return boost::property_tree::write_json(os, expression.data->property()), os;
   }
 
   virtual operator bool() const noexcept
@@ -255,12 +257,7 @@ protected:
     return result;
   }
 
-  std::ostream & write(std::ostream & os, const std::string&, std::size_t) const override
-  {
-    return os << std::boolalpha << value;
-  }
-
-  Expression evaluate(Context &) override
+  Expression evaluate(Context&) override
   {
     return *this;
   }
@@ -320,21 +317,24 @@ protected:                                                                     \
         }));                                                                   \
   }                                                                            \
                                                                                \
-  std::ostream& write(std::ostream& os, const std::string& prefix, std::size_t occurrence) const override \
+  boost::property_tree::ptree property(                                        \
+    const std::string& prefix, std::size_t occurrence) const override          \
   {                                                                            \
     std::unordered_map<std::string, std::size_t> occurrences {};               \
                                                                                \
-    for (auto iter { std::begin(operands) }; iter != std::end(operands); ++iter) \
-    {                                                                          \
-      (*iter).data->write(                                                     \
-        os,                                                                    \
-        prefix + type() + "(" + std::to_string(occurrence) + ")/",             \
-        occurrences[(*iter).data->type()]++);                                  \
+    boost::property_tree::ptree result {};                                     \
                                                                                \
-      os << (std::next(iter) != std::end(operands) ? ",\n" : "\n");            \
+    for (const auto& each : operands)                                          \
+    {                                                                          \
+      result.push_back(                                                        \
+        std::make_pair(                                                        \
+          "",                                                                  \
+          each.property(                                                       \
+            prefix + type() + "(" + std::to_string(occurrence) + ")/",         \
+            occurrences[each.data->type()]++)));                               \
     }                                                                          \
                                                                                \
-    return os;                                                                 \
+    return result;                                                             \
   }                                                                            \
 }
 
@@ -366,14 +366,15 @@ protected:
     return (*plugin).getType();
   }
 
-  std::ostream & write(std::ostream & os, const std::string& prefix, std::size_t occurrence) const override
+  boost::property_tree::ptree property(
+    const std::string& prefix, std::size_t occurrence) const override
   {
     if ((*plugin).getName().empty())
     {
       (*plugin).rename(prefix + (*plugin).getType() + "(" + std::to_string(occurrence) + ")");
     }
 
-    return os << (*plugin);
+    return (*plugin).property();
   }
 
   virtual pluginlib::ClassLoader<PluginBase> & loader() const = 0;
