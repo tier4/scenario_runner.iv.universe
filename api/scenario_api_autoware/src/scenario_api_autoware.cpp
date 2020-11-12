@@ -16,156 +16,209 @@
 
 #include <scenario_api_autoware/scenario_api_autoware.h>
 
-ScenarioAPIAutoware::ScenarioAPIAutoware()
-: nh_(""),
-  pnh_("~"),
+#include <boost/assign/list_of.hpp>
+
+ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
+: node_(node),
+  tf_buffer_(node_->get_clock()),
   tf_listener_(tf_buffer_),
+  vehicle_info_(vehicle_info_util::VehicleInfo::create(*node_)),
   is_autoware_ready_initialize(false),
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
 {
   /* Get Parameter*/
-  pnh_.param<std::string>("camera_frame_id", camera_frame_id_, "camera_link");
+  camera_frame_id_ = node_->declare_parameter<std::string>("camera_frame_id", "camera_link");
 
   //parameter for getMoveDistance
-  pnh_.param<bool>("rosparam/add_simulator_noise", add_simulator_noise_, true);
-  pnh_.param<double>("rosparam/simulator_pos_noise", simulator_noise_pos_dev_, 0.1);
-  pnh_.param<double>("rosparam/max_velocity", autoware_max_velocity_, 30.0);
+  add_simulator_noise_ = node_->declare_parameter<bool>("rosparam/add_simulator_noise", true);
+  simulator_noise_pos_dev_ = node_->declare_parameter<double>("rosparam/simulator_pos_noise", 0.1);
+  autoware_max_velocity_ = node_->declare_parameter<double>("rosparam/max_velocity", 30.0);
 
   /* Scenario parameters*/
-  vehicle_data_.wheel_radius = waitForParam<double>(pnh_, "/vehicle_info/wheel_radius");
-  vehicle_data_.wheel_width = waitForParam<double>(pnh_, "/vehicle_info/wheel_width");
-  vehicle_data_.wheel_base = waitForParam<double>(pnh_, "/vehicle_info/wheel_base");
-  vehicle_data_.wheel_tread = waitForParam<double>(pnh_, "/vehicle_info/wheel_tread");
-  vehicle_data_.front_overhang = waitForParam<double>(pnh_, "/vehicle_info/front_overhang");
-  vehicle_data_.rear_overhang = waitForParam<double>(pnh_, "/vehicle_info/rear_overhang");
-  vehicle_data_.vehicle_height = waitForParam<double>(pnh_, "/vehicle_info/vehicle_height");
+  vehicle_data_.wheel_radius = vehicle_info_.wheel_radius_m_;
+  vehicle_data_.wheel_width = vehicle_info_.wheel_width_m_;
+  vehicle_data_.wheel_base = vehicle_info_.wheel_base_m_;
+  vehicle_data_.wheel_tread = vehicle_info_.wheel_tread_m_;
+  vehicle_data_.front_overhang = vehicle_info_.front_overhang_m_;
+  vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m_;
+  vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
+  vehicle_data_.max_longitudinal_offset = vehicle_info_.max_longitudinal_offset_m_;
+  vehicle_data_.min_longitudinal_offset = vehicle_info_.min_longitudinal_offset_m_;
+  vehicle_data_.max_height_offset = vehicle_info_.max_height_offset_m_;
+  vehicle_data_.min_height_offset = vehicle_info_.min_height_offset_m_;
 
-  /* register callback*/
-  sub_pcl_ = pnh_.subscribe("input/pointcloud", 1, &ScenarioAPIAutoware::callbackPointCloud, this);
-  sub_map_ = pnh_.subscribe("input/vectormap", 10, &ScenarioAPIAutoware::callbackMap, this);
-  sub_route_ = pnh_.subscribe("input/route", 1, &ScenarioAPIAutoware::callbackRoute, this);
-  sub_state_ =
-    pnh_.subscribe("input/autoware_state", 1, &ScenarioAPIAutoware::callbackStatus, this);
-  sub_twist_ = pnh_.subscribe("input/vehicle_twist", 1, &ScenarioAPIAutoware::callbackTwist, this);
-  sub_turn_signal_ =
-    pnh_.subscribe("input/signal_command", 1, &ScenarioAPIAutoware::callbackTurnSignal, this);
-  timer_control_fast_ = pnh_.createTimer(
-    ros::Duration(fast_time_control_dt_), &ScenarioAPIAutoware::timerCallbackFast, this);
-  timer_control_slow_ = pnh_.createTimer(
-    ros::Duration(slow_time_control_dt_), &ScenarioAPIAutoware::timerCallbackSlow, this);
+  /* register data callback*/
+  sub_pcl_ = node_->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "input/pointcloud", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackPointCloud, this, std::placeholders::_1));
+  sub_map_ = node_->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
+    "input/vectormap", rclcpp::QoS{10},
+    std::bind(&ScenarioAPIAutoware::callbackMap, this, std::placeholders::_1));
+  sub_route_ = node_->create_subscription<autoware_planning_msgs::msg::Route>(
+    "input/route", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackRoute, this, std::placeholders::_1));
+  sub_state_ = node_->create_subscription<autoware_system_msgs::msg::AutowareState>(
+    "input/autoware_state", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackStatus, this, std::placeholders::_1));
+  sub_twist_ = node_->create_subscription<geometry_msgs::msg::TwistStamped>(
+    "input/vehicle_twist", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackTwist, this, std::placeholders::_1));
+  sub_turn_signal_ = node_->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
+    "input/signal_command", rclcpp::QoS{1},
+    std::bind(&ScenarioAPIAutoware::callbackTurnSignal, this, std::placeholders::_1));
+
+  /* register timer callbacks */
+  auto fast_timer_callback = std::bind(&ScenarioAPIAutoware::timerCallbackFast, this);
+  auto fast_period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(fast_time_control_dt_));
+
+  timer_control_fast_ = std::make_shared<rclcpp::GenericTimer<decltype(fast_timer_callback)>>(
+    node_->get_clock(), fast_period, std::move(fast_timer_callback),
+    node_->get_node_base_interface()->get_context());
+  node_->get_node_timers_interface()->add_timer(timer_control_fast_, nullptr);
+
+  auto slow_timer_callback = std::bind(&ScenarioAPIAutoware::timerCallbackSlow, this);
+  auto slow_period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(slow_time_control_dt_));
+
+  timer_control_slow_ = std::make_shared<rclcpp::GenericTimer<decltype(slow_timer_callback)>>(
+    node_->get_clock(), slow_period, std::move(slow_timer_callback),
+    node_->get_node_base_interface()->get_context());
+  node_->get_node_timers_interface()->add_timer(timer_control_slow_, nullptr);
 
   /* register publisher */
-  pub_start_point_ =
-    pnh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("output/start_point", 1, true);
-  pub_goal_point_ = pnh_.advertise<geometry_msgs::PoseStamped>("output/goal_point", 1, true);
-  pub_check_point_ = pnh_.advertise<geometry_msgs::PoseStamped>("output/check_point", 10, true);
+  rclcpp::QoS durable_qos{1};
+  durable_qos.transient_local();
+  pub_start_point_ = node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    "output/start_point", durable_qos);
+  pub_goal_point_ =
+    node_->create_publisher<geometry_msgs::msg::PoseStamped>("output/goal_point", durable_qos);
   pub_start_velocity_ =
-    pnh_.advertise<geometry_msgs::TwistStamped>("output/initial_velocity", 1, true);
-  pub_autoware_engage_ = pnh_.advertise<std_msgs::Bool>("output/autoware_engage", 1, true);
-  pub_max_velocity_ = pnh_.advertise<std_msgs::Float32>("output/limit_velocity", 1, true);
-  pub_traffic_detection_result_ = pnh_.advertise<autoware_perception_msgs::TrafficLightStateArray>(
-    "output/traffic_detection_result", 10, true);
+    node_->create_publisher<geometry_msgs::msg::TwistStamped>("output/initial_velocity", durable_qos);
+  pub_autoware_engage_ =
+    node_->create_publisher<std_msgs::msg::Bool>("output/autoware_engage", durable_qos);
+  pub_max_velocity_ =
+    node_->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("output/limit_velocity", durable_qos);
   pub_lane_change_permission_ =
-    pnh_.advertise<std_msgs::Bool>("output/lane_change_permission", 1, true);
+    node_->create_publisher<std_msgs::msg::Bool>("output/lane_change_permission", durable_qos);
+  pub_check_point_ =
+    node_->create_publisher<geometry_msgs::msg::PoseStamped>("output/check_point", rclcpp::QoS{10}.transient_local());
+  pub_traffic_detection_result_ =
+    node_->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
+      "output/traffic_detection_result", rclcpp::QoS{10}.transient_local());
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
 
 // callback function
 
-void ScenarioAPIAutoware::timerCallbackFast(const ros::TimerEvent & te)
+void ScenarioAPIAutoware::timerCallbackFast()
 {
-  ros::spinOnce();
+  rclcpp::spin_some(node_->get_node_base_interface());
   getCurrentPoseFromTF();
   pubTrafficLight();
 }
 
-void ScenarioAPIAutoware::timerCallbackSlow(const ros::TimerEvent & te)
+void ScenarioAPIAutoware::timerCallbackSlow()
 {
   updateTotalMoveDistance();
 }
 
-void ScenarioAPIAutoware::callbackPointCloud(const sensor_msgs::PointCloud2::ConstPtr & msg)
+void ScenarioAPIAutoware::callbackPointCloud(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg)
 {
-  pcl_ptr_ = std::make_shared<sensor_msgs::PointCloud2>(*msg);
+  pcl_ptr_ = std::make_shared<sensor_msgs::msg::PointCloud2>(*msg);
 }
 
-void ScenarioAPIAutoware::callbackMap(const autoware_lanelet2_msgs::MapBin & msg)
+void ScenarioAPIAutoware::callbackMap(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
 {
-  ROS_INFO("Start loading lanelet");
+  RCLCPP_INFO(node_->get_logger(), "Start loading lanelet");
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
-    msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
-  ROS_INFO("Map is loaded");
+    *msg, lanelet_map_ptr_);
+  RCLCPP_INFO(node_->get_logger(), "Map is loaded");
 }
 
-void ScenarioAPIAutoware::callbackRoute(const autoware_planning_msgs::Route & msg)
+void ScenarioAPIAutoware::callbackRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
 {
   is_autoware_ready_routing = true;  // check autoware rady
 }
 
-void ScenarioAPIAutoware::callbackStatus(const autoware_system_msgs::AutowareState & msg)
+void ScenarioAPIAutoware::callbackStatus(const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg)
 {
-  autoware_state_ = msg.state;
-  if (autoware_state_ != autoware_system_msgs::AutowareState::Emergency)
+  autoware_state_ = msg->state;
+  if (autoware_state_ != autoware_system_msgs::msg::AutowareState::EMERGENCY)
     is_autoware_ready_initialize = true;
 }
 
-void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::TwistStamped::ConstPtr & msg)
+void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
 {
   if (previous_twist_ptr_ != nullptr) {
     second_previous_twist_ptr_ =
-      std::make_shared<geometry_msgs::TwistStamped>(*previous_twist_ptr_);
+      std::make_shared<geometry_msgs::msg::TwistStamped>(*previous_twist_ptr_);
   }
 
   if (current_twist_ptr_ != nullptr) {
-    previous_twist_ptr_ = std::make_shared<geometry_msgs::TwistStamped>(*current_twist_ptr_);
+    previous_twist_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*current_twist_ptr_);
   }
-  current_twist_ptr_ = std::make_shared<geometry_msgs::TwistStamped>(*msg);
+  current_twist_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*msg);
 }
 
 void ScenarioAPIAutoware::callbackTurnSignal(
-  const autoware_vehicle_msgs::TurnSignal::ConstPtr & msg)
+  const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg)
 {
-  turn_signal_ptr_ = std::make_shared<autoware_vehicle_msgs::TurnSignal>(*msg);
+  turn_signal_ptr_ = std::make_shared<autoware_vehicle_msgs::msg::TurnSignal>(*msg);
 }
 
 // basic API
 bool ScenarioAPIAutoware::isAPIReady()
 {
   if (current_pose_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "current_pose is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "current_pose is nullptr");
     return false;
   }
 
   if (pcl_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "pointcloud is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "pointcloud is nullptr");
     return false;
   }
 
   if (lanelet_map_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "lanelet_map is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "lanelet_map is nullptr");
     return false;
   }
 
   if (current_twist_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "current_twist is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "current_twist is nullptr");
     return false;
   }
 
   if (previous_twist_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "previous_twist is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "previous_twist is nullptr");
     return false;
   }
 
   if (second_previous_twist_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "second_previous_twist is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "second_previous_twist is nullptr");
     return false;
   }
 
   if (turn_signal_ptr_ == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "turn_signal is nullptr");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "turn_signal is nullptr");
     return false;
   }
 
@@ -174,164 +227,166 @@ bool ScenarioAPIAutoware::isAPIReady()
 
 bool ScenarioAPIAutoware::waitAPIReady()
 {
-  while (ros::ok()) {
+  while (rclcpp::ok()) {
     if (isAPIReady()) {
       break;
     }
-    ros::Rate(10.0).sleep();
-    ros::spinOnce();
+    rclcpp::Rate(10.0).sleep();
+    rclcpp::spin_some(node_->get_node_base_interface());
   }
   return true;  // TODO set timeout
 }
 
 // start API
 bool ScenarioAPIAutoware::sendStartPoint(
-  const geometry_msgs::Pose pose, const bool wait_autoware_status, const std::string & frame_type)
+  const geometry_msgs::msg::Pose pose, const bool wait_autoware_status, const std::string & frame_type)
 {
   // ignore roll/pitch information
   const double yaw = yawFromQuat(pose.orientation);
-  geometry_msgs::PoseWithCovarianceStamped posewcs;
-  posewcs.header.stamp = ros::Time::now();
+  geometry_msgs::msg::PoseWithCovarianceStamped posewcs;
+  posewcs.header.stamp = node_->now();
   posewcs.header.frame_id = "map";
 
   //get pose with frame_type
-  geometry_msgs::Pose original_pose;
+  geometry_msgs::msg::Pose original_pose;
   original_pose.position = pose.position;
   original_pose.orientation = quatFromYaw(yaw);
   if (!shiftEgoPose(original_pose, frame_type, &posewcs.pose.pose)) {
     return false;
   }
 
-  pub_start_point_.publish(posewcs);
+  pub_start_point_->publish(posewcs);
 
   //publish recurssively until self-pose tf is published
   while (!current_pose_ptr_) {
-    ros::Rate(2.0).sleep();
-    pub_start_point_.publish(posewcs);
-    ros::spinOnce();
+    rclcpp::Rate(2.0).sleep();
+    pub_start_point_->publish(posewcs);
+    rclcpp::spin_some(node_->get_node_base_interface());
   }
 
   if (wait_autoware_status) {
     //publish recurssively until state changes
-    while (!checkState(autoware_system_msgs::AutowareState::WaitingForRoute)) {
-      ros::Rate(2.0).sleep();
-      posewcs.header.stamp = ros::Time::now();
-      pub_start_point_.publish(posewcs);
-      ros::spinOnce();
+    while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE)) {
+      rclcpp::Rate(2.0).sleep();
+      posewcs.header.stamp = node_->now();
+      pub_start_point_->publish(posewcs);
+      rclcpp::spin_some(node_->get_node_base_interface());
     }
   }
   //In some cases, goalpoint is send soon after startpoint, mission planner cannot plan route.
-  sleep(1.0);  //TODO remove this
+  // sleep(1.0);  //TODO remove this
 
   return true;  // TODO check success(add timeout function)
 }
 
 bool ScenarioAPIAutoware::sendGoalPoint(
-  const geometry_msgs::Pose pose, const bool wait_autoware_status, const std::string & frame_type)
+  const geometry_msgs::msg::Pose pose, const bool wait_autoware_status, const std::string & frame_type)
 {
   // ignore roll/pitch information
   const double yaw = yawFromQuat(pose.orientation);
-  geometry_msgs::PoseStamped posestmp;
-  posestmp.header.stamp = ros::Time::now();
+  geometry_msgs::msg::PoseStamped posestmp;
+  posestmp.header.stamp = node_->now();
   posestmp.header.frame_id = "map";
 
   //get pose with frame_type
-  geometry_msgs::Pose original_pose;
+  geometry_msgs::msg::Pose original_pose;
   original_pose.position = pose.position;
   original_pose.orientation = quatFromYaw(yaw);
   if (!shiftEgoPose(original_pose, frame_type, &posestmp.pose)) {
     return false;
   }
 
-  pub_goal_point_.publish(posestmp);
+  pub_goal_point_->publish(posestmp);
 
   if (wait_autoware_status) {
     //publish recurssively until state changes
-    while (!checkState(autoware_system_msgs::AutowareState::WaitingForEngage)) {
-      ros::Rate(1.0).sleep();
-      posestmp.header.stamp = ros::Time::now();
-      pub_goal_point_.publish(posestmp);
-      ros::spinOnce();
+    while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE)) {
+      rclcpp::Rate(1.0).sleep();
+      posestmp.header.stamp = node_->now();
+      pub_goal_point_->publish(posestmp);
+      rclcpp::spin_some(node_->get_node_base_interface());
     }
   }
   //sleep for initial velocity start
   //if there are no sleep from sendgoal to engage,
   //ego vehicle decelerates soon after start
-  ros::Rate(1.0).sleep();
+  rclcpp::Rate(1.0).sleep();
 
   return true;  // TODO check success(add timeout function)
 }
 
 bool ScenarioAPIAutoware::sendCheckPoint(
-  const geometry_msgs::Pose pose, const bool wait_autoware_status, const std::string & frame_type)
+  const geometry_msgs::msg::Pose pose, const bool wait_autoware_status, const std::string & frame_type)
 {
   // ignore roll/pitch information
   const double yaw = yawFromQuat(pose.orientation);
-  geometry_msgs::PoseStamped posestmp;
-  posestmp.header.stamp = ros::Time::now();
+  geometry_msgs::msg::PoseStamped posestmp;
+  posestmp.header.stamp = node_->now();
   posestmp.header.frame_id = "map";
 
   //get pose with frame_type
-  geometry_msgs::Pose original_pose;
+  geometry_msgs::msg::Pose original_pose;
   original_pose.position = pose.position;
   original_pose.orientation = quatFromYaw(yaw);
   if (!shiftEgoPose(original_pose, frame_type, &posestmp.pose)) {
     return false;
   }
 
-  pub_check_point_.publish(posestmp);
+  pub_check_point_->publish(posestmp);
   if (wait_autoware_status) {
     // wait for message-received and planning
-    waitState(autoware_system_msgs::AutowareState::WaitingForEngage);
+    waitState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE);
   }
   return true;  // TODO check success(add timeout function)
 }
 
 bool ScenarioAPIAutoware::checkState(const std::string state)
 {
-  ROS_INFO_STREAM("autoware_state:" << autoware_state_ << ", target_state" << state << std::endl);
+  RCLCPP_INFO_STREAM(
+    node_->get_logger(),
+    "autoware_state:" << autoware_state_ << ", target_state" << state << std::endl);
   return autoware_state_ == state;
 }
 
 bool ScenarioAPIAutoware::waitState(const std::string state)
 {
   // wait for state change
-  while (ros::ok()) {
+  while (rclcpp::ok()) {
     if (autoware_state_ == state) {
       break;
     }
-    ros::Rate(10.0).sleep();
-    ros::spinOnce();
+    rclcpp::Rate(10.0).sleep();
+    rclcpp::spin_some(node_->get_node_base_interface());
   }
   return true;  // TODO: set timeout
 }
 
 bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
 {
-  geometry_msgs::TwistStamped twistmsg;
+  geometry_msgs::msg::TwistStamped twistmsg;
   twistmsg.header.frame_id = "base_link";
-  twistmsg.header.stamp = ros::Time::now();
+  twistmsg.header.stamp = node_->now();
   twistmsg.twist.linear.x = velocity;
-  pub_start_velocity_.publish(twistmsg);
+  pub_start_velocity_->publish(twistmsg);
   return true;  // TODO check success
 }
 
 bool ScenarioAPIAutoware::sendEngage(const bool engage)
 {
-  std_msgs::Bool boolmsg;
+  std_msgs::msg::Bool boolmsg;
   boolmsg.data = engage;
-  pub_autoware_engage_.publish(boolmsg);
+  pub_autoware_engage_->publish(boolmsg);
   return true;  // TODO check success
 }
 
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
-  while (ros::ok()) {
+  while (rclcpp::ok()) {
     if (isAutowareReadyInitialize()) {
       break;
     }
-    ros::Rate(10.0).sleep();
-    ros::spinOnce();
+    rclcpp::Rate(10.0).sleep();
+    rclcpp::spin_some(node_->get_node_base_interface());
   }
   return true;
 }
@@ -345,21 +400,24 @@ bool ScenarioAPIAutoware::isAutowareReadyRouting()
 
 bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
 {
-  std_msgs::Float32 floatmsg;
+  autoware_debug_msgs::msg::Float32Stamped floatmsg;
+  floatmsg.stamp = node_->now();
   floatmsg.data = velocity;
-  pub_max_velocity_.publish(floatmsg);
+  pub_max_velocity_->publish(floatmsg);
   return true;  // TODO check success
 }
 
 // self-vehicle API
 void ScenarioAPIAutoware::getCurrentPoseFromTF(void)
 {
-  geometry_msgs::TransformStamped transform;
-  geometry_msgs::PoseStamped ps;
+  geometry_msgs::msg::TransformStamped transform;
+  geometry_msgs::msg::PoseStamped ps;
   try {
-    transform = tf_buffer_.lookupTransform("map", "base_link", ros::Time(0));
+    transform = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "cannot get map to base_link transform. %s", ex.what());
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "cannot get map to base_link transform. %s", ex.what());
     return;
   }
 
@@ -368,7 +426,7 @@ void ScenarioAPIAutoware::getCurrentPoseFromTF(void)
   ps.pose.position.y = transform.transform.translation.y;
   ps.pose.position.z = transform.transform.translation.z;
   ps.pose.orientation = transform.transform.rotation;
-  current_pose_ptr_ = std::make_shared<geometry_msgs::PoseStamped>(ps);
+  current_pose_ptr_ = std::make_shared<geometry_msgs::msg::PoseStamped>(ps);
 }
 
 Pose2D ScenarioAPIAutoware::getCurrentPose()
@@ -380,13 +438,13 @@ Pose2D ScenarioAPIAutoware::getCurrentPose()
   return p;
 }
 
-geometry_msgs::PoseStamped ScenarioAPIAutoware::getCurrentPoseRos() { return *current_pose_ptr_; }
+geometry_msgs::msg::PoseStamped ScenarioAPIAutoware::getCurrentPoseRos() { return *current_pose_ptr_; }
 
 Polygon ScenarioAPIAutoware::getSelfPolygon2D() { return getSelfPolygon2D(vehicle_data_); }
 
-double ScenarioAPIAutoware::getVehicleTopFromBase() { return vehicle_data_.top_from_base(); }
+double ScenarioAPIAutoware::getVehicleTopFromBase() { return vehicle_data_.max_height_offset; }
 
-double ScenarioAPIAutoware::getVehicleBottomFromBase() { return vehicle_data_.bottom_from_base(); }
+double ScenarioAPIAutoware::getVehicleBottomFromBase() { return vehicle_data_.min_height_offset; }
 
 double ScenarioAPIAutoware::getVelocity() { return current_twist_ptr_->twist.linear.x; }
 
@@ -400,33 +458,33 @@ double ScenarioAPIAutoware::getJerk()
 double ScenarioAPIAutoware::getMoveDistance() { return total_move_distance_; }
 
 double ScenarioAPIAutoware::getAccel(
-  const std::shared_ptr<geometry_msgs::TwistStamped> current_twist_ptr,
-  const std::shared_ptr<geometry_msgs::TwistStamped> previous_twist_ptr)
+  const std::shared_ptr<geometry_msgs::msg::TwistStamped> current_twist_ptr,
+  const std::shared_ptr<geometry_msgs::msg::TwistStamped> previous_twist_ptr)
 {
   double c_x = current_twist_ptr->twist.linear.x;
   double p_x = previous_twist_ptr->twist.linear.x;
-  double c_time = current_twist_ptr->header.stamp.toSec();
-  double p_time = previous_twist_ptr->header.stamp.toSec();
+  double c_time = current_twist_ptr->header.stamp.sec;
+  double p_time = previous_twist_ptr->header.stamp.sec;
   if (c_time - p_time <= 0) {
-    ROS_WARN("return invalid accel because of invalid timestamp(twist_ptr)");
+    RCLCPP_WARN(node_->get_logger(), "return invalid accel because of invalid timestamp(twist_ptr)");
   }
   return (c_x - p_x) / (c_time - p_time);  // TODO refine this(use low pass filter?)
 }
 
 double ScenarioAPIAutoware::getJerk(
-  const std::shared_ptr<geometry_msgs::TwistStamped> current_twist_ptr,
-  const std::shared_ptr<geometry_msgs::TwistStamped> previous_twist_ptr,
-  const std::shared_ptr<geometry_msgs::TwistStamped> second_previous_twist_ptr)
+  const std::shared_ptr<geometry_msgs::msg::TwistStamped> current_twist_ptr,
+  const std::shared_ptr<geometry_msgs::msg::TwistStamped> previous_twist_ptr,
+  const std::shared_ptr<geometry_msgs::msg::TwistStamped> second_previous_twist_ptr)
 {
   double c_a = getAccel(current_twist_ptr, previous_twist_ptr);
   double p_a = getAccel(previous_twist_ptr, second_previous_twist_ptr);
   double c_time =
-    (current_twist_ptr->header.stamp.toSec() + previous_twist_ptr->header.stamp.toSec()) / 2.0;
+    (current_twist_ptr->header.stamp.sec + previous_twist_ptr->header.stamp.sec) / 2.0;
   double p_time =
-    (previous_twist_ptr->header.stamp.toSec() + second_previous_twist_ptr->header.stamp.toSec()) /
+    (previous_twist_ptr->header.stamp.sec + second_previous_twist_ptr->header.stamp.sec) /
     2.0;
   if (c_time - p_time <= 0) {
-    ROS_WARN("return invalid jerk because of invalid timestamp(twist_ptr)");
+    RCLCPP_WARN(node_->get_logger(), "return invalid jerk because of invalid timestamp(twist_ptr)");
   }
   return (c_a - p_a) / (c_time - p_time);
 }
@@ -449,7 +507,7 @@ void ScenarioAPIAutoware::updateTotalMoveDistance()
 
   //calculate delta-distance
   const double dt =
-    current_pose_ptr_->header.stamp.toSec() - previous_pose_ptr_.header.stamp.toSec();
+    current_pose_ptr_->header.stamp.sec - previous_pose_ptr_.header.stamp.sec;
   const double dx = current_pose_ptr_->pose.position.x - previous_pose_ptr_.pose.position.x;
   const double dy = current_pose_ptr_->pose.position.y - previous_pose_ptr_.pose.position.y;
   const double dist = std::hypot(dx, dy);  //do not consider height
@@ -461,7 +519,8 @@ void ScenarioAPIAutoware::updateTotalMoveDistance()
     return;
   }
   if (std::fabs(v) > valid_max_velocity_thresh_) {
-    ROS_ERROR_STREAM(
+    RCLCPP_ERROR_STREAM(
+      node_->get_logger(),
       "Detect invalid movement. Do not add delta-pose to total-move-distance. v=( " << v << " )");
     previous_pose_ptr_ = *current_pose_ptr_;
     return;
@@ -478,7 +537,7 @@ void ScenarioAPIAutoware::updateTotalMoveDistance()
 }
 
 bool ScenarioAPIAutoware::shiftEgoPose(
-  const geometry_msgs::Pose & pose, const std::string frame_type, geometry_msgs::Pose * shift_pose)
+  const geometry_msgs::msg::Pose & pose, const std::string frame_type, geometry_msgs::msg::Pose * shift_pose)
 {
   //shift pose from farame_type to "Center"
 
@@ -500,29 +559,32 @@ bool ScenarioAPIAutoware::shiftEgoPose(
     return true;
   }
 
-  ROS_ERROR_STREAM(
+  RCLCPP_ERROR_STREAM(
+    node_->get_logger(),
     "shiftEGoPose supports only base_link, front_link, and rear_link as frame_type. "
-    << "Now, frame_type is " << frame_type << ".");
+      << "Now, frame_type is " << frame_type << ".");
   return false;
 }
 
 // additonal self vehicle API
 bool ScenarioAPIAutoware::willLaneChange()
 {
-  ROS_WARN_DELAYED_THROTTLE(5.0, "willLaneChange is not perfectly implemented yet.");
+  RCLCPP_WARN_SKIPFIRST_THROTTLE(
+    node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+    "willLaneChange is not perfectly implemented yet.");
   // TODO fix this (Now, this returns true when left/right turn)
   return (getLeftBlinker() || getRightBlinker());
 }
 
 bool ScenarioAPIAutoware::getLeftBlinker(
-  std::shared_ptr<autoware_vehicle_msgs::TurnSignal> turn_signal_ptr)
+  std::shared_ptr<autoware_vehicle_msgs::msg::TurnSignal> turn_signal_ptr)
 {
-  return (turn_signal_ptr->data == autoware_vehicle_msgs::TurnSignal::LEFT);
-};
+  return (turn_signal_ptr->data == autoware_vehicle_msgs::msg::TurnSignal::LEFT);
+}
 bool ScenarioAPIAutoware::getRightBlinker(
-  std::shared_ptr<autoware_vehicle_msgs::TurnSignal> turn_signal_ptr)
+  std::shared_ptr<autoware_vehicle_msgs::msg::TurnSignal> turn_signal_ptr)
 {
-  return (turn_signal_ptr->data == autoware_vehicle_msgs::TurnSignal::RIGHT);
+  return (turn_signal_ptr->data == autoware_vehicle_msgs::msg::TurnSignal::RIGHT);
 }
 
 bool ScenarioAPIAutoware::getLeftBlinker() { return getLeftBlinker(turn_signal_ptr_); }
@@ -531,14 +593,14 @@ bool ScenarioAPIAutoware::getRightBlinker() { return getRightBlinker(turn_signal
 
 bool ScenarioAPIAutoware::approveLaneChange(bool approve_lane_change)
 {
-  std_msgs::Bool boolmsg;
+  std_msgs::msg::Bool boolmsg;
   boolmsg.data = approve_lane_change;
-  pub_lane_change_permission_.publish(boolmsg);
+  pub_lane_change_permission_->publish(boolmsg);
   return true;  // TODO check successs
 }
 
 // sensor API
-std::shared_ptr<sensor_msgs::PointCloud2> ScenarioAPIAutoware::getPointCloud() { return pcl_ptr_; }
+std::shared_ptr<sensor_msgs::msg::PointCloud2> ScenarioAPIAutoware::getPointCloud() { return pcl_ptr_; }
 
 // lane API
 bool ScenarioAPIAutoware::getCurrentLaneID(int & current_id, double max_dist, double max_delta_yaw)
@@ -547,7 +609,7 @@ bool ScenarioAPIAutoware::getCurrentLaneID(int & current_id, double max_dist, do
 }
 
 bool ScenarioAPIAutoware::getCurrentLaneID(
-  int & current_id, const std::shared_ptr<geometry_msgs::PoseStamped> & current_pose,
+  int & current_id, const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
   const std::shared_ptr<lanelet::LaneletMap> & lanelet_map_ptr, double max_dist,
   double max_delta_yaw)
 {
@@ -582,7 +644,7 @@ bool ScenarioAPIAutoware::getCurrentLeftLaneID(
   int & current_left_id, const std::shared_ptr<lanelet::Lanelet> current_lane)
 {
   if (current_lane == nullptr) {
-    ROS_WARN("cannot get left lane id (current_lane is nullptr)");
+    RCLCPP_WARN(node_->get_logger(), "cannot get left lane id (current_lane is nullptr)");
     return false;
   }
 
@@ -597,7 +659,7 @@ bool ScenarioAPIAutoware::getCurrentLeftLaneID(
 
 bool ScenarioAPIAutoware::isChangeLaneID()
 {
-  ROS_WARN("isChangeLaneID is not implemented yet.");
+  RCLCPP_WARN(node_->get_logger(), "isChangeLaneID is not implemented yet.");
   // TODO
   return false;
 }
@@ -608,7 +670,7 @@ bool ScenarioAPIAutoware::getDistancefromCenterLine(double & dist_from_center_li
 }
 
 bool ScenarioAPIAutoware::getDistancefromCenterLine(
-  double & dist_from_center, const std::shared_ptr<geometry_msgs::PoseStamped> & current_pose,
+  double & dist_from_center, const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
   const std::shared_ptr<lanelet::LaneletMap> & lanelet_map_ptr, lanelet::Id lane_id)
 {
   std::shared_ptr<lanelet::Lanelet> lanelet =
@@ -617,17 +679,21 @@ bool ScenarioAPIAutoware::getDistancefromCenterLine(
 }
 
 bool ScenarioAPIAutoware::getDistancefromCenterLine(
-  double & dist_from_center, const std::shared_ptr<geometry_msgs::PoseStamped> & current_pose,
+  double & dist_from_center, const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
   std::shared_ptr<lanelet::Lanelet> current_lanelet)
 {
   if (current_lanelet == nullptr or current_pose == nullptr) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "cannot get distance from centerline (nullptr)");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "cannot get distance from centerline (nullptr)");
     return false;
   }
 
   const auto centerline = current_lanelet->centerline2d();
   if (centerline.empty()) {
-    ROS_WARN_DELAYED_THROTTLE(5.0, "cannot get distance from centerline (invalid centerline)");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      "cannot get distance from centerline (invalid centerline)");
     return false;
   }
 
@@ -644,7 +710,7 @@ bool ScenarioAPIAutoware::getDistancefromCenterLine(
 }
 
 bool ScenarioAPIAutoware::isInLane(
-  const std::shared_ptr<geometry_msgs::PoseStamped> & current_pose,
+  const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
   std::shared_ptr<lanelet::Lanelet> current_lanelet)
 {
   const auto poly = current_lanelet->polygon2d().basicPolygon();
@@ -665,9 +731,9 @@ bool ScenarioAPIAutoware::setTrafficLightColor(
       // TODO probabilistic expression of traffic light
       for (auto & lamp : tl_state.lamp_states) {
         if (
-          lamp.type == autoware_perception_msgs::LampState::RED ||
-          lamp.type == autoware_perception_msgs::LampState::YELLOW ||
-          lamp.type == autoware_perception_msgs::LampState::GREEN) {
+          lamp.type == autoware_perception_msgs::msg::LampState::RED ||
+          lamp.type == autoware_perception_msgs::msg::LampState::YELLOW ||
+          lamp.type == autoware_perception_msgs::msg::LampState::GREEN) {
           //if lamp color is already given, change color
           lamp.confidence = 1.0;
           lamp.type = getTrafficLampStateFromString(traffic_color);
@@ -675,7 +741,7 @@ bool ScenarioAPIAutoware::setTrafficLightColor(
         }
       }
       //if lamp color is not given yet, append color
-      autoware_perception_msgs::LampState color_lamp;
+      autoware_perception_msgs::msg::LampState color_lamp;
       color_lamp.confidence = 1.0;
       color_lamp.type = getTrafficLampStateFromString(traffic_color);
       tl_state.lamp_states.emplace_back(color_lamp);
@@ -684,9 +750,9 @@ bool ScenarioAPIAutoware::setTrafficLightColor(
   }
 
   // if traffic id does not exist, add new traffic light state
-  autoware_perception_msgs::TrafficLightState tl_state;
+  autoware_perception_msgs::msg::TrafficLightState tl_state;
   tl_state.id = traffic_id;
-  autoware_perception_msgs::LampState lmp_state;
+  autoware_perception_msgs::msg::LampState lmp_state;
   lmp_state.confidence = 1.0;
   lmp_state.type = getTrafficLampStateFromString(traffic_color);
   tl_state.lamp_states.emplace_back(lmp_state);
@@ -725,7 +791,7 @@ bool ScenarioAPIAutoware::setTrafficLightArrow(
         }
       }
       //if same arrow is not given yet, append color
-      autoware_perception_msgs::LampState arrow_lamp;
+      autoware_perception_msgs::msg::LampState arrow_lamp;
       arrow_lamp.confidence = 1.0;
       arrow_lamp.type = getTrafficLampStateFromString(traffic_arrow);
       tl_state.lamp_states.emplace_back(arrow_lamp);
@@ -734,9 +800,9 @@ bool ScenarioAPIAutoware::setTrafficLightArrow(
   }
 
   // if traffic id does not exist, add new traffic light state
-  autoware_perception_msgs::TrafficLightState tl_state;
+  autoware_perception_msgs::msg::TrafficLightState tl_state;
   tl_state.id = traffic_id;
-  autoware_perception_msgs::LampState lmp_state;
+  autoware_perception_msgs::msg::LampState lmp_state;
   lmp_state.confidence = 1.0;
   lmp_state.type = getTrafficLampStateFromString(traffic_arrow);
   tl_state.lamp_states.emplace_back(lmp_state);
@@ -767,12 +833,12 @@ bool ScenarioAPIAutoware::resetTrafficLightColor(const int traffic_id)
     if (tl_state.id == traffic_id) {
       // modify existed traffic light state
       // TODO probabilistic expression of traffic light
-      for (int i = 0; i < tl_state.lamp_states.size(); i++) {
+      for (size_t i = 0; i < tl_state.lamp_states.size(); i++) {
         if (
           //remove color
-          tl_state.lamp_states[i].type == autoware_perception_msgs::LampState::RED ||
-          tl_state.lamp_states[i].type == autoware_perception_msgs::LampState::YELLOW ||
-          tl_state.lamp_states[i].type == autoware_perception_msgs::LampState::GREEN) {
+          tl_state.lamp_states[i].type == autoware_perception_msgs::msg::LampState::RED ||
+          tl_state.lamp_states[i].type == autoware_perception_msgs::msg::LampState::YELLOW ||
+          tl_state.lamp_states[i].type == autoware_perception_msgs::msg::LampState::GREEN) {
           tl_state.lamp_states.erase(tl_state.lamp_states.begin() + i);
           return true;
         }
@@ -811,13 +877,13 @@ bool ScenarioAPIAutoware::resetTrafficLightArrow(const int traffic_id)
       for (auto & lamp : tl_state.lamp_states) {
         if (
           //remove lamp_state without color
-          lamp.type == autoware_perception_msgs::LampState::RED ||
-          lamp.type == autoware_perception_msgs::LampState::YELLOW ||
-          lamp.type == autoware_perception_msgs::LampState::GREEN) {
+          lamp.type == autoware_perception_msgs::msg::LampState::RED ||
+          lamp.type == autoware_perception_msgs::msg::LampState::YELLOW ||
+          lamp.type == autoware_perception_msgs::msg::LampState::GREEN) {
           const uint32_t color_type = lamp.type;
           //reset lamp_states and push color_type
           tl_state.lamp_states.clear();
-          autoware_perception_msgs::LampState lamp;
+          autoware_perception_msgs::msg::LampState lamp;
           lamp.type = color_type;
           lamp.confidence = 1.0;
           tl_state.lamp_states.emplace_back(lamp);
@@ -855,7 +921,8 @@ bool ScenarioAPIAutoware::getTrafficLightColor(
 {
   lanelet::LineStringsOrPolygons3d traffic_lights;
   if (!getTrafficLights(traffic_relation_id, traffic_lights)) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(),
       "traffic light id:" << traffic_relation_id << " is invalid. cannot get traffic light");
     return false;
   }
@@ -865,9 +932,9 @@ bool ScenarioAPIAutoware::getTrafficLightColor(
         for (const auto & lamp_state : tl_state.lamp_states) {
           const auto lamp = static_cast<uint8_t>(lamp_state.type);
           if (
-            lamp == autoware_perception_msgs::LampState::RED ||
-            lamp == autoware_perception_msgs::LampState::YELLOW ||
-            lamp == autoware_perception_msgs::LampState::GREEN) {
+            lamp == autoware_perception_msgs::msg::LampState::RED ||
+            lamp == autoware_perception_msgs::msg::LampState::YELLOW ||
+            lamp == autoware_perception_msgs::msg::LampState::GREEN) {
             *traffic_color = getTrafficLampStringFromState(lamp);
             return true;
           }
@@ -878,7 +945,7 @@ bool ScenarioAPIAutoware::getTrafficLightColor(
     *traffic_color = "";
     return true;
   }
-  ROS_WARN_STREAM("traffic light id:" << traffic_relation_id << "is not registered");
+  RCLCPP_WARN_STREAM(node_->get_logger(), "traffic light id:" << traffic_relation_id << "is not registered");
   return false;
 }
 
@@ -887,7 +954,8 @@ bool ScenarioAPIAutoware::getTrafficLightArrow(
 {
   lanelet::LineStringsOrPolygons3d traffic_lights;
   if (!getTrafficLights(traffic_relation_id, traffic_lights)) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(),
       "traffic light id:" << traffic_relation_id << " is invalid. cannot get traffic light");
     return false;
   }
@@ -898,10 +966,10 @@ bool ScenarioAPIAutoware::getTrafficLightArrow(
         for (const auto & lamp_state : tl_state.lamp_states) {
           const auto lamp = static_cast<uint8_t>(lamp_state.type);
           if (
-            lamp == autoware_perception_msgs::LampState::UP ||
-            lamp == autoware_perception_msgs::LampState::DOWN ||
-            lamp == autoware_perception_msgs::LampState::LEFT ||
-            lamp == autoware_perception_msgs::LampState::RIGHT) {
+            lamp == autoware_perception_msgs::msg::LampState::UP ||
+            lamp == autoware_perception_msgs::msg::LampState::DOWN ||
+            lamp == autoware_perception_msgs::msg::LampState::LEFT ||
+            lamp == autoware_perception_msgs::msg::LampState::RIGHT) {
             traffic_arrow->emplace_back(getTrafficLampStringFromState(lamp));
           }
         }
@@ -909,21 +977,21 @@ bool ScenarioAPIAutoware::getTrafficLightArrow(
       }
     }
   }
-  ROS_WARN_STREAM("color of traffic light id:" << traffic_relation_id << "is not registered");
+  RCLCPP_WARN_STREAM(node_->get_logger(), "color of traffic light id:" << traffic_relation_id << "is not registered");
   return false;
 }
 
-std::vector<geometry_msgs::Point> ScenarioAPIAutoware::getTrafficLightPosition(
+std::vector<geometry_msgs::msg::Point> ScenarioAPIAutoware::getTrafficLightPosition(
   const int traffic_relation_id)
 {
-  std::vector<geometry_msgs::Point> traffic_points;
+  std::vector<geometry_msgs::msg::Point> traffic_points;
   lanelet::LineStringsOrPolygons3d traffic_lights;
   if (!getTrafficLights(traffic_relation_id, traffic_lights)) {
     return traffic_points;
   }
   for (const auto traffic_light : traffic_lights) {
     auto tl = traffic_light.lineString();
-    geometry_msgs::Point tl_point;
+    geometry_msgs::msg::Point tl_point;
     tl_point.x = tl->front().x();
     tl_point.y = tl->front().y();
     tl_point.z = tl->front().z();
@@ -933,10 +1001,11 @@ std::vector<geometry_msgs::Point> ScenarioAPIAutoware::getTrafficLightPosition(
 }
 
 bool ScenarioAPIAutoware::getTrafficLineCenterPosition(
-  const int traffic_relation_id, geometry_msgs::Point & line_center)
+  const int traffic_relation_id, geometry_msgs::msg::Point & line_center)
 {
   if (!lanelet_map_ptr_->regulatoryElementLayer.exists(traffic_relation_id)) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(),
       "RegulatoryElement, id:" << traffic_relation_id << "does not exist. Check the traffic id");
     return false;
   }
@@ -945,16 +1014,17 @@ bool ScenarioAPIAutoware::getTrafficLineCenterPosition(
 
   auto traffic_light_reg_elem = std::dynamic_pointer_cast<lanelet::TrafficLight>(traffic_element);
   if (!traffic_light_reg_elem) {
-    ROS_WARN_STREAM(
-      "Result of dynamic pointer cast of regulatoryElement, id:"
-      << traffic_relation_id << "is nullptr. Check the traffic id");
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(), "Result of dynamic pointer cast of regulatoryElement, id:"
+                            << traffic_relation_id << "is nullptr. Check the traffic id");
     return false;
   }
 
   lanelet::ConstLineString3d stop_line = *(traffic_light_reg_elem->stopLine());
   const int sl_size = stop_line.size();
   if (sl_size == 0) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(),
       "Stop line of traffic_relation id:" << traffic_relation_id << " does not exist");
     return false;
   }
@@ -972,10 +1042,10 @@ bool ScenarioAPIAutoware::getTrafficLineCenterPosition(
 }
 
 bool ScenarioAPIAutoware::getTrafficLineCenterPose(
-  const int traffic_relation_id, geometry_msgs::Pose & line_pose)
+  const int traffic_relation_id, geometry_msgs::msg::Pose & line_pose)
 {
   //get stop line position
-  geometry_msgs::Pose stop_line_center;
+  geometry_msgs::msg::Pose stop_line_center;
   if (!getTrafficLineCenterPosition(traffic_relation_id, stop_line_center.position)) {
     return false;
   }
@@ -986,7 +1056,7 @@ bool ScenarioAPIAutoware::getTrafficLineCenterPose(
 
   //get stop line orientation(input orientation of nearest lane)
   if (nearest_lanelet.empty()) {
-    ROS_WARN_STREAM("Failed to find the closest lane of stop line");
+    RCLCPP_WARN_STREAM(node_->get_logger(), "Failed to find the closest lane of stop line");
     return false;
   }
 
@@ -999,7 +1069,7 @@ bool ScenarioAPIAutoware::getTrafficLineCenterPose(
 }
 
 bool ScenarioAPIAutoware::getDistanceToTrafficLight(
-  const int traffic_relation_id, const geometry_msgs::Pose self_pose, double & distance)
+  const int traffic_relation_id, const geometry_msgs::msg::Pose self_pose, double & distance)
 {
   const auto traffic_lights = getTrafficLightPosition(traffic_relation_id);
   double min_distance = 1e5;
@@ -1023,9 +1093,9 @@ bool ScenarioAPIAutoware::getDistanceToTrafficLight(
 }
 
 bool ScenarioAPIAutoware::getDistanceToTrafficLine(
-  const int traffic_relation_id, const geometry_msgs::Pose self_pose, double & distance)
+  const int traffic_relation_id, const geometry_msgs::msg::Pose self_pose, double & distance)
 {
-  geometry_msgs::Point line_center;
+  geometry_msgs::msg::Point line_center;
   if (!getTrafficLineCenterPosition(traffic_relation_id, line_center)) {
     return false;
   }
@@ -1036,7 +1106,7 @@ bool ScenarioAPIAutoware::getDistanceToTrafficLine(
 }
 
 bool ScenarioAPIAutoware::checkOverTrafficLine(
-  const int traffic_relation_id, const geometry_msgs::Pose self_pose, bool & over_line,
+  const int traffic_relation_id, const geometry_msgs::msg::Pose self_pose, bool & over_line,
   double judge_dist_thresh_)
 {
   double distance2line;
@@ -1050,7 +1120,7 @@ bool ScenarioAPIAutoware::checkOverTrafficLine(
     return true;
   }
 
-  geometry_msgs::Pose line_center;
+  geometry_msgs::msg::Pose line_center;
   if (!getTrafficLineCenterPose(traffic_relation_id, line_center)) {
     return false;
   }
@@ -1066,7 +1136,7 @@ bool ScenarioAPIAutoware::checkOverTrafficLine(
     return true;
   }
 
-  if (distance2line < vehicle_data_.front_from_base()) {
+  if (distance2line < vehicle_data_.max_longitudinal_offset) {
     //front of the car is over the line
     over_line = true;
     return true;
@@ -1079,7 +1149,8 @@ bool ScenarioAPIAutoware::getTrafficLights(
   const int traffic_relation_id, lanelet::LineStringsOrPolygons3d & traffic_lights)
 {
   if (!lanelet_map_ptr_->regulatoryElementLayer.exists(traffic_relation_id)) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(),
       "regulatoryElement, id:" << traffic_relation_id << "does not exist. Check the traffic id");
     return false;
   }
@@ -1087,9 +1158,9 @@ bool ScenarioAPIAutoware::getTrafficLights(
 
   auto traffic_light_reg_elem = std::dynamic_pointer_cast<lanelet::TrafficLight>(traffic_element);
   if (!traffic_light_reg_elem) {
-    ROS_WARN_STREAM(
-      "Result of dynamic pointer cast of regulatoryElement, id:"
-      << traffic_relation_id << "is nullptr. Check the traffic id");
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(), "Result of dynamic pointer cast of regulatoryElement, id:"
+                            << traffic_relation_id << "is nullptr. Check the traffic id");
     return false;
   }
 
@@ -1103,69 +1174,69 @@ uint8_t ScenarioAPIAutoware::getTrafficLampStateFromString(const std::string & t
   transform(traffic_state_sc.begin(), traffic_state_sc.end(), traffic_state_sc.begin(), toupper);
 
   if (traffic_state_sc == "RED") {
-    return autoware_perception_msgs::LampState::RED;
+    return autoware_perception_msgs::msg::LampState::RED;
   } else if (traffic_state_sc == "YELLOW") {
-    return autoware_perception_msgs::LampState::YELLOW;
+    return autoware_perception_msgs::msg::LampState::YELLOW;
   } else if ((traffic_state_sc == "GREEN" || traffic_state_sc == "BLUE")) {
-    return autoware_perception_msgs::LampState::GREEN;
+    return autoware_perception_msgs::msg::LampState::GREEN;
   } else if (traffic_state_sc == "UP" || traffic_state_sc == "STRAIGHT") {
-    return autoware_perception_msgs::LampState::UP;
+    return autoware_perception_msgs::msg::LampState::UP;
   } else if (traffic_state_sc == "DOWN") {
     //??? what is "DOWN" ...?
-    return autoware_perception_msgs::LampState::DOWN;
+    return autoware_perception_msgs::msg::LampState::DOWN;
   } else if (traffic_state_sc == "LEFT") {
-    return autoware_perception_msgs::LampState::LEFT;
+    return autoware_perception_msgs::msg::LampState::LEFT;
   } else if (traffic_state_sc == "RIGHT") {
-    return autoware_perception_msgs::LampState::RIGHT;
+    return autoware_perception_msgs::msg::LampState::RIGHT;
   }
-  ROS_ERROR_STREAM("invalid traffic_state in getTrafficLampStateFromString: " << traffic_state_sc);
+  RCLCPP_ERROR_STREAM(
+    node_->get_logger(),
+    "invalid traffic_state in getTrafficLampStateFromString: " << traffic_state_sc);
   return 0;
 }
 
 std::string ScenarioAPIAutoware::getTrafficLampStringFromState(const uint8_t lamp_state)
 {
   //reference: https://github.com/tier4/ScenarioFormat/blob/master/format/definition.md/#ArrowType
-  if (lamp_state == autoware_perception_msgs::LampState::RED) {
+  if (lamp_state == autoware_perception_msgs::msg::LampState::RED) {
     return "Red";
   }
-  if (lamp_state == autoware_perception_msgs::LampState::YELLOW) {
+  if (lamp_state == autoware_perception_msgs::msg::LampState::YELLOW) {
     return "Yellow";
   }
-  if (lamp_state == autoware_perception_msgs::LampState::GREEN) {
+  if (lamp_state == autoware_perception_msgs::msg::LampState::GREEN) {
     return "Green";
   }
-  if (lamp_state == autoware_perception_msgs::LampState::UP) {
+  if (lamp_state == autoware_perception_msgs::msg::LampState::UP) {
     return "Straight";
   }
-  if (lamp_state == autoware_perception_msgs::LampState::DOWN) {
+  if (lamp_state == autoware_perception_msgs::msg::LampState::DOWN) {
     return "Down";
   }
-  if (lamp_state == autoware_perception_msgs::LampState::LEFT) {
+  if (lamp_state == autoware_perception_msgs::msg::LampState::LEFT) {
     return "Left";
   }
-  if (lamp_state == autoware_perception_msgs::LampState::RIGHT) {
+  if (lamp_state == autoware_perception_msgs::msg::LampState::RIGHT) {
     return "Right";
   }
-  ROS_ERROR_STREAM("invalid lamp state in getTrafficLampStringFromState");
+  RCLCPP_ERROR_STREAM(node_->get_logger(), "invalid lamp state in getTrafficLampStringFromState");
   return "";
 }
 
 void ScenarioAPIAutoware::pubTrafficLight()
 {
   traffic_light_state_.header.frame_id = camera_frame_id_;
-  traffic_light_state_.header.stamp = ros::Time::now();
-  pub_traffic_detection_result_.publish(traffic_light_state_);
+  traffic_light_state_.header.stamp = node_->now();
+  pub_traffic_detection_result_->publish(traffic_light_state_);
 }
 
 // util
-Polygon ScenarioAPIAutoware::getSelfPolygon2D(Vehicle_Data vd)
+Polygon ScenarioAPIAutoware::getSelfPolygon2D(VehicleData vd)
 {
   double left = vd.left_from_base();
   double right = vd.right_from_base();
-  double front = vd.front_from_base();
-  double rear = vd.rear_from_base();
-  double top = vd.top_from_base();
-  double bottom = vd.bottom_from_base();
+  double front = vd.max_longitudinal_offset;
+  double rear = vd.min_longitudinal_offset;
 
   // create polygon of self body shape
   Polygon poly;
