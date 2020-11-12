@@ -55,7 +55,17 @@ public:
     return (*event_manager_).current_event_name(std::forward<decltype(xs)>(xs)...);
   }
 
-  void touch();
+  auto property() const
+  {
+    boost::property_tree::ptree result {};
+
+    result.put("Name", name());
+    result.put("State", boost::lexical_cast<std::string>(currently));
+    result.add_child("StartConditions", start_condition_.property());
+    result.add_child("Events", (*event_manager_).property());
+
+    return result;
+  }
 
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);

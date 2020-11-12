@@ -69,6 +69,18 @@ public:
     }
   }
 
+  auto property() const
+  {
+    boost::property_tree::ptree result {};
+
+    for (const auto& each : sequences_)
+    {
+      result.push_back(std::make_pair("", each.property()));
+    }
+
+    return result;
+  }
+
   state_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);
 

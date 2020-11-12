@@ -33,46 +33,22 @@ SequenceManager::SequenceManager(
 state_is SequenceManager::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  context_.json << (indent++) << std::quoted("Sequences") << ": [\n";
-
-  for (auto iter { std::begin(sequences_) }; iter != cursor; ++iter)
-  {
-    (*iter).touch();
-    context_.json << (std::next(iter) != std::end(sequences_) ? ",\n" : "\n");
-  }
-
   if (cursor != std::end(sequences_))
   {
-    currently = (*cursor).update(context_.intersections_pointer());
-    context_.json << (std::next(cursor) != std::end(sequences_) ? ",\n" : "\n");
-
-    switch (currently)
+    switch (currently = (*cursor).update(context_.intersections_pointer()))
     {
     case state_is::finished:
-      for (auto iter { ++cursor }; iter != std::end(sequences_); ++iter)
-      {
-        (*iter).touch();
-        context_.json << (std::next(iter) != std::end(sequences_) ? ",\n" : "\n");
-      }
-      break;
+      ++cursor;
+      return currently = state_is::running;
 
     default:
-      for (auto iter { std::next(cursor) }; iter != std::end(sequences_); ++iter)
-      {
-        (*iter).touch();
-        context_.json << (std::next(iter) != std::end(sequences_) ? ",\n" : "\n");
-      }
-      break;
+      return currently;
     }
   }
   else
   {
-    currently = state_is::finished;
+    return currently = state_is::finished;
   }
-
-  context_.json << (--indent) << "],\n";
-
-  return currently;
 }
 
 } // namespace scenario_sequence
