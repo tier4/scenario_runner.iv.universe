@@ -15,6 +15,8 @@
 #ifndef SCENARIO_CONDITIONS_CONDITION_BASE_H_INCLUDED
 #define SCENARIO_CONDITIONS_CONDITION_BASE_H_INCLUDED
 
+#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "scenario_api/scenario_api_core.hpp"
@@ -55,14 +57,15 @@ public:
 
   const std::string & getType() const noexcept {return type_;}
 
-  friend std::ostream& operator <<(std::ostream& os, const ConditionBase& datum)
+  auto property() const
   {
-    return os << indent
-              << "{ "
-              << std::quoted("Name") << ": " << std::quoted(datum.getName()) << ", "
-              << std::quoted("Value") << ": " << std::quoted(datum.description()) << ", "
-              << std::quoted("Result") << ": " << std::quoted(datum.getResult() ? "true" : "false")
-              << " }";
+    boost::property_tree::ptree result {};
+
+    result.put("Name", getName());
+    result.put("Value", description());
+    result.put("Result", getResult());
+
+    return result;
   }
 
 protected:
