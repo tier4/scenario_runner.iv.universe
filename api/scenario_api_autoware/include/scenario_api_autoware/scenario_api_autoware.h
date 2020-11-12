@@ -72,13 +72,13 @@ using Point = bg::model::d2::point_xy<double>;
 using Polygon = bg::model::polygon<Point>;
 using Line = bg::model::linestring<Point>;
 
-class ScenarioAPIAutoware : public rclcpp::Node
+class ScenarioAPIAutoware
 {
 public:
   /**
    * @brief constructor
    */
-  ScenarioAPIAutoware();
+  ScenarioAPIAutoware(rclcpp::Node::SharedPtr node);
 
   /**
    * @brief destructor
@@ -157,6 +157,7 @@ public:
     double judge_dist_thresh = 30.0);
 
 private:
+  rclcpp::Node::SharedPtr node_;
   /* Subscribers */
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr
     sub_pcl_;  //!< @brief topic subscriber for pcl
