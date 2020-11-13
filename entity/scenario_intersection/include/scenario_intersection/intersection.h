@@ -112,7 +112,7 @@ class Intersection
       transitions_.emplace_back();
     }
 
-    Controller(const YAML::Node& node, rclcpp::Logger & logger)
+    Controller(const YAML::Node & node, rclcpp::Logger & logger)
     {
       if (const auto traffic_lights {node["TrafficLight"]})
       {
@@ -121,7 +121,8 @@ class Intersection
           if (const auto arrow { each["Arrow"] })
           {
             // NOTE: tag 'Arrow' is deperecated
-            RCLCPP_WARN_STREAM(logger, "Tag 'Arrow: <String>' is deperecated. Use 'Arrows: [<String>*]'");
+            RCLCPP_WARN_STREAM(
+              logger, "Tag 'Arrow: <String>' is deprecated. Use 'Arrows: [<String>*]'");
             transitions_.emplace_back(each["Id"], each["Color"], arrow);
           }
           else
