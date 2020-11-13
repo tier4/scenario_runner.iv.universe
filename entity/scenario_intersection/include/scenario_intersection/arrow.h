@@ -3,7 +3,6 @@
 
 #include <ostream>
 #include <string>
-#include <unordered_map>
 #include <utility>
 
 #include <scenario_intersection/utility.h>

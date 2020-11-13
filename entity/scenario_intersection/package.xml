@@ -13,12 +13,12 @@
 
   <depend>rclcpp</depend>
   <depend>libgoogle-glog-dev</depend>
-  <!-- <depend>rosbag</depend> -->
   <!-- <depend>scenario_api</depend> -->
   <depend>scenario_utility</depend>
   <depend>scenario_logger</depend>
   <depend>scenario_logger_msgs</depend>
   <depend>yaml_cpp_vendor</depend>
+  <depend>boost</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
