@@ -3,7 +3,8 @@
 
 #include <string>
 
-#include <ros/ros.h>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/logger.hpp>
 
 #include <yaml-cpp/yaml.h>
 
@@ -14,7 +15,7 @@ template <typename T>
 T convert(const std::string&);
 
 template <typename T, typename F>
-decltype(auto) if_exist(const YAML::Node& node, const std::string& key, F&& consequent)
+decltype(auto) if_exist(const YAML::Node& node, const std::string& key, F&& consequent, rclcpp::Logger & logger)
 {
   if (const auto& element {node[key]})
   {
@@ -24,14 +25,14 @@ decltype(auto) if_exist(const YAML::Node& node, const std::string& key, F&& cons
     }
     catch (const YAML::BadConversion&)
     {
-      ROS_ERROR_STREAM(
+      RCLCPP_ERROR_STREAM(logger,
         "A bad-conversion exception occurred when parsing the key '" << key << "'. "
         "You have specified in your scenario a value of a type that is not appropriate for that key.");
     }
   }
   else
   {
-    ROS_ERROR_STREAM("Missing key '" << key << "' in following tree.\n" << node);
+    RCLCPP_ERROR_STREAM(logger, "Missing key '" << key << "' in following tree.\n" << node);
   }
 }
 

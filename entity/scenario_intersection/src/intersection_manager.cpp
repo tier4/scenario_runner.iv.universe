@@ -5,22 +5,24 @@ namespace scenario_intersection
 
 IntersectionManager::IntersectionManager(
   const YAML::Node& node,
-  const std::shared_ptr<ScenarioAPI>& simulator)
+  // const std::shared_ptr<ScenarioAPI>& simulator)
+  rclcpp::Logger & logger)
   : node_ {node}
-  , simulator_ {simulator}
+  // , simulator_ {simulator}
+  , logger_(logger)
 {
   for (const auto& intersection : node_)
   {
     if (const auto name {intersection["Name"]})
     {
-      intersections_.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(name.as<std::string>()),
-        std::forward_as_tuple(intersection, simulator_));
+      // intersections_.emplace(
+      //   std::piecewise_construct,
+      //   std::forward_as_tuple(name.as<std::string>()),
+      //   std::forward_as_tuple(intersection, simulator_));
     }
     else
     {
-      ROS_ERROR_STREAM("Missing key 'Name' at element of 'Intersection'.");
+      RCLCPP_ERROR_STREAM(logger_, "Missing key 'Name' at element of 'Intersection'.");
     }
   }
 }
@@ -47,7 +49,7 @@ bool IntersectionManager::initialize(const YAML::Node& intersections)
           }
           else
           {
-            ROS_ERROR_STREAM("Missing key 'Name' at element of 'Story.Init.Intersection'.");
+            RCLCPP_ERROR_STREAM(logger_, "Missing key 'Name' at element of 'Story.Init.Intersection'.");
             return false;
           }
         });
@@ -67,11 +69,11 @@ try
 }
 catch (const std::out_of_range&)
 {
-  ROS_ERROR_STREAM("You trying to change state of unspecified intersection '" << target_intersection << "'.");
+  RCLCPP_ERROR_STREAM(logger_, "You trying to change state of unspecified intersection '" << target_intersection << "'.");
   return false;
 }
 
-simulation_is IntersectionManager::update(const ros::Time& now)
+simulation_is IntersectionManager::update()
 {
   return simulation_is::ongoing;
 }

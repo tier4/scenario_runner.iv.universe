@@ -1,5 +1,7 @@
 #include <scenario_intersection/arrow.h>
 
+#include <unordered_map>
+
 namespace scenario_intersection
 {
 

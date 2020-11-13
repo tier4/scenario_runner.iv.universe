@@ -7,10 +7,12 @@
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
-
 #include <yaml-cpp/yaml.h>
 
-#include <scenario_api/scenario_api_core.h>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/logger.hpp>
+
+// #include <scenario_api/scenario_api_core.h>
 #include <scenario_intersection/arrow.h>
 #include <scenario_intersection/color.h>
 #include <scenario_intersection/utility.h>
@@ -66,40 +68,40 @@ class Intersection
         }
       }
 
-      bool changeColor(ScenarioAPI& simulator) const
-      {
-        if (target_ < 0 or color_ == Color::Blank)
-        {
-          return simulator.resetTrafficLightColor(target_, false);
-        }
-        else // NOTE: Maybe specified illiegal traffic-light-id.
-        {
-          return simulator.setTrafficLightColor(target_, boost::lexical_cast<std::string>(color_), false);
-        }
-      }
+      // bool changeColor(ScenarioAPI& simulator) const
+      // {
+      //   if (target_ < 0 or color_ == Color::Blank)
+      //   {
+      //     return simulator.resetTrafficLightColor(target_, false);
+      //   }
+      //   else // NOTE: Maybe specified illiegal traffic-light-id.
+      //   {
+      //     return simulator.setTrafficLightColor(target_, boost::lexical_cast<std::string>(color_), false);
+      //   }
+      // }
 
-      bool changeArrow(ScenarioAPI& simulator) const
-      {
-        simulator.resetTrafficLightArrow(target_, false);
+      // bool changeArrow(ScenarioAPI& simulator) const
+      // {
+      //   simulator.resetTrafficLightArrow(target_, false);
 
-        if (0 <= target_)
-        {
-          return
-            std::all_of(
-              std::begin(arrows_), std::end(arrows_),
-              [&](const auto& each)
-              {
-                return
-                  simulator.setTrafficLightArrow(
-                    target_, boost::lexical_cast<std::string>(each), false);
-              });
-        }
-      }
+      //   if (0 <= target_)
+      //   {
+      //     return
+      //       std::all_of(
+      //         std::begin(arrows_), std::end(arrows_),
+      //         [&](const auto& each)
+      //         {
+      //           return
+      //             simulator.setTrafficLightArrow(
+      //               target_, boost::lexical_cast<std::string>(each), false);
+      //         });
+      //   }
+      // }
 
-      bool operator()(ScenarioAPI& simulator) const
-      {
-        return changeColor(simulator) and changeArrow(simulator);
-      }
+      // bool operator()(ScenarioAPI& simulator) const
+      // {
+      //   return changeColor(simulator) and changeArrow(simulator);
+      // }
     };
 
     std::vector<Transition> transitions_;
@@ -110,7 +112,7 @@ class Intersection
       transitions_.emplace_back();
     }
 
-    Controller(const YAML::Node& node)
+    Controller(const YAML::Node& node, rclcpp::Logger & logger)
     {
       if (const auto traffic_lights {node["TrafficLight"]})
       {
@@ -119,7 +121,7 @@ class Intersection
           if (const auto arrow { each["Arrow"] })
           {
             // NOTE: tag 'Arrow' is deperecated
-            ROS_WARN_STREAM("Tag 'Arrow: <String>' is deperecated. Use 'Arrows: [<String>*]'");
+            RCLCPP_WARN_STREAM(logger, "Tag 'Arrow: <String>' is deperecated. Use 'Arrows: [<String>*]'");
             transitions_.emplace_back(each["Id"], each["Color"], arrow);
           }
           else
@@ -130,25 +132,25 @@ class Intersection
       }
       else
       {
-        ROS_ERROR_STREAM("Each element of node 'Control' requires hash 'TrafficLight'.");
+        RCLCPP_ERROR_STREAM(logger, "Each element of node 'Control' requires hash 'TrafficLight'.");
       }
     }
 
-    bool operator()(ScenarioAPI& simulator) const
-    {
-      return
-        std::all_of(
-          transitions_.begin(), transitions_.end(),
-          [&](const auto& transition)
-          {
-            return transition(simulator);
-          });
-    }
+    // bool operator()(ScenarioAPI& simulator) const
+    // {
+    //   return
+    //     std::all_of(
+    //       transitions_.begin(), transitions_.end(),
+    //       [&](const auto& transition)
+    //       {
+    //         return transition(simulator);
+    //       });
+    // }
   };
 
   const YAML::Node script_;
 
-  const std::shared_ptr<ScenarioAPI> simulator_;
+  // const std::shared_ptr<ScenarioAPI> simulator_;
 
   std::vector<std::size_t> ids_;
 
@@ -157,7 +159,8 @@ class Intersection
   std::string current_state_;
 
 public:
-  Intersection(const YAML::Node&, const std::shared_ptr<ScenarioAPI>&);
+  Intersection(const YAML::Node&, rclcpp::Logger&);
+  // Intersection(const YAML::Node&, rclcpp::Logger&, const std::shared_ptr<ScenarioAPI>&);
 
   bool change_to(const std::string& the_state);
 
@@ -168,7 +171,7 @@ public:
 
   const std::vector<std::size_t>& ids() const;
 
-  simulation_is update(const ros::Time&);
+  simulation_is update();
 };
 
 } // namespace scenario_intersection
