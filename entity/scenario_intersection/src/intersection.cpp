@@ -8,7 +8,7 @@ Intersection::Intersection(
   rclcpp::Logger & logger
   // const std::shared_ptr<ScenarioAPI>& simulator
 )
-  : script_(script)
+  : script_ {script}
   // , simulator_ {simulator}
 {
   if (const auto ids {script_["TrafficLightId"]})

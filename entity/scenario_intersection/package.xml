@@ -12,7 +12,6 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>libgoogle-glog-dev</depend>
   <!-- <depend>scenario_api</depend> -->
   <depend>scenario_utility</depend>
   <depend>scenario_logger</depend>
