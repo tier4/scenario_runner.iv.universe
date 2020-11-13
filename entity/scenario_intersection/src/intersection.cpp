@@ -20,7 +20,8 @@ Intersection::Intersection(
   }
   else
   {
-    RCLCPP_ERROR_STREAM(logger, "Each element of node 'Intersection' requires hash 'TrafficLightId'.");
+    RCLCPP_ERROR_STREAM(
+      logger, "Each element of node 'Intersection' requires hash 'TrafficLightId'.");
   }
 
   if (const auto controls {script_["Control"]})
@@ -46,7 +47,6 @@ Intersection::Intersection(
 bool Intersection::change_to(const std::string& the_state)
 {
   // NOTE: Any unspecified state names are treated as "Blank" state
-  // TODO: simulator
   // return change_to_[current_state_ = the_state](*simulator_);
   return false;
 }
