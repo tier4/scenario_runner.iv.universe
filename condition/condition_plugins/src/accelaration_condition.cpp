@@ -62,7 +62,7 @@ bool AccelerationCondition::update(
       }
       else
       {
-        description_ = std::to_string(acceleration);
+        description_ = std::to_string((*api_ptr_).getAccel());
         return result_ = compare_(acceleration, target_);
       }
     }
