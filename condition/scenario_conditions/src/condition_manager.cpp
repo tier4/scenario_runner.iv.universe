@@ -4,8 +4,7 @@ namespace scenario_conditions
 {
   // ConditionManager::ConditionManager(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr, rclcpp::Node::SharedPtr node_ptr)
 ConditionManager::ConditionManager(YAML::Node node, rclcpp::Node::SharedPtr node_ptr) 
-: node_(node_ptr),
-  visualizer(node_ptr)
+: visualizer(node_ptr)
 {
   try {
     call_with_optional(node, "Success", [&](const auto & node) {

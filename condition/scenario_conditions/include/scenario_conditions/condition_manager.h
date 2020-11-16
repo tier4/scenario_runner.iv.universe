@@ -28,7 +28,6 @@ namespace scenario_conditions
     void applyVisitorForFailureConditions(const std::function<void (std::shared_ptr<ConditionBase>)>& visitor);
 
   private:
-    rclcpp::Node::SharedPtr node_;
     // condition_type loadPlugin(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr);
     condition_type loadPlugin(YAML::Node node);
 
