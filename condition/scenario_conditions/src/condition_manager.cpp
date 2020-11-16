@@ -2,70 +2,62 @@
 
 namespace scenario_conditions
 {
-  ConditionManager::ConditionManager(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
-  try
-  {
-    call_with_optional(node, "Success", [&](const auto& node)
-    {
-      call_with_essential(node, "All", [&](const auto& node)
-      {
-        for (const auto& each : node)
-        {
-          success_conditions_.push_back(loadPlugin(each, api_ptr));
+  // ConditionManager::ConditionManager(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr, rclcpp::Node::SharedPtr node_ptr)
+ConditionManager::ConditionManager(YAML::Node node, rclcpp::Node::SharedPtr node_ptr) 
+: node_(node_ptr),
+  visualizer(node_ptr)
+{
+  try {
+    call_with_optional(node, "Success", [&](const auto & node) {
+      call_with_essential(node, "All", [&](const auto & node) {
+        for (const auto & each : node) {
+          // success_conditions_.push_back(loadPlugin(each, api_ptr));
         }
       });
     });
 
-    call_with_optional(node, "Failure", [&](const auto& node)
-    {
-      call_with_essential(node, "Any", [&](const auto& node)
-      {
-        for (const auto& each : node)
-        {
-          failure_conditions_.push_back(loadPlugin(each, api_ptr));
+    call_with_optional(node, "Failure", [&](const auto & node) {
+      call_with_essential(node, "Any", [&](const auto & node) {
+        for (const auto & each : node) {
+          // failure_conditions_.push_back(loadPlugin(each, api_ptr));
         }
       });
     });
-  }
-  catch (...)
-  {
+  } catch (...) {
     SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to initialize conditions.");
   }
+}
 
-  ConditionManager::condition_type ConditionManager::loadPlugin(
-    YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
-  try
-  {
-    const auto type { read_essential<std::string>(node, "Type") + "Condition" };
+// ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
+ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node)
+{
+  try {
+    const auto type{read_essential<std::string>(node, "Type") + "Condition"};
 
-    pluginlib::ClassLoader<scenario_conditions::ConditionBase> loader("scenario_conditions", "scenario_conditions::ConditionBase");
+    pluginlib::ClassLoader<scenario_conditions::ConditionBase> loader(
+      "scenario_conditions", "scenario_conditions::ConditionBase");
 
     std::vector<std::string> classes = loader.getDeclaredClasses();
 
-    auto iter =
-      std::find_if(classes.begin(), classes.end(), [&](std::string c)
-      {
-        return loader.getName(c) == type;
-      });
+    auto iter = std::find_if(
+      classes.begin(), classes.end(), [&](std::string c) { return loader.getName(c) == type; });
 
-    if (iter == classes.end())
-    {
+    if (iter == classes.end()) {
       SCENARIO_ERROR_THROW(CATEGORY(), "There is no plugin of type '" << type << "'.");
-    }
-    else
-    {
-      auto plugin = loader.createInstance(*iter);
-      plugin->configure(node, api_ptr);
+    } else {
+      std::shared_ptr<scenario_conditions::ConditionBase> plugin(loader.createClassInstance(*iter));
+      // plugin->configure(node, api_ptr);
+      plugin->configure(node);
       return plugin;
     }
-  }
-  catch (...)
-  {
+  } catch (...) {
     SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to load condition plugin.");
   }
+}
 
   simulation_is ConditionManager::update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
+    // const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
+    )
   {
     visualizer.publishMarker(*this);
 
@@ -74,7 +66,8 @@ namespace scenario_conditions
           false,
           [&](const auto& lhs, const auto& rhs)
           {
-            const auto result {rhs ? (*rhs).update(intersection_manager) : false};
+            // const auto result {rhs ? (*rhs).update(intersection_manager) : false};
+            const auto result = false;
             return lhs or result;
           }))
     {
@@ -86,7 +79,8 @@ namespace scenario_conditions
           true,
           [&](const auto& lhs, const auto& rhs)
           {
-            const auto result {rhs ? (*rhs).update(intersection_manager) : false};
+            // const auto result {rhs ? (*rhs).update(intersection_manager) : false};
+            const auto result = false;
             return lhs and result;
           }))
     {
@@ -96,7 +90,7 @@ namespace scenario_conditions
     return simulation_is::ongoing;
   }
 
-  void ConditionManager::applyVisitorForSuccessConditions(const std::function<void(boost::shared_ptr<ConditionBase>)>& visitor)
+  void ConditionManager::applyVisitorForSuccessConditions(const std::function<void(std::shared_ptr<ConditionBase>)>& visitor)
   {
     for (const auto& condition : success_conditions_)
     {
@@ -104,7 +98,7 @@ namespace scenario_conditions
     }
   }
 
-  void ConditionManager::applyVisitorForFailureConditions(const std::function<void(boost::shared_ptr<ConditionBase>)>& visitor)
+  void ConditionManager::applyVisitorForFailureConditions(const std::function<void(std::shared_ptr<ConditionBase>)>& visitor)
   {
     for (const auto& condition : failure_conditions_)
     {
