@@ -45,7 +45,7 @@ ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node)
     if (iter == classes.end()) {
       SCENARIO_ERROR_THROW(CATEGORY(), "There is no plugin of type '" << type << "'.");
     } else {
-      std::shared_ptr<scenario_conditions::ConditionBase> plugin(loader.createClassInstance(*iter));
+      auto plugin = loader.createSharedInstance(*iter);
       // plugin->configure(node, api_ptr);
       plugin->configure(node);
       return plugin;
