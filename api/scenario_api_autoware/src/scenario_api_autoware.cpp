@@ -135,7 +135,7 @@ void ScenarioAPIAutoware::callbackMap(const autoware_lanelet2_msgs::msg::MapBin:
   RCLCPP_INFO(node_->get_logger(), "Start loading lanelet");
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
-    *msg, lanelet_map_ptr_);
+    *msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
   RCLCPP_INFO(node_->get_logger(), "Map is loaded");
 }
 
