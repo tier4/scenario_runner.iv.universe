@@ -2,7 +2,6 @@
 #define SCENARIO_CONDITION_CONDITION_MANAGER_H_INCLUDED
 
 #include <rclcpp/rclcpp.hpp>
-// #include <class_loader/class_loader.hpp>
 #include <pluginlib/class_loader.hpp>
 
 #include <scenario_conditions/condition_base.h>
