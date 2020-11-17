@@ -12,7 +12,6 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>pluginlib</depend>
-  <depend>rclcpp</depend>
   <depend>scenario_api</depend>
   <depend>scenario_conditions</depend>
   <depend>scenario_entities</depend>
