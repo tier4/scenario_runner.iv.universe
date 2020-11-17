@@ -32,24 +32,6 @@ struct Pose2D
   double yaw;
 };
 
-template <class T>
-T waitForParam(const std::shared_ptr<rclcpp::Node> & node, const std::string & key)
-{
-  T value;
-  // TODO: replace this with Rate that works based on ROS Clock when it is available
-  // https://github.com/ros2/rclcpp/pull/1373
-  rclcpp::WallRate rate(0.5);
-  while (!rclcpp::ok()) {
-    try{
-      const auto result = node->declare_parameter(key).get<T>();
-      return result;
-    } catch(...)
-    {
-      rate.sleep();
-    }
-  }
-}
-
 double normalizeRadian(const double rad, const double min_rad = -M_PI, const double max_rad = M_PI);
 geometry_msgs::msg::Quaternion quatFromYaw(double yaw);
 double yawFromQuat(double q_x, double q_y, double q_z, double q_w);
