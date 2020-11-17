@@ -12,11 +12,10 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-### Includes
-include_directories(include)
-
-ament_auto_add_library(scenario_api_autoware
-  src/scenario_api_autoware.cpp
+# Go for shared to avoid linker issues because in a downstream package, the IDL dependencies are passed to the linker
+# before this lib and the order is ignored only for shared objects
+ament_auto_add_library(scenario_api_autoware SHARED
+  src/${PROJECT_NAME}.cpp
 )
 
 ament_auto_package()
