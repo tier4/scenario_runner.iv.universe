@@ -1,7 +1,7 @@
 #ifndef SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
 #define SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <yaml-cpp/yaml.h>
 
