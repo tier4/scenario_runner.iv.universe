@@ -13,7 +13,7 @@ bool SpeedCondition::configure(
 try
 {
   node_ = node;
-  api_ptr_ = api_ptr;
+  api_ptr_ = api_ptr;zar
 
   name_ = read_optional<std::string>(node_, "Name", name_);
 
@@ -55,7 +55,8 @@ bool SpeedCondition::update(
 
       if (not (*api_ptr_).getNPCVelocity(trigger_, &npc_velocity))
       {
-        ROS_ERROR_STREAM("Invalid trigger name specified for " << getType() << " condition named " << getName());
+        // TODO(yunus.caliskan): use the logger of the simulator instead.
+        RCLCPP_ERROR_STREAM(rclcpp::get_logger("AccelerationCondition"), "Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
       }
       else

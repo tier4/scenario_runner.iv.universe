@@ -12,18 +12,18 @@ namespace condition_plugins
 class SimulationTimeCondition
   : public scenario_conditions::ConditionBase
 {
-  ros::Duration duration_;
+  rclcpp::Duration duration_;
 
   std::string rule_;
 
-  Comparator<ros::Duration> compare_;
-
+  Comparator<rclcpp::Duration> compare_;
+  rclcpp::Clock clock_;
 public:
   SimulationTimeCondition();
 
   bool configure(YAML::Node node, std::shared_ptr<ScenarioAPI> simulator) override;
 
-  ros::Duration elapsed() const noexcept;
+  rclcpp::Duration elapsed() const noexcept;
 
   bool update(const std::shared_ptr<scenario_intersection::IntersectionManager> &) override;
 };

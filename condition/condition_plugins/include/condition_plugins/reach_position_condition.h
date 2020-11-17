@@ -17,7 +17,7 @@ public:
   bool configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr) override;
 
 private:
-  geometry_msgs::Pose target_pose_;
+  geometry_msgs::msg::Pose target_pose_;
 
   std::string trigger_, shift_;
 
