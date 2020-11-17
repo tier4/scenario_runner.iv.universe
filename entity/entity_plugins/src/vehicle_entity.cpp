@@ -9,6 +9,6 @@ VehicleEntity::VehicleEntity()
 
 }  // namespace scenario_entities
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(entity_plugins::VehicleEntity, scenario_entities::EntityBase)
 
