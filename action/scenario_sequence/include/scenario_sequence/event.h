@@ -2,10 +2,15 @@
 #define SCENARIO_SEQUENCE_EVENT_H_INCLUDED
 
 #include <scenario_actions/action_manager.h>
-#include <scenario_entities/entity_manager.h>
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_utility/scenario_utility.h>
+
+#include <yaml-cpp/yaml.h>
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace scenario_sequence
 {

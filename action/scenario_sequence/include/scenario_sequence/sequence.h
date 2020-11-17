@@ -1,15 +1,16 @@
 #ifndef SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
 #define SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
 
-#include <rclcpp/rclcpp.hpp>
 
-#include <yaml-cpp/yaml.h>
-
-#include <scenario_entities/entity_manager.h>
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_sequence/event_manager.h>
 #include <scenario_utility/scenario_utility.h>
+
+#include <yaml-cpp/yaml.h>
+
+#include <memory>
+#include <string>
 
 namespace scenario_sequence
 {
