@@ -1,6 +1,7 @@
 #ifndef SCENARIO_SEQUENCE_EVENT_H_INCLUDED
 #define SCENARIO_SEQUENCE_EVENT_H_INCLUDED
 
+
 #include <scenario_actions/action_manager.h>
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
