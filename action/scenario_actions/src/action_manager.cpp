@@ -1,6 +1,7 @@
 #include <scenario_actions/action_manager.h>
 
 #include <scenario_logger/logger.h>
+#include <scenario_utility/parse.h>
 
 namespace scenario_actions
 {
@@ -24,7 +25,7 @@ catch (...)
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to initialize actions.");
 }
 
-bool ActionManager::loadPlugin(const YAML::Node& node)
+void ActionManager::loadPlugin(const YAML::Node& node)
 try
 {
   const auto type { read_essential<std::string>(node, "Type") + "Action" };
@@ -46,7 +47,7 @@ try
   }
   else
   {
-    auto plugin = loader.createInstance(*iter);
+    std::shared_ptr<EntityActionBase> plugin = loader.createSharedInstance(*iter);
     plugin->configure(node, actors_, api_ptr_);
     actions_.push_back(plugin);
   }
