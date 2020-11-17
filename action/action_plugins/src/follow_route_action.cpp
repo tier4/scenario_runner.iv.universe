@@ -1,6 +1,5 @@
 #include "action_plugins/follow_route_action.h"
 #include "scenario_utility/scenario_utility.h"
-#include <ros/ros.h>
 
 namespace action_plugins
 {
@@ -28,7 +27,7 @@ try
   {
     call_with_essential(node, "GoalPose", [&](const auto& node) mutable
     {
-      const auto pose_stamped { read_essential<geometry_msgs::PoseStamped>(node, "Pose") };
+      const auto pose_stamped { read_essential<geometry_msgs::msg::PoseStamped>(node, "Pose") };
 
       if (pose_stamped.header.frame_id != "/map")
       {
@@ -63,5 +62,5 @@ void FollowRouteAction::run(
 
 } // namespace action_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(action_plugins::FollowRouteAction, scenario_actions::EntityActionBase)

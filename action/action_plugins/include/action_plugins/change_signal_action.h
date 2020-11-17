@@ -1,9 +1,7 @@
 #ifndef INCLUDED_ACION_PLUGINS_CHANGE_SIGNAL_ACTION_H
 #define INCLUDED_ACION_PLUGINS_CHANGE_SIGNAL_ACTION_H
 
-#include <ros/ros.h>
-
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <scenario_actions/entity_action_base.h>
 #include <scenario_intersection/intersection_manager.h>
