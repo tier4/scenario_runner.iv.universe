@@ -13,8 +13,8 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <exec_depend>scenario_api</exec_depend>
-  <exec_depend>scenario_intersection</exec_depend>
+  <depend>scenario_api</depend>
+  <depend>scenario_intersection</depend>
   <depend>scenario_utility</depend>
   <depend>scenario_logger</depend>
   <depend>yaml-cpp</depend>

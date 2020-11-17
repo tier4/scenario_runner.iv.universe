@@ -6,6 +6,7 @@
 
 #include <yaml-cpp/yaml.h>
 
+// Forward declarations
 class ScenarioAPI;
 namespace scenario_intersection {
 class IntersectionManager;

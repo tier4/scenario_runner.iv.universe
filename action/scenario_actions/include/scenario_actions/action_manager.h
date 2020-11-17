@@ -10,6 +10,7 @@
 
 #include <scenario_actions/entity_action_base.h>
 
+// Forward declarations
 class ScenarioAPI;
 namespace scenario_intersection {
 class IntersectionManager;
