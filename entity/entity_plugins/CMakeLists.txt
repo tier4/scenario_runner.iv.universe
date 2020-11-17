@@ -1,52 +1,31 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(entity_plugins)
 
-add_compile_options(-std=c++14)
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  pluginlib
-  scenario_actions
-  scenario_entities
-  scenario_logger
-  scenario_utility
-  )
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS pluginlib
-                 scenario_actions
-                 scenario_entities
-                 scenario_logger
-                 scenario_utility
+find_package(ament_cmake_auto REQUIRED)
+# We require all dependencies but by default ament_auto_find_build_dependencies does not require packages
+ament_auto_find_build_dependencies(REQUIRED
+  ${${PROJECT_NAME}_BUILD_DEPENDS}
+  ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
 )
 
-include_directories(
-  include
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${catkin_INCLUDE_DIRS}
-  )
-
-add_library(${PROJECT_NAME} SHARED
-  # src/bicycle_entity.cpp
-  # src/ego_entity.cpp
-  # src/motobike_entity.cpp
-  # src/pedestrian_entity.cpp
-  # src/vehicle_entity.cpp
-  src/targets.cpp
-  )
-
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  )
-
-install(TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+ament_auto_add_library(${PROJECT_NAME} SHARED
+  src/bicycle_entity.cpp
+  src/ego_entity.cpp
+  src/motobike_entity.cpp
+  src/pedestrian_entity.cpp
+  src/vehicle_entity.cpp
+)
 
 install(FILES plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+  DESTINATION share
+)
+
+ament_auto_package()

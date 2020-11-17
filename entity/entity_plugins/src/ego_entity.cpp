@@ -60,7 +60,7 @@ try
 
   call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
   {
-    const auto pose { read_essential<geometry_msgs::Pose>(node, "Pose") };
+    const auto pose { read_essential<geometry_msgs::msg::Pose>(node, "Pose") };
 
     if (not api_->sendStartPoint(pose, true, read_optional<std::string>(node, "Shift", "Center")))
     {
