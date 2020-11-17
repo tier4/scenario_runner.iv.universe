@@ -1,5 +1,7 @@
 #include <scenario_actions/action_manager.h>
 
+#include <scenario_logger/logger.h>
+
 namespace scenario_actions
 {
 

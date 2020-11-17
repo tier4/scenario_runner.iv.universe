@@ -4,13 +4,16 @@
 #include <memory>
 #include <vector>
 
-#include <pluginlib/class_loader.h>
+#include <pluginlib/class_loader.hpp>
 
 #include <yaml-cpp/yaml.h>
 
 #include <scenario_actions/entity_action_base.h>
-#include <scenario_api/scenario_api_core.h>
-#include <scenario_intersection/intersection_manager.h>
+
+class ScenarioAPI;
+namespace scenario_intersection {
+class IntersectionManager;
+}
 
 namespace scenario_actions
 {

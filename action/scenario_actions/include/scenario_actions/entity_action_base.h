@@ -2,11 +2,14 @@
 #define SCENARIO_ACTIONS_ENTITY_ACTION_BASE_H_INCLUDED
 
 #include <memory>
+#include <cstdint>
 
 #include <yaml-cpp/yaml.h>
 
-#include <scenario_api/scenario_api_core.h>
-#include <scenario_intersection/intersection_manager.h>
+class ScenarioAPI;
+namespace scenario_intersection {
+class IntersectionManager;
+}
 
 namespace scenario_actions
 {
@@ -32,7 +35,7 @@ public:
 
   EntityActionBase(const std::string & type)
     : type_ { type }
-    , name_ { type + "Action<" + boost::lexical_cast<std::string>(this) + ">" }
+    , name_ { type + "Action<" + std::to_string(reinterpret_cast<uintptr_t>(this)) + ">" }
   {}
 
 protected:
