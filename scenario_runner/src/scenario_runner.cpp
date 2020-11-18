@@ -79,17 +79,6 @@ void ScenarioRunner::run() try
       });
     });
 
-    // call_with_essential(node, "Act", [&](const auto& node) mutable
-    // {
-    //   sequence_manager_ =
-    //     std::make_shared<scenario_sequence::SequenceManager>(
-    //       context, node);
-    // });
-
-    // sequence_manager_ =
-    //   std::make_shared<scenario_sequence::SequenceManager>(
-    //     context, node["Act"]);
-
     LOG_SIMPLE(info() << "Parse 'Story.Act'");
     call_with_optional(node, "Act", [&](auto&& node)
     {
