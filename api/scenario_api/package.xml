@@ -18,7 +18,7 @@
   <depend>geometry_msgs</depend>
   <depend>lanelet2_extension</depend>
   <depend>pcl_conversions</depend>
-  <depend>libpcl-all-dev</depend>
+  <depend>pcl_ros</depend>
   <depend>rclcpp</depend>
   <depend>scenario_api_autoware</depend>
   <depend>scenario_api_simulator</depend>
