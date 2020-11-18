@@ -70,7 +70,7 @@ try
     api_->addNPC(
       type,
       name_,
-      read_essential<geometry_msgs::Pose>(node, "Pose"),
+      read_essential<geometry_msgs::msg::Pose>(node, "Pose"),
       read_optional<float>(node, "Speed", 0),
       false,
       read_optional<std::string>(node, "Shift", "Center"));

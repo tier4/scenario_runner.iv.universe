@@ -28,7 +28,7 @@ public:
 private:
   bool loadPlugin(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr);
 
-  std::vector<boost::shared_ptr<scenario_entities::EntityBase>> entities_;
+  std::vector<std::shared_ptr<scenario_entities::EntityBase>> entities_;
 
   const std::shared_ptr<ScenarioAPI> api_ptr_;
 };

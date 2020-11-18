@@ -7,8 +7,6 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <ros/ros.h>
-
 #include <yaml-cpp/yaml.h>
 
 #include <scenario_actions/action_manager.h>
@@ -61,7 +59,7 @@ protected:
 
   std::shared_ptr<scenario_actions::ActionManager> action_manager_;
 
-  geometry_msgs::PoseStamped pose_stamped_;
+  geometry_msgs::msg::PoseStamped pose_stamped_;
 
   float speed_;
 };
