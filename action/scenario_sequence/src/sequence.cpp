@@ -27,7 +27,7 @@ Sequence::Sequence(
 simulation_is Sequence::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  if (ignited_ = start_condition_.evaluate(context_))
+  if ((ignited_ = start_condition_.evaluate(context_)))
   {
     return (*event_manager_).update(context_.intersections_pointer());
   }
