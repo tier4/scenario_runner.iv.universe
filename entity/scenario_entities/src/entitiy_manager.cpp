@@ -94,6 +94,7 @@ try
     plugin->configure(node, api_ptr);
     entities_.emplace_back(plugin);
   }
+  return true;
 }
 catch (...)
 {
