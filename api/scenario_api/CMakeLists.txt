@@ -18,7 +18,7 @@ find_package(ament_cmake_auto REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common filters kdtree registration io)
 ament_auto_find_build_dependencies()
 
-ament_auto_add_library(${PROJECT_NAME} STATIC
+ament_auto_add_library(${PROJECT_NAME} SHARED
   src/scenario_api_calc_dist_utils.cpp
   src/scenario_api_coordinate_manager.cpp
   src/scenario_api_core.cpp
