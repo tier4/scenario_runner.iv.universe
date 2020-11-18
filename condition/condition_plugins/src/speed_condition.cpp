@@ -69,6 +69,6 @@ bool SpeedCondition::update(
 
 }  // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::SpeedCondition, scenario_conditions::ConditionBase)
 

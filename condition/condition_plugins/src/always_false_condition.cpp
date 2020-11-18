@@ -30,5 +30,6 @@ bool AlwaysFalseCondition::update(
 
 } // namespace condition_plugins
 
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::AlwaysFalseCondition, scenario_conditions::ConditionBase)
 

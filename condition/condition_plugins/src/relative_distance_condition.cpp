@@ -70,6 +70,6 @@ bool RelativeDistanceCondition::update(
 
 } // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::RelativeDistanceCondition, scenario_conditions::ConditionBase)
 

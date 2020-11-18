@@ -55,5 +55,5 @@ bool SignalCondition::update(const std::shared_ptr<scenario_intersection::Inters
 
 } // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::SignalCondition, scenario_conditions::ConditionBase)

@@ -70,5 +70,6 @@ bool AccelerationCondition::update(
 
 }  // namespace condition_plugins
 
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::AccelerationCondition, scenario_conditions::ConditionBase)
 

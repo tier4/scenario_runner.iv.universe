@@ -1,8 +1,6 @@
 #ifndef CONDITION_PLUGINS_ACCELERATION_CONDITION_H_INCLUDED
 #define CONDITION_PLUGINS_ACCELERATION_CONDITION_H_INCLUDED
 
-#include <pluginlib/class_list_macros.hpp>
-
 #include <scenario_conditions/condition_base.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_logger/logger.h>
