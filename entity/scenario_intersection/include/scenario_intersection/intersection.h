@@ -96,6 +96,7 @@ class Intersection
                     target_, boost::lexical_cast<std::string>(each), false);
               });
         }
+        return false;
       }
 
       bool operator()(ScenarioAPI& simulator) const
