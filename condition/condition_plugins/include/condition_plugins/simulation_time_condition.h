@@ -1,6 +1,7 @@
 #ifndef CONDITION_PLUGINS_SIMULATION_TIME_H_INCLUDED
 #define CONDITION_PLUGINS_SIMULATION_TIME_H_INCLUDED
 
+#include <rclcpp/rclcpp.hpp>
 #include <scenario_conditions/condition_base.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_logger/logger.h>

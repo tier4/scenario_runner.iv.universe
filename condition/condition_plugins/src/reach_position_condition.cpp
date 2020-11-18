@@ -20,7 +20,7 @@ try
 
   trigger_ = read_essential<std::string>(node_, "Trigger");
 
-  const auto pose_stamped { read_essential<geometry_msgs::PoseStamped>(node_, "Pose") };
+  const auto pose_stamped { read_essential<geometry_msgs::msg::PoseStamped>(node_, "Pose") };
 
   if (pose_stamped.header.frame_id == "/map")
   {

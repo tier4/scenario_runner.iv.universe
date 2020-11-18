@@ -8,12 +8,6 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-include_directories(
-  include
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${YAML_CPP_INCLUDE_DIR}
-  )
-
 ament_auto_add_library(${PROJECT_NAME} SHARED
    src/accelaration_condition.cpp
    src/always_false_condition.cpp
@@ -27,7 +21,6 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 )
 
 pluginlib_export_plugin_description_file(condition_plugins plugins.xml)
-
 
 ament_auto_package()
 

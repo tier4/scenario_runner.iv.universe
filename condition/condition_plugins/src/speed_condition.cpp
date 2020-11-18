@@ -13,7 +13,7 @@ bool SpeedCondition::configure(
 try
 {
   node_ = node;
-  api_ptr_ = api_ptr;zar
+  api_ptr_ = api_ptr;
 
   name_ = read_optional<std::string>(node_, "Name", name_);
 
