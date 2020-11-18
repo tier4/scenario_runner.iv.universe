@@ -198,7 +198,7 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
   message.header.stamp = ros::Time::now();
   message.data = ss.str();
 
-  std::cout << message.data.c_str() << std::endl;
+  // std::cout << message.data.c_str() << std::endl;
 
   publisher_.publish(message);
 }
