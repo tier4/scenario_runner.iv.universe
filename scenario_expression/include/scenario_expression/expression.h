@@ -5,7 +5,7 @@
 #include <scenario_conditions/condition_base.h>
 #include <scenario_entities/entity_manager.h>
 #include <scenario_intersection/intersection_manager.h>
-#include <scenario_utility/logger.h>
+#include <scenario_logger/logger.h>
 #include <yaml-cpp/yaml.h>
 
 #include <algorithm>
@@ -330,7 +330,7 @@ protected:
     {
       if (loader().getName(declaration) == name)
       {
-        return loader().createInstance(declaration);
+        return loader().createSharedInstance(declaration);
       }
     }
 

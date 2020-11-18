@@ -16,6 +16,7 @@
   <depend>scenario_conditions</depend>
   <depend>scenario_entities</depend>
   <depend>scenario_intersection</depend>
+  <depend>scenario_logger</depend>
   <depend>yaml-cpp</depend>
   <export>
     <build_type>ament_cmake</build_type>
