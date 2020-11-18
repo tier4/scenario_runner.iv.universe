@@ -1,6 +1,8 @@
 #include <scenario_entities/entity_manager.h>
 #include <scenario_utility/parse.h>
 
+#include <pluginlib/class_loader.hpp>
+
 namespace scenario_entities
 {
 

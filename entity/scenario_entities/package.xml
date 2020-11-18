@@ -11,8 +11,8 @@
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
+  <depend>geometry_msgs</depend>
   <depend>pluginlib</depend>
-  <depend>rclcpp</depend>
   <depend>scenario_actions</depend>
   <depend>scenario_api</depend>
   <depend>scenario_intersection</depend>

@@ -1,19 +1,17 @@
 #ifndef SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
 #define SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
 
-#include <memory>
-#include <sstream>
-#include <string>
-
-#include <boost/algorithm/string.hpp>
-
-#include <yaml-cpp/yaml.h>
-
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <scenario_actions/action_manager.h>
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_logger/logger.h>
 #include <scenario_utility/scenario_utility.h>
+
+#include <yaml-cpp/yaml.h>
+
+#include <memory>
+#include <string>
 
 namespace scenario_entities
 {
