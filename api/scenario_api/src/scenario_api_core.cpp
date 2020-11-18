@@ -86,23 +86,23 @@ bool ScenarioAPI::sendCheckPoint(
 
 bool ScenarioAPI::sendStartVelocity(const double velocity)
 {
-  autoware_api_->sendStartVelocity(velocity);
+  const bool status = autoware_api_->sendStartVelocity(velocity);
   //sleep for autoware path plan
   //*if you engage autoware soon after using this API,
   //*egp-vehicle decelerates after engage.
   rclcpp::Rate(1.0).sleep();
 
-  // TODO(fred-apex-ai) not documented what it should return and it returned nothing. I assume all good, so
-  return true;
+  // TODO(fred-apex-ai) not documented what it should return and it returned nothing before
+  return status;
 }
 
 bool ScenarioAPI::sendEngage(const bool engage)
 {
-  autoware_api_->sendEngage(engage);
-  simulator_api_->sendEngage(engage);
+  const bool status_autoware = autoware_api_->sendEngage(engage);
+  const bool status_simulator = simulator_api_->sendEngage(engage);
 
-  // TODO(fred-apex-ai) not documented what it should return and it returned nothing. I assume all good, so
-  return true;
+  // TODO(fred-apex-ai) not documented what it should return and it returned nothing before.
+  return status_autoware && status_simulator;
 }
 
 bool ScenarioAPI::waitAutowareInitialize() { return autoware_api_->waitAutowareInitialize(); }

@@ -17,6 +17,18 @@
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_api_utils/scenario_api_utils.h>
 
+namespace {
+// TODO(fred-apex-ai) how to print msg to stdout? https://answers.ros.org/question/365776/how-to-print-a-message-to-stdout-in-ros2/
+// Once available, use the `to_yaml` function instead instead of this handcrafted operator
+std::ostream & operator<<(std::ostream & out, const geometry_msgs::msg::Pose &pose) {
+  out << "position = {x=" << pose.position.x << ", y=" << pose.position.y << ", z="
+  << pose.position.z << "}" << std::endl;
+  out << "orientation = {x=" << pose.orientation.x << ", y=" << pose.orientation.y << ", z="
+  << pose.orientation.z << ", w=" << pose.orientation.w << "}" << std::endl;
+  return out;
+}
+}
+
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
@@ -165,9 +177,7 @@ int main(int argc, char ** argv)
 
   geometry_msgs::msg::Pose line_pose;
   if (obj->getTrafficLineCenterPose(34806, line_pose)) {
-    // TODO(fred-apex-ai) how to print msg to stdout? https://answers.ros.org/question/365776/how-to-print-a-message-to-stdout-in-ros2/
-    // RCLCPP_INFO_STREAM(get_logger(), "traffic:34806 pose is " << line_pose);
-    RCLCPP_INFO(obj->get_logger(), "printing of traffic:34806 pose currently unavailable");
+     RCLCPP_INFO_STREAM(obj->get_logger(), "traffic:34806 pose is " << line_pose);
   } else {
     RCLCPP_INFO_STREAM(obj->get_logger(), "failed to get traffic:34806 pose");
   }
@@ -208,9 +218,7 @@ int main(int argc, char ** argv)
     Pose2D p = obj->getCurrentPose();
     RCLCPP_INFO_STREAM(obj->get_logger(), "selfpose:" << p.x << "," << p.y << "," << p.yaw);
     geometry_msgs::msg::PoseStamped p2 = obj->getCurrentPoseRos();
-    // TODO(fred-apex-ai) how to print msg to stdout? https://answers.ros.org/question/365776/how-to-print-a-message-to-stdout-in-ros2/
-    //    RCLCPP_INFO_STREAM(obj->get_logger(), "selfpose:" << p2.pose.position << "," << p2.pose.orientation);
-    RCLCPP_INFO(obj->get_logger(), "printing of selfpose currently unavailable");
+        RCLCPP_INFO_STREAM(obj->get_logger(), "selfpose:" << p2.pose);
     double dist_npc;
     if (obj->calcDistToNPC(dist_npc, "car0")) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "distance to npc:car0:" << dist_npc);
