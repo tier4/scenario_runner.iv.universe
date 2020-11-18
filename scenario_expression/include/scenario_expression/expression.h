@@ -1,7 +1,7 @@
 #ifndef INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 #define INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 
-#include <pluginlib/class_loader.h>
+#include <pluginlib/class_loader.hpp>
 #include <scenario_conditions/condition_base.h>
 #include <scenario_entities/entity_manager.h>
 #include <scenario_intersection/intersection_manager.h>
