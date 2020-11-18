@@ -5,20 +5,19 @@ namespace scenario_intersection
 
 IntersectionManager::IntersectionManager(
   const YAML::Node& node,
-  // const std::shared_ptr<ScenarioAPI>& simulator)
-  rclcpp::Logger & logger)
+  const std::shared_ptr<ScenarioAPI>& simulator)
   : node_ {node}
-  // , simulator_ {simulator}
-  , logger_(logger)
+  , logger_(rclcpp::get_logger("scenario_intersection_manager"))
+  , simulator_ {simulator}
 {
   for (const auto& intersection : node_)
   {
     if (const auto name {intersection["Name"]})
     {
-      // intersections_.emplace(
-      //   std::piecewise_construct,
-      //   std::forward_as_tuple(name.as<std::string>()),
-      //   std::forward_as_tuple(intersection, simulator_));
+      intersections_.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name.as<std::string>()),
+        std::forward_as_tuple(intersection, simulator_));
     }
     else
     {
@@ -69,7 +68,7 @@ try
 }
 catch (const std::out_of_range&)
 {
-  RCLCPP_ERROR_STREAM(logger_, "You trying to change state of unspecified intersection '" << target_intersection << "'.");
+  RCLCPP_ERROR_STREAM(logger_, "You are trying to change state of unspecified intersection '" << target_intersection << "'.");
   return false;
 }
 

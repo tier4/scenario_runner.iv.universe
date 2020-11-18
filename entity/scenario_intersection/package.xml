@@ -12,7 +12,7 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <!-- <depend>scenario_api</depend> -->
+  <depend>scenario_api</depend>
   <depend>scenario_utility</depend>
   <depend>scenario_logger</depend>
   <depend>scenario_logger_msgs</depend>

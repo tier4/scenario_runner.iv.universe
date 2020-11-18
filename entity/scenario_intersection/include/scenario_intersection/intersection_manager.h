@@ -8,7 +8,7 @@
 #include <rclcpp/logging.hpp>
 #include <rclcpp/logger.hpp>
 
-// #include <scenario_api/scenario_api_core.h>
+#include <scenario_api/scenario_api_core.h>
 #include <scenario_intersection/intersection.h>
 #include <scenario_utility/scenario_utility.h>
 
@@ -21,15 +21,14 @@ class IntersectionManager
 
   rclcpp::Logger logger_;
 
-  // const std::shared_ptr<ScenarioAPI> simulator_;
+  const std::shared_ptr<ScenarioAPI> simulator_;
 
   std::unordered_map<std::string, scenario_intersection::Intersection> intersections_;
 
 public:
   IntersectionManager(
     const YAML::Node&,
-    // const std::shared_ptr<ScenarioAPI>&,
-    rclcpp::Logger&
+    const std::shared_ptr<ScenarioAPI>&
   );
 
   bool initialize(const YAML::Node&);
