@@ -12,8 +12,8 @@
 
   <depend>rclcpp</depend>
   <depend>pluginlib</depend>
-  <!-- <depend>scenario_api</depend> -->
-  <!-- <depend>scenario_intersection</depend> -->
+  <depend>scenario_api</depend>
+  <depend>scenario_intersection</depend>
   <depend>scenario_utility</depend>
   <depend>visualization_msgs</depend>
   <depend>yaml_cpp_vendor</depend>

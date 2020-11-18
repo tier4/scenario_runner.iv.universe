@@ -2,15 +2,14 @@
 
 namespace scenario_conditions
 {
-  // ConditionManager::ConditionManager(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr, rclcpp::Node::SharedPtr node_ptr)
-ConditionManager::ConditionManager(YAML::Node node, rclcpp::Node::SharedPtr node_ptr) 
+ConditionManager::ConditionManager(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr, rclcpp::Node::SharedPtr node_ptr)
 : visualizer(node_ptr)
 {
   try {
     call_with_optional(node, "Success", [&](const auto & node) {
       call_with_essential(node, "All", [&](const auto & node) {
         for (const auto & each : node) {
-          // success_conditions_.push_back(loadPlugin(each, api_ptr));
+          success_conditions_.push_back(loadPlugin(each, api_ptr));
         }
       });
     });
@@ -18,7 +17,7 @@ ConditionManager::ConditionManager(YAML::Node node, rclcpp::Node::SharedPtr node
     call_with_optional(node, "Failure", [&](const auto & node) {
       call_with_essential(node, "Any", [&](const auto & node) {
         for (const auto & each : node) {
-          // failure_conditions_.push_back(loadPlugin(each, api_ptr));
+          failure_conditions_.push_back(loadPlugin(each, api_ptr));
         }
       });
     });
@@ -27,8 +26,7 @@ ConditionManager::ConditionManager(YAML::Node node, rclcpp::Node::SharedPtr node
   }
 }
 
-// ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
-ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node)
+ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
 {
   try {
     const auto type{read_essential<std::string>(node, "Type") + "Condition"};
@@ -45,8 +43,7 @@ ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node)
       SCENARIO_ERROR_THROW(CATEGORY(), "There is no plugin of type '" << type << "'.");
     } else {
       auto plugin = loader.createSharedInstance(*iter);
-      // plugin->configure(node, api_ptr);
-      plugin->configure(node);
+      plugin->configure(node, api_ptr);
       return plugin;
     }
   } catch (...) {
@@ -55,8 +52,7 @@ ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node)
 }
 
   simulation_is ConditionManager::update(
-    // const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
-    )
+    const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
   {
     visualizer.publishMarker(*this);
 
@@ -65,8 +61,7 @@ ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node)
           false,
           [&](const auto& lhs, const auto& rhs)
           {
-            // const auto result {rhs ? (*rhs).update(intersection_manager) : false};
-            const auto result = false;
+            const auto result {rhs ? (*rhs).update(intersection_manager) : false};
             return lhs or result;
           }))
     {
@@ -78,8 +73,7 @@ ConditionManager::condition_type ConditionManager::loadPlugin(YAML::Node node)
           true,
           [&](const auto& lhs, const auto& rhs)
           {
-            // const auto result {rhs ? (*rhs).update(intersection_manager) : false};
-            const auto result = false;
+            const auto result {rhs ? (*rhs).update(intersection_manager) : false};
             return lhs and result;
           }))
     {

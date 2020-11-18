@@ -5,8 +5,8 @@
 
 #include <boost/lexical_cast.hpp>
 
-// #include <scenario_api/scenario_api_core.h>
-// #include <scenario_intersection/intersection_manager.h>
+#include <scenario_api/scenario_api_core.h>
+#include <scenario_intersection/intersection_manager.h>
 
 namespace scenario_conditions
 {
@@ -23,9 +23,8 @@ public:
   template <typename T>
   using Comparator = std::function<bool(const T &, const T &)>;
 
-  // virtual bool update(const std::shared_ptr<scenario_intersection::IntersectionManager> &) = 0;
-  virtual bool configure(YAML::Node node) = 0;
-  // virtual bool configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr) = 0;
+  virtual bool update(const std::shared_ptr<scenario_intersection::IntersectionManager> &) = 0;
+  virtual bool configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr) = 0;
 
   const std::string & getName() const noexcept { return name_; }
 
@@ -34,7 +33,7 @@ public:
   const std::string & getType() const noexcept { return type_; }
 
 protected:
-  // std::shared_ptr<ScenarioAPI> api_ptr_;
+  std::shared_ptr<ScenarioAPI> api_ptr_;
   YAML::Node node_;
 
   bool configured_ = false;
