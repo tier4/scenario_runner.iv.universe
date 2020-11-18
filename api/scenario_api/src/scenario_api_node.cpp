@@ -32,8 +32,10 @@ std::ostream & operator<<(std::ostream & out, const geometry_msgs::msg::Pose &po
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  // TODO(fred-apex-ai) Throws std::bad_weak_ptr when launched via scenario_api_sample.launch.xml
+
   auto obj = std::make_shared<ScenarioAPI>();
+  // TODO(fred-apex-ai) should not necessary upon refactoring
+  obj->init();
 
   /* sample code */
   obj->setEgoCarName("EgoCar");

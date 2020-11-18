@@ -58,7 +58,8 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO(fred-apex-ai) forward declarations and tons of unnecesary includes? That doesn't fit together
+// TODO(fred-apex-ai) forward declarations aren't needed for this package but perhaps in a
+//  consumer?
 namespace lanelet
 {
 class Lanelet;
@@ -81,6 +82,10 @@ public:
    * @brief constructor
    */
   ScenarioAPI();
+
+  // TODO(fred-apex-ai) Needs to be called before anything else to follow the protocol of
+  //  passing a shared pointer to `this` to construct members, something which is not allowed in the constructor.
+  void init();
 
   /**
    * @brief default destructor

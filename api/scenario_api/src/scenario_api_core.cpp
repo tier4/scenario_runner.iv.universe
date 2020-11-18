@@ -19,12 +19,20 @@
 
 ScenarioAPI::ScenarioAPI()
 : Node("scenario_api"),
-  simulator_api_{std::make_shared<ScenarioAPISimulator>(Node::shared_from_this())},
-  autoware_api_{std::make_shared<ScenarioAPIAutoware>(Node::shared_from_this())},
   coordinate_api_{std::make_shared<ScenarioAPICoordinateManager>()},
   tf_buffer_{get_clock()},
   tf_listener_{tf_buffer_}
 {
+}
+
+void ScenarioAPI::init()
+{
+  if(!simulator_api_){
+    simulator_api_ =std::make_shared<ScenarioAPISimulator>(Node::shared_from_this());
+  }
+  if (!autoware_api_){
+  autoware_api_ = std::make_shared<ScenarioAPIAutoware>(Node::shared_from_this());
+  }
 }
 
 // basic API
