@@ -24,7 +24,6 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
    src/signal_condition.cpp
    src/simulation_time_condition.cpp
    src/speed_condition.cpp
-#  src/targets.cpp
 )
 
 pluginlib_export_plugin_description_file(condition_plugins plugins.xml)

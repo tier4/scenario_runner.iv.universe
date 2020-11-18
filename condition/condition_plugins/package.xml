@@ -12,7 +12,8 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>pluginlib</depend>
-<!--  <depend>scenario_conditions</depend>-->
+  <depend>scenario_conditions</depend>
+  <depend>scenario_intersection</depend>
   <depend>scenario_logger</depend>
   <depend>scenario_logger_msgs</depend>
   <depend>scenario_utility</depend>
