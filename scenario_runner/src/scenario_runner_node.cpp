@@ -11,46 +11,60 @@
 
 static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
 
-auto to_signal_name = [](int signal) -> std::string
-{
-  switch (signal)
-  {
-    case SIGABRT: return "SIGABRT";
-    case SIGFPE:  return "SIGPE";
-    case SIGILL:  return "SIGILL";
-    case SIGINT:  return "SIGINT";
-    case SIGSEGV: return "SIGSEGV";
-    case SIGTERM: return "SIGTERM";
-    default:      return "";
-  }
-};
-
-static void abort(int signal)
+static void terminate(int signal)
 {
   ros::shutdown();
 
-  const auto signal_name { to_signal_name(signal) };
+  auto convert = [](int signal) -> std::string
+  {
+    switch (signal)
+    {
+      case SIGABRT: return " (SIGABRT)";
+      case SIGFPE:  return " (SIGPE)";
+      case SIGILL:  return " (SIGILL)";
+      case SIGINT:  return " (SIGINT)";
+      case SIGSEGV: return " (SIGSEGV)";
+      case SIGTERM: return " (SIGTERM)";
+      default:      return "";
+    }
+  };
 
-  if (signal_name.empty())
+  switch (terminator.status)
   {
-    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly");
+  case boost::exit_success:
+    SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"),
+      "The simulation was succeeded (EndCondition.Success).");
+    LOG_SIMPLE(info() << "The simulation was succeeded (EndCondition.Success).");
+    break;
+
+  case boost::exit_failure:
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"),
+      "The simulation was terminated (given time-limit has been reached).");
+    LOG_SIMPLE(error() << "The simulation was terminated (given time-limit has been reached).");
+    break;
+
+  case boost::exit_test_failure:
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"),
+      "The simulation as failed (EndCondition.Failure).");
+    LOG_SIMPLE(error() << "The simulation was failed (EndCondition.Failure).");
+    break;
+
+  case boost::exit_exception_failure:
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"),
+      "The simulation was failed (syntax-error or internal-error of scenario_runner).");
+    LOG_SIMPLE(error() << "The simulation was failed (syntax-error or internal-error of scenario_runner).");
+    break;
+
+  default:
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"),
+      "The simulation was terminated unexpectedly " << convert(signal));
+    LOG_SIMPLE(error() << "The simulation was terminated unexpectedly " << convert(signal));
+    break;
   }
-  else
-  {
-    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly (" << signal_name << ")");
-  }
+
   scenario_logger::log.write();
 
-  if (signal_name.empty())
-  {
-    LOG_SIMPLE(error() << "Abort simulation");
-  }
-  else
-  {
-    LOG_SIMPLE(error() << "Abort simulation (" << signal_name << ")");
-  }
-
-  std::quick_exit(EXIT_SUCCESS);
+  std::quick_exit(terminator.status);
 }
 
 int main(int argc, char * argv[]) try
@@ -65,14 +79,14 @@ int main(int argc, char * argv[]) try
   google::InstallFailureSignalHandler();
   google::InstallFailureWriter([](const char*, int)
   {
-    return abort(0);
+    return terminate(0);
   });
 
   struct sigaction action {};
   memset(&action, 0, sizeof(struct sigaction));
   sigemptyset(&action.sa_mask);
   action.sa_flags |= SA_SIGINFO;
-  action.sa_handler = &abort;
+  action.sa_handler = &terminate;
 
   if (sigaction(SIGINT, &action, nullptr) < 0)
   {
@@ -136,22 +150,6 @@ int main(int argc, char * argv[]) try
     terminator.update_duration(
       (ros::Time::now() - scenario_logger::log.begin()).toSec());
   }
-
-  // LOG_SIMPLE(error() << "ros::ok() == false");
-
-  // if (runner.currently == simulation_is::ongoing)
-  // {
-  //   SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
-  //   scenario_logger::log.write();
-  //   terminator.sendTerminateRequest(boost::exit_failure);
-  //   return boost::exit_failure;
-  // }
-  // else
-  // {
-  //   SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
-  //   scenario_logger::log.write();
-  //   return boost::exit_exception_failure;
-  // }
 
   return EXIT_FAILURE;
 }

@@ -12,6 +12,8 @@ class ScenarioTerminator
 public:
   ScenarioTerminator(const char * host, int port);
 
+  int status;
+
   void sendTerminateRequest(int);
 
   void update_mileage(double = 0);

@@ -1,14 +1,19 @@
+#include <boost/cstdlib.hpp>
 #include <scenario_runner/scenario_terminater.h>
 
 namespace scenario_runner
 {
-ScenarioTerminator::ScenarioTerminator(const char * host, int port) : client_(host, port) {}
+
+ScenarioTerminator::ScenarioTerminator(const char * host, int port)
+  : client_ { host, port }
+  , status { boost::exit_failure }
+{}
 
 void ScenarioTerminator::sendTerminateRequest(int exit_status)
 {
   XmlRpc::XmlRpcValue value;
   value.setSize(1);
-  value[0] = exit_status;
+  value[0] = status = exit_status;
 
   XmlRpc::XmlRpcValue result;
 
