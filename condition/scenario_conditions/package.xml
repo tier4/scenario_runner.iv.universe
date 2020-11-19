@@ -10,7 +10,6 @@
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
-  <depend>boost</depend>
   <depend>rclcpp</depend>
   <depend>pluginlib</depend>
   <depend>scenario_api</depend>

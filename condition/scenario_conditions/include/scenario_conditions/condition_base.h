@@ -3,10 +3,10 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_intersection/intersection_manager.h>
+
+#include <sstream>
 
 namespace scenario_conditions
 {
@@ -17,8 +17,11 @@ public:
 
   ConditionBase(const std::string & type)
     : type_ { type }
-    , name_ { type + "Condition<" + boost::lexical_cast<std::string>(this) + ">" }
-  {}
+  {
+    std::stringstream ss;
+    ss << type << "Condition<" << static_cast<const void*>(this) << ">";
+    name_ = ss.str();
+  }
 
   template <typename T>
   using Comparator = std::function<bool(const T &, const T &)>;
