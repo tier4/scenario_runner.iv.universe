@@ -104,7 +104,10 @@ public:
                 target_, boost::lexical_cast<std::string>(each), false);
             });
         }
-        return false;
+        else
+        {
+          return false;
+        }
       }
 
       bool operator()(ScenarioAPI & simulator) const
