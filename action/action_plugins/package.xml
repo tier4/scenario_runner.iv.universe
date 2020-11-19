@@ -19,6 +19,7 @@
   <depend>scenario_utility</depend>
 
   <export>
+    <scenario_actions plugin="${prefix}/plugins.xml" />
     <build_type>ament_cmake</build_type>
   </export>
 </package>
