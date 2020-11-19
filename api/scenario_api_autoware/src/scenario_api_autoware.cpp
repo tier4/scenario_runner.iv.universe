@@ -18,6 +18,8 @@
 
 #include <boost/assign/list_of.hpp>
 
+namespace bg = boost::geometry;
+
 ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
 : node_(node),
   tf_buffer_(node_->get_clock()),
@@ -440,7 +442,8 @@ Pose2D ScenarioAPIAutoware::getCurrentPose()
 
 geometry_msgs::msg::PoseStamped ScenarioAPIAutoware::getCurrentPoseRos() { return *current_pose_ptr_; }
 
-Polygon ScenarioAPIAutoware::getSelfPolygon2D() { return getSelfPolygon2D(vehicle_data_); }
+ScenarioAPIAutoware::Polygon ScenarioAPIAutoware::getSelfPolygon2D() { return getSelfPolygon2D
+(vehicle_data_); }
 
 double ScenarioAPIAutoware::getVehicleTopFromBase() { return vehicle_data_.max_height_offset; }
 
@@ -1231,7 +1234,7 @@ void ScenarioAPIAutoware::pubTrafficLight()
 }
 
 // util
-Polygon ScenarioAPIAutoware::getSelfPolygon2D(VehicleData vd)
+ScenarioAPIAutoware::Polygon ScenarioAPIAutoware::getSelfPolygon2D(VehicleData vd)
 {
   double left = vd.left_from_base();
   double right = vd.right_from_base();

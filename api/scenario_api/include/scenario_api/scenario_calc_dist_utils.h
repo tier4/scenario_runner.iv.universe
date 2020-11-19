@@ -17,21 +17,25 @@
 #ifndef SCENARIO_API_SCENARIO_API_CALC_DIST_UTILS_H_INCLUDED
 #define SCENARIO_API_SCENARIO_API_CALC_DIST_UTILS_H_INCLUDED
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
+#include <scenario_api_autoware/scenario_api_autoware.h>
 #include <scenario_api_utils/scenario_api_utils.h>
-#include <sensor_msgs/PointCloud2.h>
 #include <tf2/utils.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
+#include <rclcpp/rclcpp.hpp>
+
+namespace scenario_api_utils
+{
 double calcDistFromPolygonToPointCloud(
-  const std::shared_ptr<sensor_msgs::PointCloud2> & pointcloud_ptr, const Polygon poly,
-  const bool consider_height, const double top, const double bottom);
+  const std::shared_ptr<sensor_msgs::msg::PointCloud2> & pointcloud_ptr,
+  const ScenarioAPIAutoware::Polygon & poly, const bool consider_height, const double top,
+  const double bottom, rclcpp::Logger logger, rclcpp::Clock::SharedPtr clock);
 
-Polygon makeRelativePolygonFromSelf(
-  const geometry_msgs::Pose self_pose, const geometry_msgs::Pose obj_pose,
-  const geometry_msgs::Vector3 obj_size);
+ScenarioAPIAutoware::Polygon makeRelativePolygonFromSelf(
+  const geometry_msgs::msg::Pose self_pose, const geometry_msgs::msg::Pose obj_pose,
+  const geometry_msgs::msg::Vector3 obj_size);
 
-double calcDistOfPolygon(const Polygon poly, const Polygon poly2);
-
+double calcDistOfPolygon(
+  const ScenarioAPIAutoware::Polygon & poly, const ScenarioAPIAutoware::Polygon & poly2);
+}  // namespace scenario_api_utils
 #endif  // SCENARIO_API_SCENARIO_API_CALC_DIST_UTILS_H_INCLUDED

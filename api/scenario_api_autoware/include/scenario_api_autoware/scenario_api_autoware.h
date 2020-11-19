@@ -67,14 +67,13 @@ struct VehicleData
   double right_from_base() { return -(wheel_tread / 2.0 + wheel_width / 2.0); };
 };
 
-namespace bg = boost::geometry;
-using Point = bg::model::d2::point_xy<double>;
-using Polygon = bg::model::polygon<Point>;
-using Line = bg::model::linestring<Point>;
-
 class ScenarioAPIAutoware
 {
 public:
+using Point = boost::geometry::model::d2::point_xy<double>;
+using Polygon = boost::geometry::model::polygon<Point>;
+using Line = boost::geometry::model::linestring<Point>;
+
   /**
    * @brief constructor
    */

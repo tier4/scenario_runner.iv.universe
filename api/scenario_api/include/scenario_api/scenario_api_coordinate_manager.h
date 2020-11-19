@@ -30,15 +30,12 @@ public:
    */
   ScenarioAPICoordinateManager();
 
-  /*
-   * @brief destructor
-   */
-  ~ScenarioAPICoordinateManager();
-
   // coordinate API
-  bool setFrameId(const std::string frame_id, const geometry_msgs::Pose);
-  geometry_msgs::Pose getRelativePose(const std::string frame_id, const geometry_msgs::Pose pose);
+  bool setFrameId(const std::string & frame_id, const geometry_msgs::msg::Pose &);
+  geometry_msgs::msg::Pose getRelativePose(
+    const std::string & frame_id, const geometry_msgs::msg::Pose & pose);
 
 private:
   std::unordered_map<std::string, tf2::Transform> coordinate_map_;
+  rclcpp::Logger logger_;
 };

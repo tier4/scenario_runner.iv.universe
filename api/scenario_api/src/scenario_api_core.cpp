@@ -15,16 +15,25 @@
  */
 
 #include <scenario_api/scenario_api_core.h>
+#include <scenario_api/scenario_calc_dist_utils.h>
 
 ScenarioAPI::ScenarioAPI()
+: Node("scenario_api"),
+  coordinate_api_{std::make_shared<ScenarioAPICoordinateManager>()},
+  tf_buffer_{get_clock()},
+  tf_listener_{tf_buffer_}
 {
-  /* construct API class*/
-  autoware_api_ = std::make_shared<ScenarioAPIAutoware>();
-  simulator_api_ = std::make_shared<ScenarioAPISimulator>();
-  coordinate_api_ = std::make_shared<ScenarioAPICoordinateManager>();
 }
 
-ScenarioAPI::~ScenarioAPI() {}
+void ScenarioAPI::init()
+{
+  if(!simulator_api_){
+    simulator_api_ =std::make_shared<ScenarioAPISimulator>(Node::shared_from_this());
+  }
+  if (!autoware_api_){
+  autoware_api_ = std::make_shared<ScenarioAPIAutoware>(Node::shared_from_this());
+  }
+}
 
 // basic API
 bool ScenarioAPI::setEgoCarName(const std::string & name)
@@ -52,7 +61,7 @@ bool ScenarioAPI::updateState() { return simulator_api_->updateState(); }
 
 // start API
 bool ScenarioAPI::sendStartPoint(
-  const geometry_msgs::Pose pose, const bool wait_ready, const std::string & frame_type)
+  const geometry_msgs::msg::Pose pose, const bool wait_ready, const std::string & frame_type)
 {
   if (!simulator_api_->spawnStartPoint(pose)) return false;
   if (!autoware_api_->sendStartPoint(pose, wait_ready, frame_type)) return false;
@@ -60,7 +69,7 @@ bool ScenarioAPI::sendStartPoint(
 }
 
 bool ScenarioAPI::sendGoalPoint(
-  const std::string & name, const geometry_msgs::Pose pose, const bool wait_ready,
+  const std::string & name, const geometry_msgs::msg::Pose pose, const bool wait_ready,
   const std::string & frame_type)
 {
   if (name == ego_car_name_) {
@@ -73,7 +82,7 @@ bool ScenarioAPI::sendGoalPoint(
 }
 
 bool ScenarioAPI::sendCheckPoint(
-  const std::string & name, const geometry_msgs::Pose pose, const bool wait_ready,
+  const std::string & name, const geometry_msgs::msg::Pose pose, const bool wait_ready,
   const std::string & frame_type)
 {
   if (name == ego_car_name_) {
@@ -85,17 +94,23 @@ bool ScenarioAPI::sendCheckPoint(
 
 bool ScenarioAPI::sendStartVelocity(const double velocity)
 {
-  autoware_api_->sendStartVelocity(velocity);
+  const bool status = autoware_api_->sendStartVelocity(velocity);
   //sleep for autoware path plan
   //*if you engage autoware soon after using this API,
   //*egp-vehicle decelerates after engage.
-  ros::Rate(1.0).sleep();
+  rclcpp::Rate(1.0).sleep();
+
+  // TODO(fred-apex-ai) not documented what it should return and it returned nothing before
+  return status;
 }
 
 bool ScenarioAPI::sendEngage(const bool engage)
 {
-  autoware_api_->sendEngage(engage);
-  simulator_api_->sendEngage(engage);
+  const bool status_autoware = autoware_api_->sendEngage(engage);
+  const bool status_simulator = simulator_api_->sendEngage(engage);
+
+  // TODO(fred-apex-ai) not documented what it should return and it returned nothing before.
+  return status_autoware && status_simulator;
 }
 
 bool ScenarioAPI::waitAutowareInitialize() { return autoware_api_->waitAutowareInitialize(); }
@@ -103,13 +118,13 @@ bool ScenarioAPI::waitAutowareInitialize() { return autoware_api_->waitAutowareI
 bool ScenarioAPI::setMaxSpeed(double velocity) { return autoware_api_->setMaxSpeed(velocity); }
 
 // coordinate API
-bool ScenarioAPI::setFrameId(std::string frame_id, const geometry_msgs::Pose pose)
+bool ScenarioAPI::setFrameId(std::string frame_id, const geometry_msgs::msg::Pose pose)
 {
   return coordinate_api_->setFrameId(frame_id, pose);
 }
 
-geometry_msgs::Pose ScenarioAPI::getRelativePose(
-  std::string frame_id, const geometry_msgs::Pose pose)
+geometry_msgs::msg::Pose ScenarioAPI::getRelativePose(
+  std::string frame_id, const geometry_msgs::msg::Pose pose)
 {
   return coordinate_api_->getRelativePose(frame_id, pose);
 }
@@ -117,7 +132,7 @@ geometry_msgs::Pose ScenarioAPI::getRelativePose(
 // self-vehicle API
 Pose2D ScenarioAPI::getCurrentPose() { return autoware_api_->getCurrentPose(); }
 
-geometry_msgs::PoseStamped ScenarioAPI::getCurrentPoseRos()
+geometry_msgs::msg::PoseStamped ScenarioAPI::getCurrentPoseRos()
 {
   return autoware_api_->getCurrentPoseRos();
 }
@@ -135,7 +150,8 @@ bool ScenarioAPI::isStopped(double thresh_velocity)
   return (std::abs(getVelocity()) <= thresh_velocity);
 }
 
-bool ScenarioAPI::isInArea(geometry_msgs::Pose pose, double dist_thresh, double delta_yaw_thresh)
+bool ScenarioAPI::isInArea(
+  geometry_msgs::msg::Pose pose, double dist_thresh, double delta_yaw_thresh)
 {
   double yaw = yawFromQuat(pose.orientation);
   double delta_yaw = std::abs(normalizeRadian(getCurrentPose().yaw - yaw));
@@ -156,19 +172,20 @@ bool ScenarioAPI::approveLaneChange(bool approve_lane_change)
 
 double ScenarioAPI::getMinimumDistanceToObstacle(bool consider_height)
 {
-  const std::shared_ptr<sensor_msgs::PointCloud2> pcl_ptr =
+  const std::shared_ptr<sensor_msgs::msg::PointCloud2> pcl_ptr =
     autoware_api_->getPointCloud();  // TODO ->move to sensor_api_->getPointCloud();
   return calcMinimumDistanceToObstacle(pcl_ptr, consider_height);
 }
 
 double ScenarioAPI::calcMinimumDistanceToObstacle(
-  const std::shared_ptr<sensor_msgs::PointCloud2> & pointcloud_ptr, const bool consider_height)
+  const std::shared_ptr<sensor_msgs::msg::PointCloud2> & pointcloud_ptr, const bool consider_height)
 {
   // rename
   const double top = autoware_api_->getVehicleTopFromBase();
   const double bottom = autoware_api_->getVehicleBottomFromBase();
-  Polygon poly = autoware_api_->getSelfPolygon2D();
-  return calcDistFromPolygonToPointCloud(pointcloud_ptr, poly, consider_height, top, bottom);
+  ScenarioAPIAutoware::Polygon poly = autoware_api_->getSelfPolygon2D();
+  return scenario_api_utils::calcDistFromPolygonToPointCloud(
+    pointcloud_ptr, poly, consider_height, top, bottom, get_logger(), get_clock());
 }
 
 bool ScenarioAPI::getCurrentLaneID(int & current_id, double max_dist, double max_delta_yaw)
@@ -187,7 +204,7 @@ bool ScenarioAPI::isInLane() { return autoware_api_->isInLane(); }
 
 // NPC API
 bool ScenarioAPI::addNPC(
-  const std::string & npc_type, const std::string & name, geometry_msgs::Pose pose,
+  const std::string & npc_type, const std::string & name, geometry_msgs::msg::Pose pose,
   const double velocity, const bool stop_by_vehicle, const std::string & frame_type)
 {
   return simulator_api_->addNPC(npc_type, name, pose, velocity, stop_by_vehicle, frame_type);
@@ -263,55 +280,57 @@ bool ScenarioAPI::changeNPCIgnoreLane(const std::string & name)
 bool ScenarioAPI::deleteNPC(const std::string & name) { return simulator_api_->deleteNPC(name); }
 
 bool ScenarioAPI::getNPC(
-  const std::string & name, geometry_msgs::Pose & object_pose, geometry_msgs::Twist & object_twist,
-  geometry_msgs::Vector3 & object_size, std::string & object_name)
+  const std::string & name, geometry_msgs::msg::Pose & object_pose,
+  geometry_msgs::msg::Twist & object_twist, geometry_msgs::msg::Vector3 & object_size,
+  std::string & object_name)
 {
   return simulator_api_->getNPC(name, object_pose, object_twist, object_size, object_name);
 }
 
 bool ScenarioAPI::calcDistToNPC(double & dist_to_npc, const std::string & name)
 {
-  geometry_msgs::Pose obj_pose;
-  geometry_msgs::Twist obj_twist;
-  geometry_msgs::Vector3 obj_size;
+  geometry_msgs::msg::Pose obj_pose;
+  geometry_msgs::msg::Twist obj_twist;
+  geometry_msgs::msg::Vector3 obj_size;
   std::string obj_name;
 
   if (!getNPC(name, obj_pose, obj_twist, obj_size, obj_name)) return false;
 
   // create polygon
-  Polygon self_poly = autoware_api_->getSelfPolygon2D();
-  Polygon obj_poly = makeRelativePolygonFromSelf(getCurrentPoseRos().pose, obj_pose, obj_size);
+  ScenarioAPIAutoware::Polygon self_poly = autoware_api_->getSelfPolygon2D();
+  ScenarioAPIAutoware::Polygon obj_poly =
+    scenario_api_utils::makeRelativePolygonFromSelf(getCurrentPoseRos().pose, obj_pose, obj_size);
 
-  dist_to_npc = calcDistOfPolygon(self_poly, obj_poly);
+  dist_to_npc = scenario_api_utils::calcDistOfPolygon(self_poly, obj_poly);
   return true;
 }
 
 bool ScenarioAPI::calcDistToNPCFromNPC(
   double & distance, const std::string & npc1_name, const std::string & npc2_name)
 {
-  geometry_msgs::Pose npc1_pose, npc2_pose;
+  geometry_msgs::msg::Pose npc1_pose, npc2_pose;
 
-  geometry_msgs::Twist npc1_twist, npc2_twist;
+  geometry_msgs::msg::Twist npc1_twist, npc2_twist;
 
-  geometry_msgs::Vector3 npc1_size, npc2_size;
+  geometry_msgs::msg::Vector3 npc1_size, npc2_size;
 
   std::string unused;
 
-  if (not getNPC(npc1_name, npc1_pose, npc1_twist, npc1_size, unused)) {
+  if (!getNPC(npc1_name, npc1_pose, npc1_twist, npc1_size, unused)) {
     return false;
   }
 
-  if (not getNPC(npc2_name, npc2_pose, npc2_twist, npc2_size, unused)) {
+  if (!getNPC(npc2_name, npc2_pose, npc2_twist, npc2_size, unused)) {
     return false;
   }
 
-  const auto npc1_polygon{
-    makeRelativePolygonFromSelf(getCurrentPoseRos().pose, npc1_pose, npc1_size)};
+  const auto npc1_polygon{scenario_api_utils::makeRelativePolygonFromSelf(
+    getCurrentPoseRos().pose, npc1_pose, npc1_size)};
 
-  const auto npc2_polygon{
-    makeRelativePolygonFromSelf(getCurrentPoseRos().pose, npc2_pose, npc2_size)};
+  const auto npc2_polygon{scenario_api_utils::makeRelativePolygonFromSelf(
+    getCurrentPoseRos().pose, npc2_pose, npc2_size)};
 
-  return not std::isnan(distance = calcDistOfPolygon(npc1_polygon, npc2_polygon));
+  return !std::isnan(distance = scenario_api_utils::calcDistOfPolygon(npc1_polygon, npc2_polygon));
 }
 
 bool ScenarioAPI::finishNPCLaneChange(const std::string & name, bool * finish_lane_change)
@@ -417,7 +436,7 @@ bool ScenarioAPI::getTrafficLightArrow(
 }
 
 bool ScenarioAPI::getTrafficLineCenterPose(
-  const int traffic_relation_id, geometry_msgs::Pose & line_pose)
+  const int traffic_relation_id, geometry_msgs::msg::Pose & line_pose)
 {
   return autoware_api_->getTrafficLineCenterPose(traffic_relation_id, line_pose);
 }
@@ -442,12 +461,12 @@ bool ScenarioAPI::checkOverTrafficLine(const int traffic_relation_id, bool & ove
 
 //util API
 bool ScenarioAPI::isObjectInArea(
-  const std::string & name, geometry_msgs::Pose pose, double dist_thresh, double delta_yaw_thresh,
-  const std::string & frame_type)
+  const std::string & name, geometry_msgs::msg::Pose pose, double dist_thresh,
+  double delta_yaw_thresh, const std::string & frame_type)
 {
   // get position of target object and shift pose
-  geometry_msgs::Pose obj_pose;
-  geometry_msgs::Pose shift_pose;
+  geometry_msgs::msg::Pose obj_pose;
+  geometry_msgs::msg::Pose shift_pose;
   if (name == ego_car_name_) {
     //ego-car
     obj_pose = autoware_api_->getCurrentPoseRos().pose;
@@ -456,7 +475,7 @@ bool ScenarioAPI::isObjectInArea(
     }
   } else {
     //npc-object
-    npc_simulator::Object obj;
+    npc_simulator::msg::Object obj;
     if (!simulator_api_->getNPC(name, obj)) {
       return false;
     }
@@ -474,21 +493,21 @@ bool ScenarioAPI::isObjectInArea(
   return (delta_dist < dist_thresh) and (delta_yaw < delta_yaw_thresh);
 }
 
-geometry_msgs::Pose ScenarioAPI::genPoseROS(
+geometry_msgs::msg::Pose ScenarioAPI::genPoseROS(
   const double x, const double y, const double z, const double yaw)
 {
-  geometry_msgs::Pose pose;
+  geometry_msgs::msg::Pose pose;
   pose.position.x = x;
   pose.position.y = y;
   pose.position.z = z;
   pose.orientation = quatFromYaw(yaw);
   return pose;
 }
-geometry_msgs::Pose ScenarioAPI::genPoseROS(
+geometry_msgs::msg::Pose ScenarioAPI::genPoseROS(
   const double p_x, const double p_y, const double p_z, const double o_x, const double o_y,
   const double o_z, const double o_w)
 {
-  geometry_msgs::Pose pose;
+  geometry_msgs::msg::Pose pose;
   pose.position.x = p_x;
   pose.position.y = p_y;
   pose.position.z = p_z;
