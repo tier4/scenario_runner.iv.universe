@@ -17,6 +17,8 @@
 #include "scenario_logger/simple_logger.hpp"
 #include "scenario_runner/scenario_runner.h"
 #include "boost/cstdlib.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/filesystem/operations.hpp"
 #include <exception>
 #include <signal.h>
 #include "rclcpp/rclcpp.hpp"
@@ -97,16 +99,6 @@ static void abort(int signal)
 
 int main(int argc, char * argv[])
 {
-  scenario_logger::slog.open("/tmp/log", std::ios::trunc);
-
-  /*
-  * setup scenario runner
-  */
-
-  rclcpp::init(argc, argv);
-
-  const auto runner_ptr = std::make_shared<scenario_runner::ScenarioRunner>();
-
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureFunction(&failureCallback);
   google::InstallFailureWriter([](const char*, int)
@@ -119,18 +111,23 @@ int main(int argc, char * argv[])
   sigemptyset(&action.sa_mask);
   action.sa_flags |= SA_SIGINFO;
   action.sa_handler = &abort;
+  sigaction(SIGINT, &action, nullptr);
 
-  if (sigaction(SIGINT, &action, nullptr) < 0)
-  {
-    LOG_SIMPLE(error() << "Failed to install SIGINT handler");
-  }
+  /*
+  * setup scenario runner
+  */
+
+  rclcpp::init(argc, argv);
+
+  const auto runner_ptr = std::make_shared<scenario_runner::ScenarioRunner>();
 
   scenario_logger::log.setStartDatetime(runner_ptr->now());
   SCENARIO_LOG_STREAM(CATEGORY("simulation", "progress"), "Logging started.");
 
   std::string scenario_id{runner_ptr->declare_parameter("scenario_id").get<std::string>()};
   scenario_logger::log.setScenarioID(scenario_id);
-  LOG_SIMPLE(info() << "Scenario ID: " << scenario_id);
+  boost::filesystem::create_directory("/tmp/scenario_runner_node");
+  scenario_logger::slog.open("/tmp/scenario_runner_node/" + scenario_id + ".json", std::ios::trunc);
 
   std::string log_output_path{runner_ptr->declare_parameter("log_output_path").get<std::string>()};
   scenario_logger::log.setLogOutputPath(log_output_path);
