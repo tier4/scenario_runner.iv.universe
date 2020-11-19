@@ -1,5 +1,7 @@
 #include <scenario_entities/entity_base.h>
 
+#include <sstream>
+
 namespace scenario_entities
 {
 
@@ -8,9 +10,11 @@ bool EntityBase::configure(
   const std::shared_ptr<ScenarioAPI>& api)
 try
 {
+  std::stringstream ss;
+  ss << type_ << "Entity-" << static_cast<const void*>(this);
   name_ =
     read_optional<std::string>(
-      entity, "Name", type_ + "Entity-" + boost::lexical_cast<std::string>(this));
+      entity, "Name", ss.str());
 
   return static_cast<bool>(api_ = api);
 }
