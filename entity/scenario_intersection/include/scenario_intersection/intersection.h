@@ -113,7 +113,7 @@ class Intersection
       transitions_.emplace_back();
     }
 
-    Controller(const YAML::Node & node, rclcpp::Logger & logger)
+    Controller(const YAML::Node & node, const rclcpp::Logger & logger)
     {
       if (const auto traffic_lights {node["TrafficLight"]})
       {

@@ -15,7 +15,7 @@ template <typename T>
 T convert(const std::string&);
 
 template <typename T, typename F>
-decltype(auto) if_exist(const YAML::Node& node, const std::string& key, F&& consequent, rclcpp::Logger & logger)
+decltype(auto) if_exist(const YAML::Node& node, const std::string& key, F&& consequent, const rclcpp::Logger & logger)
 {
   if (const auto& element {node[key]})
   {
