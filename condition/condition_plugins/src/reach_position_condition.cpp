@@ -55,7 +55,7 @@ bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection:
   }
   else
   {
-    if (not configured_)
+    if (!configured_)
     {
       SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
     }

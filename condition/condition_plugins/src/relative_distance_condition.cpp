@@ -29,7 +29,7 @@ try
 
   value_ = read_essential<float>(node_, "Value");
 
-  if (not parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
+  if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
   {
     return configured_ = false;
   }

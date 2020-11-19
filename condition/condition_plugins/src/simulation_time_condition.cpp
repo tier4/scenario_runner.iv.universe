@@ -21,7 +21,7 @@ try
     rclcpp::Duration(
       read_essential<float>(node_, "Value"));
 
-  if (not parseRule<rclcpp::Duration>(
+  if (!parseRule<rclcpp::Duration>(
             read_essential<std::string>(node_, "Rule"),
             compare_))
   {
