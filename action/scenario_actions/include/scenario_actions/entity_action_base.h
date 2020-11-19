@@ -1,16 +1,14 @@
 #ifndef SCENARIO_ACTIONS_ENTITY_ACTION_BASE_H_INCLUDED
 #define SCENARIO_ACTIONS_ENTITY_ACTION_BASE_H_INCLUDED
 
-#include <memory>
-#include <cstdint>
+#include <scenario_api/scenario_api_core.h>
+#include <scenario_intersection/intersection_manager.h>
 
 #include <yaml-cpp/yaml.h>
 
-// Forward declarations
-class ScenarioAPI;
-namespace scenario_intersection {
-class IntersectionManager;
-}
+#include <memory>
+#include <sstream>
+
 
 namespace scenario_actions
 {
@@ -36,8 +34,11 @@ public:
 
   EntityActionBase(const std::string & type)
     : type_ { type }
-    , name_ { type + "Action<" + std::to_string(reinterpret_cast<uintptr_t>(this)) + ">" }
-  {}
+  {
+    std::stringstream ss;
+    ss << type << "Action<" << static_cast<const void*>(this) << ">";
+    name_ = ss.str();
+  }
 
 protected:
   std::string type_, name_;

@@ -1,20 +1,16 @@
 #ifndef SCENARIO_ACTIONS_ACTION_MANAGER_H_INCLUDED
 #define SCENARIO_ACTIONS_ACTION_MANAGER_H_INCLUDED
 
+#include <scenario_actions/entity_action_base.h>
+#include <scenario_api/scenario_api_core.h>
+#include <scenario_intersection/intersection_manager.h>
+
+#include <pluginlib/class_loader.hpp>
+#include <yaml-cpp/yaml.h>
+
 #include <memory>
 #include <vector>
 
-#include <pluginlib/class_loader.hpp>
-
-#include <yaml-cpp/yaml.h>
-
-#include <scenario_actions/entity_action_base.h>
-
-// Forward declarations
-class ScenarioAPI;
-namespace scenario_intersection {
-class IntersectionManager;
-}
 
 namespace scenario_actions
 {
