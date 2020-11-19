@@ -15,14 +15,9 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-set(SCENARIO_CONDITIONS_SRC
+ament_auto_add_library(scenario_conditions SHARED
+  src/condition_manager.cpp 
   src/condition_visualizer.cpp
 )
 
-ament_auto_add_library(scenario_conditions SHARED
-  src/condition_manager.cpp 
-  ${SCENARIO_CONDITIONS_SRC}
-)
-
 ament_auto_package()
-
