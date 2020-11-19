@@ -5,6 +5,8 @@
 #include <unordered_map>
 
 #include <yaml-cpp/yaml.h>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/logger.hpp>
 
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_intersection/intersection.h>
@@ -17,6 +19,8 @@ class IntersectionManager
 {
   const YAML::Node node_;
 
+  rclcpp::Logger logger_;
+
   const std::shared_ptr<ScenarioAPI> simulator_;
 
   std::unordered_map<std::string, scenario_intersection::Intersection> intersections_;
@@ -24,13 +28,14 @@ class IntersectionManager
 public:
   IntersectionManager(
     const YAML::Node&,
-    const std::shared_ptr<ScenarioAPI>&);
+    const std::shared_ptr<ScenarioAPI>&
+  );
 
   bool initialize(const YAML::Node&);
 
   bool change(const std::string&, const std::string&);
 
-  simulation_is update(const ros::Time&);
+  simulation_is update();
 
   template <typename... Ts>
   constexpr decltype(auto) at(Ts&&... xs) const

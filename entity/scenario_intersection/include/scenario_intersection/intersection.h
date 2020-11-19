@@ -7,8 +7,10 @@
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
-
 #include <yaml-cpp/yaml.h>
+
+#include <rclcpp/logging.hpp>
+#include <rclcpp/logger.hpp>
 
 #include <scenario_api/scenario_api_core.h>
 #include <scenario_intersection/arrow.h>
@@ -94,6 +96,7 @@ class Intersection
                     target_, boost::lexical_cast<std::string>(each), false);
               });
         }
+        return false;
       }
 
       bool operator()(ScenarioAPI& simulator) const
@@ -110,7 +113,7 @@ class Intersection
       transitions_.emplace_back();
     }
 
-    Controller(const YAML::Node& node)
+    Controller(const YAML::Node & node, const rclcpp::Logger & logger)
     {
       if (const auto traffic_lights {node["TrafficLight"]})
       {
@@ -119,7 +122,8 @@ class Intersection
           if (const auto arrow { each["Arrow"] })
           {
             // NOTE: tag 'Arrow' is deperecated
-            ROS_WARN_STREAM("Tag 'Arrow: <String>' is deperecated. Use 'Arrows: [<String>*]'");
+            RCLCPP_WARN_STREAM(
+              logger, "Tag 'Arrow: <String>' is deprecated. Use 'Arrows: [<String>*]'");
             transitions_.emplace_back(each["Id"], each["Color"], arrow);
           }
           else
@@ -130,7 +134,7 @@ class Intersection
       }
       else
       {
-        ROS_ERROR_STREAM("Each element of node 'Control' requires hash 'TrafficLight'.");
+        RCLCPP_ERROR_STREAM(logger, "Each element of node 'Control' requires hash 'TrafficLight'.");
       }
     }
 
@@ -168,7 +172,7 @@ public:
 
   const std::vector<std::size_t>& ids() const;
 
-  simulation_is update(const ros::Time&);
+  simulation_is update();
 };
 
 } // namespace scenario_intersection

@@ -1,5 +1,7 @@
 #include <scenario_intersection/color.h>
 
+#include <unordered_map>
+
 namespace scenario_intersection
 {
 
