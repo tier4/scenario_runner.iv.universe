@@ -9,7 +9,7 @@
 #include <signal.h>
 #include <thread>
 
-static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
+static scenario_runner::ScenarioTerminator terminator { "127.0.0.1", 10000 };
 
 static void terminate(int signal)
 {
