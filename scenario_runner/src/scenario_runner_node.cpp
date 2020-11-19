@@ -1,4 +1,6 @@
 #include <boost/cstdlib.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <exception>
 #include <glog/logging.h>
 #include <ros/ros.h>
@@ -69,12 +71,6 @@ static void terminate(int signal)
 
 int main(int argc, char * argv[]) try
 {
-  scenario_logger::slog.open("/tmp/log", std::ios::trunc);
-
-  ros::init(argc, argv, "scenario_runner_node", ros::init_options::NoSigintHandler);
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureSignalHandler();
   google::InstallFailureWriter([](const char*, int)
@@ -87,11 +83,11 @@ int main(int argc, char * argv[]) try
   sigemptyset(&action.sa_mask);
   action.sa_flags |= SA_SIGINFO;
   action.sa_handler = &terminate;
+  sigaction(SIGINT, &action, nullptr);
 
-  if (sigaction(SIGINT, &action, nullptr) < 0)
-  {
-    LOG_SIMPLE(error() << "Failed to install SIGINT handler");
-  }
+  ros::init(argc, argv, "scenario_runner_node", ros::init_options::NoSigintHandler);
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
 
   scenario_logger::log.setStartDatetime(ros::Time::now());
   SCENARIO_LOG_STREAM(CATEGORY("simulation", "progress"), "Logging started.");
@@ -99,7 +95,8 @@ int main(int argc, char * argv[]) try
   std::string scenario_id;
   pnh.getParam("scenario_id", scenario_id);
   scenario_logger::log.setScenarioID(scenario_id);
-  LOG_SIMPLE(info() << "Scenario ID: " << scenario_id);
+  boost::filesystem::create_directory("/tmp/scenario_runner_node");
+  scenario_logger::slog.open("/tmp/scenario_runner_node/" + scenario_id + ".json", std::ios::trunc);
 
   std::string log_output_path;
   pnh.getParam("log_output_path", log_output_path);

@@ -50,6 +50,7 @@ add_dependencies(scenario_runner
 )
 target_link_libraries(scenario_runner
   ${catkin_LIBRARIES}
+  Boost::filesystem
   glog
 )
 
