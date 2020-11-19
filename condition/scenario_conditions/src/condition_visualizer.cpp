@@ -4,17 +4,17 @@
 
 namespace scenario_conditions
 {
-ConditionVisualizer::ConditionVisualizer()
+ConditionVisualizer::ConditionVisualizer(const rclcpp::Node::SharedPtr node)
+: node_(node)
 {
-  auto pnh = ros::NodeHandle("~");
-  pub_marker_ = pnh.advertise<visualization_msgs::MarkerArray>("condition_marker", 1);
+  pub_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("condition_marker", rclcpp::QoS{1});
 }
 
 void ConditionVisualizer::publishMarker(ConditionManager& manager)
 {
   marker_array_.markers.clear();
   bool is_success_condition;
-  auto add_func = [this, &is_success_condition](boost::shared_ptr<ConditionBase> condition) {
+  auto add_func = [this, &is_success_condition](std::shared_ptr<ConditionBase> condition) {
     if (condition)
     {
       addMarker(condition->getName(), condition->getResult(), is_success_condition);
@@ -24,21 +24,21 @@ void ConditionVisualizer::publishMarker(ConditionManager& manager)
   manager.applyVisitorForFailureConditions(add_func);
   is_success_condition = true;
   manager.applyVisitorForSuccessConditions(add_func);
-  pub_marker_.publish(marker_array_);
+  pub_marker_->publish(marker_array_);
 }
 
 void ConditionVisualizer::addMarker(std::string name, bool result, bool is_success_condition)
 {
-  visualization_msgs::Marker marker;
+  visualization_msgs::msg::Marker marker;
   marker.header.frame_id = "base_link";
-  marker.header.stamp = ros::Time::now();
+  marker.header.stamp = node_->now();
 
   marker.ns = "conditions";
   marker.id = marker_array_.markers.size();
 
-  marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-  marker.action = visualization_msgs::Marker::ADD;
-  marker.lifetime = ros::Duration();
+  marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
+  marker.action = visualization_msgs::msg::Marker::ADD;
+  marker.lifetime = rclcpp::Duration(0);
 
   marker.scale.z = 2.0;
 
