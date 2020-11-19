@@ -7,7 +7,6 @@ namespace scenario_conditions
 ConditionVisualizer::ConditionVisualizer(const rclcpp::Node::SharedPtr node)
 : node_(node)
 {
-  // auto pnh = ros::NodeHandle("~");
   pub_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("condition_marker", rclcpp::QoS{1});
 }
 
