@@ -25,7 +25,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
    src/speed_action.cpp
   )
 
-pluginlib_export_plugin_description_file(action_plugins plugins.xml)
+pluginlib_export_plugin_description_file(scenario_actions plugins.xml)
 
 
 ament_auto_package()
