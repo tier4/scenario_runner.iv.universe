@@ -33,6 +33,7 @@ catch (...)
 void FaultInjectionAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
+  // TODO(yunus.caliskan): Replace the logic for ros2 or disable this action altogether.
   const auto command { "rosnode kill " + target_node_ };
 
   if (::system(command.c_str()))

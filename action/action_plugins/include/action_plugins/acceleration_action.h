@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <scenario_actions/entity_action_base.h>
 #include <scenario_intersection/intersection_manager.h>

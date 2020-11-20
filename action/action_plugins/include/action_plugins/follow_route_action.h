@@ -3,14 +3,15 @@
 
 #include <scenario_actions/entity_action_base.h>
 #include <scenario_intersection/intersection_manager.h>
-
+#include <yaml-cpp/node/node.h>
+#include <geometry_msgs/msg/pose.hpp>
 namespace action_plugins
 {
 
 class FollowRouteAction
   : public scenario_actions::EntityActionBase
 {
-  geometry_msgs::Pose goal_;
+  geometry_msgs::msg::Pose goal_;
 
   std::string shift_;
 

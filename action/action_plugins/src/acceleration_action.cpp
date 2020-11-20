@@ -22,7 +22,7 @@ try
 
   call_with_essential(node_, "Params", [&](const auto& node) mutable
   {
-    static_assert(std::numeric_limits<float>::has_signaling_NaN);
+    static_assert(std::numeric_limits<float>::has_signaling_NaN, "Used type must have the signaling NaN value.");
 
     min_ = read_optional<float>(node, "Min", std::numeric_limits<float>::signaling_NaN());
     max_ = read_optional<float>(node, "Max", std::numeric_limits<float>::signaling_NaN());

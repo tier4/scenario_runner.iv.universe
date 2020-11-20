@@ -1,7 +1,7 @@
 #ifndef INCLUDED_ACTION_PLUGINS_ENABLE_ACTION_H
 #define INCLUDED_ACTION_PLUGINS_ENABLE_ACTION_H
 
-#include <scenario_actions/entity_action_base.h>
+#include <scenario_actions/entity_action_base.hpp>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_logger/logger.h>
 #include <scenario_utility/scenario_utility.h>
