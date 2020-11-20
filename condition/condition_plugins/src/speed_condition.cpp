@@ -21,7 +21,7 @@ try
 
   value_ = read_essential<float>(node_, "Value");
 
-  if (not parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
+  if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
   {
     return configured_ = false;
   }
@@ -53,9 +53,10 @@ bool SpeedCondition::update(
     {
       double npc_velocity { 0.0 };
 
-      if (not (*api_ptr_).getNPCVelocity(trigger_, &npc_velocity))
+      if (!(*api_ptr_).getNPCVelocity(trigger_, &npc_velocity))
       {
-        ROS_ERROR_STREAM("Invalid trigger name specified for " << getType() << " condition named " << getName());
+        RCLCPP_ERROR_STREAM(api_ptr_->get_logger().get_child("AccelerationCondition"),
+                            "Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
       }
       else
@@ -68,6 +69,6 @@ bool SpeedCondition::update(
 
 }  // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::SpeedCondition, scenario_conditions::ConditionBase)
 

@@ -29,7 +29,7 @@ try
 
   value_ = read_essential<float>(node_, "Value");
 
-  if (not parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
+  if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
   {
     return configured_ = false;
   }
@@ -70,6 +70,6 @@ bool RelativeDistanceCondition::update(
 
 } // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::RelativeDistanceCondition, scenario_conditions::ConditionBase)
 

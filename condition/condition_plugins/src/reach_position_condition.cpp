@@ -20,7 +20,7 @@ try
 
   trigger_ = read_essential<std::string>(node_, "Trigger");
 
-  const auto pose_stamped { read_essential<geometry_msgs::PoseStamped>(node_, "Pose") };
+  const auto pose_stamped { read_essential<geometry_msgs::msg::PoseStamped>(node_, "Pose") };
 
   if (pose_stamped.header.frame_id == "/map")
   {
@@ -55,7 +55,7 @@ bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection:
   }
   else
   {
-    if (not configured_)
+    if (!configured_)
     {
       SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
     }
@@ -75,5 +75,5 @@ bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection:
 
 }  // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(condition_plugins::ReachPositionCondition, scenario_conditions::ConditionBase)
