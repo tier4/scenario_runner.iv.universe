@@ -9,6 +9,6 @@ PedestrianEntity::PedestrianEntity()
 
 } // namespace entity_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(entity_plugins::PedestrianEntity, scenario_entities::EntityBase)
 
