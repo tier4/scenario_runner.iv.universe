@@ -94,14 +94,12 @@ void ScenarioRunner::run() try
       call_with_optional(node, "Success", [&](const auto& node)
       {
         success = scenario_expression::read(context, node);
-        // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded success condition: " << success);
       });
 
       LOG_SIMPLE(info() << "Parse 'Story.EndCondition.Failure'");
       call_with_optional(node, "Failure", [&](const auto& node)
       {
         failure = scenario_expression::read(context, node);
-        // SCENARIO_INFO_STREAM(CATEGORY(), "Loaded failure condition: " << failure);
       });
     });
   });
