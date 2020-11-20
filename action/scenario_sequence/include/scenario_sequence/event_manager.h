@@ -58,9 +58,16 @@ public:
   {
     boost::property_tree::ptree result {};
 
-    for (const auto& each : events_)
+    if (not events_.empty())
     {
-      result.push_back(std::make_pair("", each.property()));
+      for (const auto& each : events_)
+      {
+        result.push_back(std::make_pair("", each.property()));
+      }
+    }
+    else
+    {
+      result.push_back(std::make_pair("", boost::property_tree::ptree())); // XXX HACK
     }
 
     return result;
