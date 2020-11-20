@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
@@ -14,10 +14,10 @@
 
 namespace scenario_runner
 {
-class ScenarioRunner
+class ScenarioRunner : public rclcpp::Node
 {
 public:
-  ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh);
+  ScenarioRunner();
   void run();
 
   double current_mileage() const
@@ -28,9 +28,7 @@ public:
   simulation_is currently;
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Timer timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
 
   std::string scenario_path_;
 
@@ -46,7 +44,7 @@ private:
   std::shared_ptr<scenario_sequence::SequenceManager> sequence_manager_;
   std::shared_ptr<scenario_intersection::IntersectionManager> intersection_manager_;
 
-  void update(const ros::TimerEvent & event);
+  void update();
 };
 
 }  // namespace scenario_runner

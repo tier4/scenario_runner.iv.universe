@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>scenario_runner</name>
   <version>0.0.0</version>
@@ -8,16 +8,16 @@
   <maintainer email="ms.kataoka@gmail.com">Masaya Kataoka</maintainer>
   <maintainer email="httperror@404-notfound.jp">Yamasaki Tatsuya</maintainer>
 
-  <license>TODO</license>
+  <license>Apache 2</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
-  <depend>entity_plugins</depend>
+<!--  <depend>entity_plugins</depend>-->
   <depend>libgoogle-glog-dev</depend>
   <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-termcolor</exec_depend>  <!-- TODO MOVE THIS DEPENDENCY TO autoware.proj/ansible/roles or SCENARIO LAUNCHER -->
   <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-termcolor</exec_depend>
-  <depend>rosbag</depend>
-  <depend>roscpp</depend>
+<!--  <depend>rosbag</depend>-->
+  <depend>rclcpp</depend>
   <depend>scenario_api</depend>
   <depend>scenario_entities</depend>
   <depend>scenario_expression</depend>
@@ -26,4 +26,8 @@
   <depend>scenario_logger_msgs</depend>
   <depend>scenario_sequence</depend>
   <depend>yaml-cpp</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>
