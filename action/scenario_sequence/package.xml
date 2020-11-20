@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>scenario_sequence</name>
   <version>0.0.0</version>
   <description>The scenario_sequence package</description>
@@ -9,18 +9,14 @@
 
   <license>TODO</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
-  <depend>entity_plugins</depend>
-  <depend>libgoogle-glog-dev</depend>
-  <depend>rosbag</depend>
-  <depend>roscpp</depend>
   <depend>scenario_actions</depend>
-  <depend>scenario_api</depend>
-  <depend>scenario_entities</depend>
   <depend>scenario_expression</depend>
   <depend>scenario_intersection</depend>
-  <depend>scenario_logger</depend>
-  <depend>scenario_logger_msgs</depend>
+  <depend>scenario_utility</depend>
   <depend>yaml-cpp</depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

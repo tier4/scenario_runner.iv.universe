@@ -1,16 +1,16 @@
 #ifndef SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 #define SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 
-#include <queue>
-
-#include <ros/ros.h>
-
-#include <yaml-cpp/yaml.h>
 
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_sequence/event.h>
 #include <scenario_utility/scenario_utility.h>
+
+#include <yaml-cpp/yaml.h>
+
+#include <memory>
+#include <queue>
 
 namespace scenario_sequence
 {

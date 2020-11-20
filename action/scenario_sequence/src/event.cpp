@@ -32,7 +32,7 @@ Event::Event(
 simulation_is Event::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager>&)
 {
-  if (ignited_ = condition_.evaluate(context_))
+  if ((ignited_ = condition_.evaluate(context_)))
   {
     (*action_manager_).run(context_.intersections_pointer());
     return simulation_is::succeeded;
