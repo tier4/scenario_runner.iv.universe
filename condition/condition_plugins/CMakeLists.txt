@@ -26,7 +26,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
    src/speed_condition.cpp
 )
 
-pluginlib_export_plugin_description_file(condition_plugins plugins.xml)
+pluginlib_export_plugin_description_file(scenario_conditions plugins.xml)
 
 ament_auto_package()
 
