@@ -24,5 +24,5 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/vehicle_entity.cpp
 )
 
-pluginlib_export_plugin_description_file(entity_plugins plugins.xml)
+pluginlib_export_plugin_description_file(scenario_entities plugins.xml)
 ament_auto_package()
