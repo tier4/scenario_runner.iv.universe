@@ -1,8 +1,9 @@
 #include <chrono>
+#include <regex>
 #include <thread>
 
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <scenario_logger/logger.h>
 #include <scenario_logger/simple_logger.hpp>
@@ -181,11 +182,13 @@ void ScenarioRunner::update(const ros::TimerEvent & event) try
   std::stringstream ss {};
   boost::property_tree::write_json(ss, make_context());
 
+  static const std::regex pattern { R"(\[\s+\"\"\s+\])" };
+
   scenario_runner_msgs::StringStamped message {};
   message.header.stamp = ros::Time::now();
-  message.data = ss.str();
+  message.data = std::regex_replace(ss.str(), pattern, R"([])"); // XXX HACK
 
-  // std::cout << message.data.c_str() << std::endl;
+  std::cout << message.data.c_str() << std::endl;
 
   publisher_.publish(message);
 }

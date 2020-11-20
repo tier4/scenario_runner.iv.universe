@@ -308,14 +308,22 @@ protected:                                                                     \
                                                                                \
     boost::property_tree::ptree result {};                                     \
                                                                                \
-    for (const auto& each : operands)                                          \
+    if (not operands.empty())                                                  \
+    {                                                                          \
+      for (const auto& each : operands)                                        \
+      {                                                                        \
+        result.push_back(                                                      \
+          std::make_pair(                                                      \
+            "",                                                                \
+            each.property(                                                     \
+              prefix + type() + "(" + std::to_string(occurrence) + ")/",       \
+              occurrences[each.data->type()]++)));                             \
+      }                                                                        \
+    }                                                                          \
+    else                                                                       \
     {                                                                          \
       result.push_back(                                                        \
-        std::make_pair(                                                        \
-          "",                                                                  \
-          each.property(                                                       \
-            prefix + type() + "(" + std::to_string(occurrence) + ")/",         \
-            occurrences[each.data->type()]++)));                               \
+        std::make_pair("", boost::property_tree::ptree()));                    \
     }                                                                          \
                                                                                \
     return result;                                                             \
