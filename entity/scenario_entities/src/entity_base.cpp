@@ -1,5 +1,7 @@
 #include <scenario_entities/entity_base.h>
 
+#include <sstream>
+
 namespace scenario_entities
 {
 
@@ -8,9 +10,11 @@ bool EntityBase::configure(
   const std::shared_ptr<ScenarioAPI>& api)
 try
 {
+  std::stringstream ss;
+  ss << type_ << "Entity-" << static_cast<const void*>(this);
   name_ =
     read_optional<std::string>(
-      entity, "Name", type_ + "Entity-" + boost::lexical_cast<std::string>(this));
+      entity, "Name", ss.str());
 
   return static_cast<bool>(api_ = api);
 }
@@ -70,7 +74,7 @@ try
     api_->addNPC(
       type,
       name_,
-      read_essential<geometry_msgs::Pose>(node, "Pose"),
+      read_essential<geometry_msgs::msg::Pose>(node, "Pose"),
       read_optional<float>(node, "Speed", 0),
       false,
       read_optional<std::string>(node, "Shift", "Center"));

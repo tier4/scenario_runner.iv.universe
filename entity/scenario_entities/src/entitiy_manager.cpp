@@ -1,6 +1,8 @@
 #include <scenario_entities/entity_manager.h>
 #include <scenario_utility/parse.h>
 
+#include <pluginlib/class_loader.hpp>
+
 namespace scenario_entities
 {
 
@@ -90,10 +92,11 @@ try
   }
   else
   {
-    auto plugin = loader.createInstance(*iter);
+    auto plugin = loader.createSharedInstance(*iter);
     plugin->configure(node, api_ptr);
-    entities_.push_back(plugin);
+    entities_.emplace_back(plugin);
   }
+  return true;
 }
 catch (...)
 {
