@@ -1,16 +1,14 @@
 #ifndef SCENARIO_RUNNER_SCENARIO_RUNNER_H_INCLUDED
 #define SCENARIO_RUNNER_SCENARIO_RUNNER_H_INCLUDED
 
-#include <memory>
-
-#include <rclcpp/rclcpp.hpp>
-
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_logger/logger.h>
-#include <scenario_runner/scenario_terminater.h>
 #include <scenario_sequence/sequence_manager.h>
 #include <scenario_utility/scenario_utility.h>
+
+#include <memory>
+#include <rclcpp/rclcpp.hpp>
 
 namespace scenario_runner
 {
@@ -30,11 +28,11 @@ public:
 private:
   rclcpp::TimerBase::SharedPtr timer_;
 
+  const std::shared_ptr<ScenarioAPI> simulator_;
+
   std::string scenario_path_;
 
   YAML::Node scenario_;
-
-  const std::shared_ptr<ScenarioAPI> simulator_;
 
   scenario_expression::Context context;
 

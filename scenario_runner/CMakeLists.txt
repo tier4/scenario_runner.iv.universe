@@ -20,7 +20,6 @@ find_package(yaml-cpp REQUIRED)
 
 
 ament_auto_add_library(scenario_runner SHARED
-  src/scenario_terminator.cpp
   src/scenario_runner.cpp)
 
 target_link_libraries(scenario_runner

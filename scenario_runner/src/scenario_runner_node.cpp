@@ -1,14 +1,9 @@
-#include <thread>
-#include <boost/cstdlib.hpp>
-#include <exception>
 #include <glog/logging.h>
-#include <rclcpp/rclcpp.hpp>
 #include <scenario_logger/logger.h>
 #include <scenario_runner/scenario_runner.h>
-#include <scenario_runner/scenario_terminater.h>
-
-
-static scenario_runner::ScenarioTerminator terminator { "0.0.0.0", 10000 };
+#include <boost/cstdlib.hpp>
+#include <exception>
+#include <rclcpp/rclcpp.hpp>
 
 static void failureCallback()
 {
@@ -16,15 +11,42 @@ static void failureCallback()
   scenario_logger::log.write();
 }
 
-int main(int argc, char * argv[]) try
+void dump_diagnostics(const std::string & path, double mileage, double duration, int exit_code){
+  boost::property_tree::ptree pt;
+  pt.put("code", exit_code);
+  pt.put("duration", duration);
+  pt.put("mileage", mileage);
+
+  switch (exit_code) {
+    case boost::exit_success:
+      pt.put("message", "exit_success");
+      break;
+    case boost::exit_failure:
+      pt.put("message", "exit_failure");
+      break;
+    case boost::exit_test_failure:
+      pt.put("message", "exit_test_failure");
+      break;
+    case boost::exit_exception_failure:
+      pt.put("message", "exit_exception_failure");
+      break;
+    default:
+      pt.put("message", "unknown_exit_code");
+  }
+  boost::property_tree::write_json(path, pt);
+}
+
+int main(int argc, char * argv[])
 {
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureFunction(&failureCallback);
 
-  rclcpp::init(argc, argv);
   /*
- * setup scenario runner
- */
+  * setup scenario runner
+  */
+
+  rclcpp::init(argc, argv);
+
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner instantiated.");
   const auto runner_ptr = std::make_shared<scenario_runner::ScenarioRunner>();
 
@@ -40,67 +62,71 @@ int main(int argc, char * argv[]) try
   SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
   std::this_thread::sleep_for(std::chrono::seconds { 10 });
   SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
+  const auto & path = runner_ptr->declare_parameter("json_dump_path").get<std::string>();
+  const auto dump = [&runner_ptr, path](int exit_code){
+    dump_diagnostics(path, runner_ptr->current_mileage(),
+                     (runner_ptr->now() -  scenario_logger::log.begin()).seconds(), exit_code);
+  };
 
-
-  /*
-   * start simulation
-   */
-  for (runner_ptr->run(); rclcpp::ok(); rclcpp::spin_some(runner_ptr))
-  {
-    static auto previously{runner_ptr->currently};
-
-    if (previously != runner_ptr->currently)
+  try{
+    /*
+  * start simulation
+  */
+    for (runner_ptr->run(); rclcpp::ok(); rclcpp::spin_some(runner_ptr))
     {
-      switch (previously = runner_ptr->currently)
+      static auto previously{runner_ptr->currently};
+
+      if (previously != runner_ptr->currently)
       {
-      case simulation_is::succeeded:
-        SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
-        scenario_logger::log.write();
-        terminator.sendTerminateRequest(boost::exit_success);
-        return boost::exit_success;
+        switch (runner_ptr->currently)
+        {
+          case simulation_is::succeeded:
+          SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
+             scenario_logger::log.write();
+            {
+              const auto ret = boost::exit_success;
+              dump(ret);
+              return ret;
+            }
 
-      case simulation_is::failed:
-        SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
-        scenario_logger::log.write();
-        terminator.sendTerminateRequest(boost::exit_test_failure);
-        return boost::exit_test_failure;
+          case simulation_is::failed:
+          SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
+             scenario_logger::log.write();
+            {
+              const auto ret = boost::exit_test_failure;
+              dump(ret);
+              return ret;
+            }
 
-      case simulation_is::ongoing:
-        break;
+          case simulation_is::ongoing:
+            break;
+        }
+        previously = runner_ptr->currently;
       }
     }
 
-    terminator.update_mileage(runner_ptr->current_mileage());
-
-    terminator.update_duration(
-      (runner_ptr->now() - scenario_logger::log.begin()).seconds());
-  }
-
-  if (runner_ptr->currently == simulation_is::ongoing)
-  {
-    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
+    if (runner_ptr->currently == simulation_is::ongoing)
+    {
+      SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
+      scenario_logger::log.write();
+      const auto ret = boost::exit_failure;
+      dump(ret);
+      return ret;
+    }
+    else
+    {
+      SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
+      scenario_logger::log.write();
+      return boost::exit_exception_failure;
+    }
+  } catch (const std::exception& e) {
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Unexpected standard exception thrown: " << e.what());
     scenario_logger::log.write();
-    terminator.sendTerminateRequest(boost::exit_failure);
-    return boost::exit_failure;
-  }
-  else
+    dump(boost::exit_exception_failure);
+  } catch (...)
   {
-    SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Unexpected non-standard exception thrown.");
     scenario_logger::log.write();
-    return boost::exit_exception_failure;
+    dump(boost::exit_exception_failure);
   }
-}
-
-catch (const std::exception& e)
-{
-  SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Unexpected standard exception thrown: " << e.what());
-  scenario_logger::log.write();
-  terminator.sendTerminateRequest(boost::exit_exception_failure);
-}
-
-catch (...)
-{
-  SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Unexpected non-standard exception thrown.");
-  scenario_logger::log.write();
-  terminator.sendTerminateRequest(boost::exit_exception_failure);
 }
