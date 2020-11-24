@@ -114,8 +114,8 @@ const rclcpp::Time& begin();
 std::string toIso6801(const rclcpp::Time& stamp);
 
 boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::MetaData& data);
-boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::LoggedData& data);
-boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::msg::Log& data,
+boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::msg::Log& data);
+boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::LoggedData& data,
                                                     const rclcpp::Logger & rclcpp_logger);
 
 class Logger
@@ -125,6 +125,7 @@ class Logger
   boost::optional<std::string> log_output_path_;
 
   rclcpp::Time time_;
+  rclcpp::Logger rclcpp_logger_;
 
 public:
   Logger();

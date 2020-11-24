@@ -28,6 +28,7 @@ LoggerInitializer::~LoggerInitializer()
 Logger::Logger()
   : data_ {}
   , log_output_path_ { boost::none }
+  , rclcpp_logger_(rclcpp::get_logger("scenario_logger"))
 {}
 
 void Logger::setStartDatetime(const rclcpp::Time& time)
@@ -71,7 +72,7 @@ void Logger::write()
     data_.metadata.end_datetime = toIso6801(now);
     data_.metadata.duration = (now - begin()).seconds();
 
-    boost::property_tree::write_json(log_output_path_.get(), toJson(data_));
+    boost::property_tree::write_json(log_output_path_.get(), toJson(data_, rclcpp_logger_));
   }
   else
   {
@@ -171,7 +172,8 @@ boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::MetaData& da
   return pt;
 }
 
-boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::LoggedData& data, const rclcpp::Logger & rclcpp_logger)
+boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::LoggedData& data, const
+rclcpp::Logger & rclcpp_logger)
 {
   using namespace boost::property_tree;
   ptree pt,log_tree;
