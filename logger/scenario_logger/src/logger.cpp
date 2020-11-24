@@ -67,7 +67,7 @@ void Logger::write()
 {
   if (log_output_path_)
   {
-    const rclcpp::Time now { rclcpp::Clock(RCL_ROS_TIME).now() };
+    const rclcpp::Time now { rclcpp::Clock(time_.get_clock_type()).now() };
 
     data_.metadata.end_datetime = toIso6801(now);
     data_.metadata.duration = (now - begin()).seconds();
@@ -92,7 +92,7 @@ void Logger::append(int level,
 {
   scenario_logger_msgs::msg::Log log;
 
-  log.elapsed_time = rclcpp::Clock(RCL_ROS_TIME).now() - begin();
+  log.elapsed_time = rclcpp::Clock(time_.get_clock_type()).now() - begin();
   log.level.level = level;
   log.categories = categories;
   log.description = description;
