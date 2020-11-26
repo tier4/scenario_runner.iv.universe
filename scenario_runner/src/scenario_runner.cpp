@@ -3,14 +3,13 @@
 
 namespace scenario_runner
 {
-ScenarioRunner::ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh)
-: currently{simulation_is::ongoing},
-  nh_{nh},
-  pnh_{pnh},
-  simulator_{std::make_shared<ScenarioAPI>()}
+ScenarioRunner::ScenarioRunner()
+: Node("ScenarioRunnerNode"),
+  currently{simulation_is::ongoing},
+  simulator_{std::make_shared<ScenarioAPI>()},
+  scenario_path_{declare_parameter("scenario_path").get<std::string>()}
 {
-  pnh_.getParam("scenario_path", scenario_path_);
-
+  simulator_->init();
   if (not (*simulator_).waitAutowareInitialize())
   {
     SCENARIO_ERROR_THROW(CATEGORY(), "Failed to initialize Autoware.");
@@ -91,7 +90,12 @@ try
   simulator_->waitAPIReady();
   SCENARIO_INFO_STREAM(CATEGORY(), "Simulator API is ready.");
 
-  timer_ = nh_.createTimer(ros::Duration(0.01), &ScenarioRunner::update, this);
+  auto timer_callback = std::bind(&ScenarioRunner::update, this);
+  const auto period = std::chrono::milliseconds{10UL};
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 
   if (not simulator_->sendEngage(true))
   {
@@ -99,7 +103,7 @@ try
   }
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner engaged Autoware.");
 
-  scenario_logger::log.initialize(ros::Time::now()); // NOTE: initialize logger's clock here.
+  scenario_logger::log.initialize(this->now()); // NOTE: initialize logger's clock here.
   SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "Simulation started.");
 }
 catch (...)
@@ -107,7 +111,7 @@ catch (...)
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to initialize ScenarioRunner.");
 }
 
-void ScenarioRunner::update(const ros::TimerEvent & event) try
+void ScenarioRunner::update() try
 {
   scenario_logger::log.updateMoveDistance(simulator_->getMoveDistance());
   (*sequence_manager_).update(intersection_manager_);

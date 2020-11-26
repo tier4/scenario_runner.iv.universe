@@ -1,23 +1,21 @@
 #ifndef SCENARIO_RUNNER_SCENARIO_RUNNER_H_INCLUDED
 #define SCENARIO_RUNNER_SCENARIO_RUNNER_H_INCLUDED
 
-#include <memory>
-
-#include <ros/ros.h>
-
 #include <scenario_expression/expression.h>
 #include <scenario_intersection/intersection_manager.h>
 #include <scenario_logger/logger.h>
-#include <scenario_runner/scenario_terminater.h>
 #include <scenario_sequence/sequence_manager.h>
 #include <scenario_utility/scenario_utility.h>
 
+#include <memory>
+#include <rclcpp/rclcpp.hpp>
+
 namespace scenario_runner
 {
-class ScenarioRunner
+class ScenarioRunner : public rclcpp::Node
 {
 public:
-  ScenarioRunner(ros::NodeHandle nh, ros::NodeHandle pnh);
+  ScenarioRunner();
   void run();
 
   double current_mileage() const
@@ -28,15 +26,13 @@ public:
   simulation_is currently;
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Timer timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
+
+  const std::shared_ptr<ScenarioAPI> simulator_;
 
   std::string scenario_path_;
 
   YAML::Node scenario_;
-
-  const std::shared_ptr<ScenarioAPI> simulator_;
 
   scenario_expression::Context context;
 
@@ -46,7 +42,7 @@ private:
   std::shared_ptr<scenario_sequence::SequenceManager> sequence_manager_;
   std::shared_ptr<scenario_intersection::IntersectionManager> intersection_manager_;
 
-  void update(const ros::TimerEvent & event);
+  void update();
 };
 
 }  // namespace scenario_runner
