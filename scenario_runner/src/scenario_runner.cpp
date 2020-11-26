@@ -102,12 +102,9 @@ void ScenarioRunner::run() try
         });
 
       LOG_SIMPLE(info() << "Parse 'Story.Act'");
-      call_with_optional(node, "Act", [&](auto&& node)
-      {
-        sequence_manager_ =
-          std::make_shared<scenario_sequence::SequenceManager>(
-            context, node);
-      });
+      sequence_manager_ =
+        std::make_shared<scenario_sequence::SequenceManager>(
+          context, node["Act"]);
 
       LOG_SIMPLE(info() << "Parse 'Story.EndCondition'");
       call_with_essential(
