@@ -194,7 +194,17 @@ public:
   virtual boost::property_tree::ptree property(
     const std::string& prefix = "", std::size_t occurrence = 0) const
   {
-    return data ? data->property(prefix, occurrence) : boost::property_tree::ptree();
+    if (data)
+    {
+      return (*data).property(prefix, occurrence);
+    }
+    else
+    {
+      boost::property_tree::ptree result {};
+      result.push_back(
+        std::make_pair("", boost::property_tree::ptree()));
+      return result;
+    }
   }
 
   friend std::ostream & operator<<(std::ostream & os, const Expression & expression)
@@ -328,12 +338,25 @@ protected:                                                                     \
     {                                                                          \
       for (const auto& each : operands)                                        \
       {                                                                        \
-        result.push_back(                                                      \
-          std::make_pair(                                                      \
-            "",                                                                \
-            each.property(                                                     \
-              prefix + type() + "(" + std::to_string(occurrence) + ")/",       \
-              occurrences[each.data->type()]++)));                             \
+        const auto property {                                                  \
+          each.property(                                                       \
+            prefix + type() + "(" + std::to_string(occurrence) + ")/",         \
+            occurrences[each.data->type()]++)                                  \
+        };                                                                     \
+                                                                               \
+        try                                                                    \
+        {                                                                      \
+          property.get_child("Name");                                          \
+          result.push_back(std::make_pair("", property));                      \
+        }                                                                      \
+        catch (...)                                                            \
+        {                                                                      \
+          for (const auto& each : property.get_child(""))                      \
+          {                                                                    \
+            result.push_back(                                                  \
+              std::make_pair("", each.second));                                \
+          }                                                                    \
+        }                                                                      \
       }                                                                        \
     }                                                                          \
     else                                                                       \
