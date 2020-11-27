@@ -334,11 +334,6 @@ protected:
         }
       }
     }
-    else
-    {
-      result.push_back(
-        std::make_pair("", boost::property_tree::ptree()));
-    }
 
     return result;
   }
