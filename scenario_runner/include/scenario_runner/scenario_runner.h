@@ -23,6 +23,8 @@ public:
     return simulator_->getMoveDistance();
   }
 
+  void spin_simulator();
+
   simulation_is currently;
 
 private:

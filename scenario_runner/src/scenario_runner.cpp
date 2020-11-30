@@ -25,6 +25,10 @@ ScenarioRunner::ScenarioRunner()
   }
 }
 
+void ScenarioRunner::spin_simulator(){
+  rclcpp::spin_some(simulator_);
+}
+
 void ScenarioRunner::run()
 try
 {
