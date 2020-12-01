@@ -74,6 +74,7 @@ int main(int argc, char * argv[])
   */
     for (runner_ptr->run(); rclcpp::ok(); rclcpp::spin_some(runner_ptr))
     {
+      runner_ptr->spin_simulator();
       static auto previously{runner_ptr->currently};
 
       if (previously != runner_ptr->currently)
@@ -86,6 +87,7 @@ int main(int argc, char * argv[])
             {
               const auto ret = boost::exit_success;
               dump(ret);
+              rclcpp::shutdown();
               return ret;
             }
 
@@ -95,6 +97,7 @@ int main(int argc, char * argv[])
             {
               const auto ret = boost::exit_test_failure;
               dump(ret);
+              rclcpp::shutdown();
               return ret;
             }
 
@@ -111,12 +114,14 @@ int main(int argc, char * argv[])
       scenario_logger::log.write();
       const auto ret = boost::exit_failure;
       dump(ret);
+      rclcpp::shutdown();
       return ret;
     }
     else
     {
       SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
       scenario_logger::log.write();
+      rclcpp::shutdown();
       return boost::exit_exception_failure;
     }
   } catch (const std::exception& e) {
@@ -129,4 +134,6 @@ int main(int argc, char * argv[])
     scenario_logger::log.write();
     dump(boost::exit_exception_failure);
   }
+  rclcpp::shutdown();
+  return 0;
 }

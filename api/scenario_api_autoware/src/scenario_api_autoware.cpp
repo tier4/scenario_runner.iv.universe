@@ -117,7 +117,6 @@ ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
 
 void ScenarioAPIAutoware::timerCallbackFast()
 {
-  rclcpp::spin_some(node_->get_node_base_interface());
   getCurrentPoseFromTF();
   pubTrafficLight();
 }
