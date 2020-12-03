@@ -19,12 +19,12 @@
 #include <unordered_map>
 
 #include <yaml-cpp/yaml.h>
-#include <rclcpp/logging.hpp>
-#include <rclcpp/logger.hpp>
+#include "rclcpp/logging.hpp"
+#include "rclcpp/logger.hpp"
 
-#include <scenario_api/scenario_api_core.hpp>
-#include <scenario_intersection/intersection.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "scenario_api/scenario_api_core.hpp"
+#include "scenario_intersection/intersection.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 namespace scenario_intersection
 {

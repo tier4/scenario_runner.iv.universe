@@ -15,12 +15,12 @@
 #ifndef SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
 #define SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
 
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <scenario_actions/action_manager.hpp>
-#include <scenario_api/scenario_api_core.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
-#include <scenario_logger/logger.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "scenario_actions/action_manager.hpp"
+#include "scenario_api/scenario_api_core.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_logger/logger.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 #include <yaml-cpp/yaml.h>
 

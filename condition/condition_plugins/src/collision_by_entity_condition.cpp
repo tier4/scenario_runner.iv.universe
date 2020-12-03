@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <condition_plugins/collision_by_entity_condition.hpp>
-#include <scenario_logger/logger.hpp>
+#include "condition_plugins/collision_by_entity_condition.hpp"
+#include "scenario_logger/logger.hpp"
 
 namespace condition_plugins
 {
@@ -80,6 +80,6 @@ bool CollisionByEntityCondition::update(
 
 }  // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(condition_plugins::CollisionByEntityCondition, scenario_conditions::ConditionBase)
 

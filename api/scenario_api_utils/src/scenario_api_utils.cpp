@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_api_utils/scenario_api_utils.hpp>
+#include "scenario_api_utils/scenario_api_utils.hpp"
 
 double normalizeRadian(const double rad, const double min_rad, const double max_rad)
 {

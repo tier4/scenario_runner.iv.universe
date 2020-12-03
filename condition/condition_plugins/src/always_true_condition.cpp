@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <condition_plugins/always_true_condition.hpp>
+#include "condition_plugins/always_true_condition.hpp"
 
 namespace condition_plugins
 {
@@ -44,6 +44,6 @@ bool AlwaysTrueCondition::update(
 
 } // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(condition_plugins::AlwaysTrueCondition, scenario_conditions::ConditionBase)
 

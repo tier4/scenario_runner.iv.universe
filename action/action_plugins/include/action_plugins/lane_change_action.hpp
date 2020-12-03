@@ -15,9 +15,9 @@
 #ifndef ACION_PLUGINS_LANE_CHANGE_ACTION_H_INCLUDED
 #define ACION_PLUGINS_LANE_CHANGE_ACTION_H_INCLUDED
 
-#include <scenario_actions/entity_action_base.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "scenario_actions/entity_action_base.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 namespace action_plugins
 {

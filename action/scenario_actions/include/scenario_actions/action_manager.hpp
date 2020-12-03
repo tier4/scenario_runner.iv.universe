@@ -15,11 +15,11 @@
 #ifndef SCENARIO_ACTIONS_ACTION_MANAGER_H_INCLUDED
 #define SCENARIO_ACTIONS_ACTION_MANAGER_H_INCLUDED
 
-#include <scenario_actions/entity_action_base.hpp>
-#include <scenario_api/scenario_api_core.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
+#include "scenario_actions/entity_action_base.hpp"
+#include "scenario_api/scenario_api_core.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
 
-#include <pluginlib/class_loader.hpp>
+#include "pluginlib/class_loader.hpp"
 #include <yaml-cpp/yaml.h>
 
 #include <memory>

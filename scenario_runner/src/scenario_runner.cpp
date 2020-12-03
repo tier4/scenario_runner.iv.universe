@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_logger/logger.hpp>
-#include <scenario_runner/scenario_runner.hpp>
+#include "scenario_logger/logger.hpp"
+#include "scenario_runner/scenario_runner.hpp"
 
 namespace scenario_runner
 {

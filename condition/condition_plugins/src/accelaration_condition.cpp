@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <condition_plugins/acceleration_condition.hpp>
+#include "condition_plugins/acceleration_condition.hpp"
 
 namespace condition_plugins
 {
@@ -84,6 +84,6 @@ bool AccelerationCondition::update(
 
 }  // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(condition_plugins::AccelerationCondition, scenario_conditions::ConditionBase)
 

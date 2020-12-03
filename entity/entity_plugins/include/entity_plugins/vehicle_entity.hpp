@@ -15,7 +15,7 @@
 #ifndef ENTITY_PLUGINS_VEHICLE_ENTITY_H_INCLUDED
 #define ENTITY_PLUGINS_VEHICLE_ENTITY_H_INCLUDED
 
-#include <scenario_entities/entity_base.hpp>
+#include "scenario_entities/entity_base.hpp"
 
 namespace entity_plugins
 {

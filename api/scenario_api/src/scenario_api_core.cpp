@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_api/scenario_api_core.hpp>
-#include <scenario_api/scenario_calc_dist_utils.hpp>
+#include "scenario_api/scenario_api_core.hpp"
+#include "scenario_api/scenario_calc_dist_utils.hpp"
 
 ScenarioAPI::ScenarioAPI()
 : Node("scenario_api"),

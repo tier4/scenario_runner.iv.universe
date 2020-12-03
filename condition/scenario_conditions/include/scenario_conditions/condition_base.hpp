@@ -17,8 +17,8 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <scenario_api/scenario_api_core.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
+#include "scenario_api/scenario_api_core.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
 
 #include <sstream>
 

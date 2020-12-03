@@ -15,10 +15,10 @@
 #ifndef INCLUDED_CONDITION_PLUGINS_SIGNAL_CONDITION_H
 #define INCLUDED_CONDITION_PLUGINS_SIGNAL_CONDITION_H
 
-#include <scenario_conditions/condition_base.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
-#include <scenario_logger/logger.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "scenario_conditions/condition_base.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_logger/logger.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 namespace condition_plugins
 {

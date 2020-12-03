@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_expression/expression.hpp>
+#include "scenario_expression/expression.hpp"
 
 namespace scenario_expression
 {

@@ -15,11 +15,11 @@
 #ifndef INCLUDED_ACION_PLUGINS_CHANGE_SIGNAL_ACTION_H
 #define INCLUDED_ACION_PLUGINS_CHANGE_SIGNAL_ACTION_H
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 
-#include <scenario_actions/entity_action_base.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "scenario_actions/entity_action_base.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 namespace action_plugins
 {

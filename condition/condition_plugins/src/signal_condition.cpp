@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <condition_plugins/signal_condition.hpp>
+#include "condition_plugins/signal_condition.hpp"
 
 namespace condition_plugins
 {
@@ -69,5 +69,5 @@ bool SignalCondition::update(const std::shared_ptr<scenario_intersection::Inters
 
 } // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(condition_plugins::SignalCondition, scenario_conditions::ConditionBase)

@@ -15,10 +15,10 @@
 #ifndef ENTITY_PLUGINS_EGO_CAR_ENTITIY_H_INCLUDED
 #define ENTITY_PLUGINS_EGO_CAR_ENTITIY_H_INCLUDED
 
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 
-#include <scenario_entities/entity_base.hpp>
+#include "scenario_entities/entity_base.hpp"
 
 namespace entity_plugins
 {
