@@ -1,0 +1,50 @@
+#ifndef SCENARIO_INTERSECTION_INTERSECTON_MANAGER_H_INCLUDED
+#define SCENARIO_INTERSECTION_INTERSECTON_MANAGER_H_INCLUDED
+
+#include <string>
+#include <unordered_map>
+
+#include <yaml-cpp/yaml.h>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/logger.hpp>
+
+#include <scenario_api/scenario_api_core.hpp>
+#include <scenario_intersection/intersection.hpp>
+#include <scenario_utility/scenario_utility.hpp>
+
+namespace scenario_intersection
+{
+
+class IntersectionManager
+{
+  const YAML::Node node_;
+
+  rclcpp::Logger logger_;
+
+  const std::shared_ptr<ScenarioAPI> simulator_;
+
+  std::unordered_map<std::string, scenario_intersection::Intersection> intersections_;
+
+public:
+  IntersectionManager(
+    const YAML::Node&,
+    const std::shared_ptr<ScenarioAPI>&
+  );
+
+  bool initialize(const YAML::Node&);
+
+  bool change(const std::string&, const std::string&);
+
+  simulation_is update();
+
+  template <typename... Ts>
+  constexpr decltype(auto) at(Ts&&... xs) const
+  {
+    return intersections_.at(std::forward<decltype(xs)>(xs)...);
+  }
+};
+
+} // namespace scenario_intersection
+
+#endif // SCENARIO_INTERSECTION_INTERSECTON_MANAGER_H_INCLUDED
+

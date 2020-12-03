@@ -1,4 +1,4 @@
-#include <action_plugins/change_signal_action.h>
+#include <action_plugins/change_signal_action.hpp>
 
 namespace action_plugins
 {

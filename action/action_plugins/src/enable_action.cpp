@@ -1,4 +1,4 @@
-#include <action_plugins/enable_action.h>
+#include <action_plugins/enable_action.hpp>
 
 namespace action_plugins
 {

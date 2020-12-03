@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <scenario_api/scenario_api_core.h>
-#include <scenario_api/scenario_calc_dist_utils.h>
+#include <scenario_api/scenario_api_core.hpp>
+#include <scenario_api/scenario_calc_dist_utils.hpp>
 
 ScenarioAPI::ScenarioAPI()
 : Node("scenario_api"),

@@ -1,4 +1,4 @@
-#include <condition_plugins/signal_condition.h>
+#include <condition_plugins/signal_condition.hpp>
 
 namespace condition_plugins
 {

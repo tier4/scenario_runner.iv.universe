@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <scenario_api_autoware/scenario_api_autoware.h>
+#include <scenario_api_autoware/scenario_api_autoware.hpp>
 
 #include <boost/assign/list_of.hpp>
 

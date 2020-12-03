@@ -1,4 +1,4 @@
-#include <scenario_entities/entity_base.h>
+#include <scenario_entities/entity_base.hpp>
 
 #include <sstream>
 

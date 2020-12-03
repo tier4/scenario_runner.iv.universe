@@ -1,4 +1,4 @@
-#include <scenario_sequence/event.h>
+#include <scenario_sequence/event.hpp>
 
 namespace scenario_sequence
 {

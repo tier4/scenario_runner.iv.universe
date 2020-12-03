@@ -1,4 +1,4 @@
-#include <entity_plugins/pedestrian_entity.h>
+#include <entity_plugins/pedestrian_entity.hpp>
 
 namespace entity_plugins
 {

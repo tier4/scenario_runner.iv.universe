@@ -1,4 +1,4 @@
-#include <entity_plugins/ego_entity.h>
+#include <entity_plugins/ego_entity.hpp>
 
 namespace entity_plugins
 {

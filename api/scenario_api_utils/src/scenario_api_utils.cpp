@@ -1,4 +1,4 @@
-#include <scenario_api_utils/scenario_api_utils.h>
+#include <scenario_api_utils/scenario_api_utils.hpp>
 
 double normalizeRadian(const double rad, const double min_rad, const double max_rad)
 {

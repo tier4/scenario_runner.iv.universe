@@ -1,4 +1,4 @@
-#include <scenario_sequence/sequence_manager.h>
+#include <scenario_sequence/sequence_manager.hpp>
 
 namespace scenario_sequence
 {

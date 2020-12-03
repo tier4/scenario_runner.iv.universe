@@ -1,4 +1,4 @@
-#include <condition_plugins/relative_distance_condition.h>
+#include <condition_plugins/relative_distance_condition.hpp>
 
 namespace condition_plugins
 {

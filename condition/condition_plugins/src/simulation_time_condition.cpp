@@ -1,4 +1,4 @@
-#include <condition_plugins/simulation_time_condition.h>
+#include <condition_plugins/simulation_time_condition.hpp>
 
 namespace condition_plugins
 {

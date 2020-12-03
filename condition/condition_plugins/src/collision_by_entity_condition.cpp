@@ -1,5 +1,5 @@
-#include <condition_plugins/collision_by_entity_condition.h>
-#include <scenario_logger/logger.h>
+#include <condition_plugins/collision_by_entity_condition.hpp>
+#include <scenario_logger/logger.hpp>
 
 namespace condition_plugins
 {

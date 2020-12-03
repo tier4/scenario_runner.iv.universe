@@ -1,4 +1,4 @@
-#include <scenario_expression/expression.h>
+#include <scenario_expression/expression.hpp>
 
 namespace scenario_expression
 {

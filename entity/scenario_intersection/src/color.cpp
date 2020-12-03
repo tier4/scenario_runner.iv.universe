@@ -1,4 +1,4 @@
-#include <scenario_intersection/color.h>
+#include <scenario_intersection/color.hpp>
 
 #include <unordered_map>
 

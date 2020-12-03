@@ -1,4 +1,4 @@
-#include <scenario_utility/misc.h>
+#include <scenario_utility/misc.hpp>
 
 // namespace scenario_utility
 // {

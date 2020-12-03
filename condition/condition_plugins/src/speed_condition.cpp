@@ -1,4 +1,4 @@
-#include <condition_plugins/speed_condition.h>
+#include <condition_plugins/speed_condition.hpp>
 
 namespace condition_plugins
 {

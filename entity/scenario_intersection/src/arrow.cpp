@@ -1,4 +1,4 @@
-#include <scenario_intersection/arrow.h>
+#include <scenario_intersection/arrow.hpp>
 
 #include <unordered_map>
 
