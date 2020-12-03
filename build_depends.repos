@@ -5,8 +5,8 @@ repositories:
     version: ros2
   autoware/planning_simulator:
     type: git
-    url: https://github.com/nnmm/planning_simulator.iv.universe.git
-    version: rename_hpp
+    url: https://github.com/tier4/planning_simulator.iv.universe.git
+    version: ros2
   description/lexus_description:
     type: git
     url: https://github.com/tier4/lexus_description.iv.universe.git
