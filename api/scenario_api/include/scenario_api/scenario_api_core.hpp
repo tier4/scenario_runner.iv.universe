@@ -25,7 +25,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <scenario_api/scenario_api_coordinate_manager.hpp>
 #include <scenario_api_autoware/scenario_api_autoware.hpp>
-#include <scenario_api_simulator/scenario_api_simulator.h>
+#include <scenario_api_simulator/scenario_api_simulator.hpp>
 #include <scenario_api_utils/scenario_api_utils.hpp>
 #include <tf2/convert.h>
 #include <tf2/utils.h>
