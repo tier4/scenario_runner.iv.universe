@@ -1,4 +1,4 @@
-#include <entity_plugins/bicycle_entity.h>
+#include <entity_plugins/bicycle_entity.hpp>
 
 namespace entity_plugins
 {

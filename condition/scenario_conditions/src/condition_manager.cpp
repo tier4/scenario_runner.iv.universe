@@ -1,4 +1,4 @@
-#include <scenario_conditions/condition_manager.h>
+#include <scenario_conditions/condition_manager.hpp>
 
 namespace scenario_conditions
 {

@@ -1,4 +1,4 @@
-#include <action_plugins/speed_action.h>
+#include <action_plugins/speed_action.hpp>
 
 namespace action_plugins
 {

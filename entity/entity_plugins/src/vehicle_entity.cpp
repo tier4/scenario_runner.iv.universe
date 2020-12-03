@@ -1,4 +1,4 @@
-#include <entity_plugins/vehicle_entity.h>
+#include <entity_plugins/vehicle_entity.hpp>
 
 namespace entity_plugins
 {

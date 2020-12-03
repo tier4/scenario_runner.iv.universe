@@ -1,4 +1,4 @@
-#include <entity_plugins/motorbike_entity.h>
+#include <entity_plugins/motorbike_entity.hpp>
 
 namespace entity_plugins
 {

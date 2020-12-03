@@ -1,4 +1,4 @@
-#include <condition_plugins/always_false_condition.h>
+#include <condition_plugins/always_false_condition.hpp>
 
 namespace condition_plugins
 {

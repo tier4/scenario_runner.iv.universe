@@ -1,5 +1,5 @@
-#include <scenario_entities/entity_manager.h>
-#include <scenario_utility/parse.h>
+#include <scenario_entities/entity_manager.hpp>
+#include <scenario_utility/parse.hpp>
 
 #include <pluginlib/class_loader.hpp>
 

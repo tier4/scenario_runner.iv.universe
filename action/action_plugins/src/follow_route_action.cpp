@@ -1,5 +1,5 @@
-#include "action_plugins/follow_route_action.h"
-#include "scenario_utility/scenario_utility.h"
+#include "action_plugins/follow_route_action.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 namespace action_plugins
 {

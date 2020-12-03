@@ -1,4 +1,4 @@
-#include <condition_plugins/acceleration_condition.h>
+#include <condition_plugins/acceleration_condition.hpp>
 
 namespace condition_plugins
 {

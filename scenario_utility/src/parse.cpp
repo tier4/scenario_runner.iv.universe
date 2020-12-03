@@ -1,4 +1,4 @@
-#include "scenario_utility/parse.h"
+#include "scenario_utility/parse.hpp"
 
 inline namespace scenario_utility
 {

@@ -1,5 +1,5 @@
-#include "scenario_conditions/condition_visualizer.h"
-#include "scenario_conditions/condition_manager.h"
+#include "scenario_conditions/condition_visualizer.hpp"
+#include "scenario_conditions/condition_manager.hpp"
 
 
 namespace scenario_conditions

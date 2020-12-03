@@ -1,4 +1,4 @@
-#include <scenario_utility/converter.h>
+#include <scenario_utility/converter.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 

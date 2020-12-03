@@ -1,4 +1,4 @@
-#include <action_plugins/lane_change_action.h>
+#include <action_plugins/lane_change_action.hpp>
 
 namespace action_plugins
 {

@@ -1,7 +1,7 @@
-#include <scenario_actions/action_manager.h>
+#include <scenario_actions/action_manager.hpp>
 
-#include <scenario_logger/logger.h>
-#include <scenario_utility/parse.h>
+#include <scenario_logger/logger.hpp>
+#include <scenario_utility/parse.hpp>
 
 namespace scenario_actions
 {

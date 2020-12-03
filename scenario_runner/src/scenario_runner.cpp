@@ -1,5 +1,5 @@
-#include <scenario_logger/logger.h>
-#include <scenario_runner/scenario_runner.h>
+#include <scenario_logger/logger.hpp>
+#include <scenario_runner/scenario_runner.hpp>
 
 namespace scenario_runner
 {

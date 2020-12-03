@@ -1,4 +1,4 @@
-#include <action_plugins/fault_injection_action.h>
+#include <action_plugins/fault_injection_action.hpp>
 
 namespace action_plugins
 {

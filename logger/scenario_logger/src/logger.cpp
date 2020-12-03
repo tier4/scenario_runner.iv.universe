@@ -1,4 +1,4 @@
-#include <scenario_logger/logger.h>
+#include <scenario_logger/logger.hpp>
 
 namespace scenario_logger
 {

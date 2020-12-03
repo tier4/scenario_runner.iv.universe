@@ -1,4 +1,4 @@
-#include <scenario_api/scenario_calc_dist_utils.h>
+#include <scenario_api/scenario_calc_dist_utils.hpp>
 
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>

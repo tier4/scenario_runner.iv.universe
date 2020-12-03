@@ -1,4 +1,4 @@
-#include <condition_plugins/reach_position_condition.h>
+#include <condition_plugins/reach_position_condition.hpp>
 
 namespace condition_plugins
 {

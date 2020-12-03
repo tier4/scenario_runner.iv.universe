@@ -1,4 +1,4 @@
-#include <scenario_intersection/intersection.h>
+#include <scenario_intersection/intersection.hpp>
 
 namespace scenario_intersection
 {

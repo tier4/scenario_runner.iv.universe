@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <scenario_api_event.h>
+#include <scenario_api_event.hpp>
 
 ScenarioAPIEvent::ScenarioAPIEvent() {}
 
