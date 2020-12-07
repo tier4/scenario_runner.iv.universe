@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_entities/entity_base.hpp>
+#include "scenario_entities/entity_base.hpp"
 
 #include <sstream>
 

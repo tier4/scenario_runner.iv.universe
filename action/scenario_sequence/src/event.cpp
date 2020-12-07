@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_sequence/event.hpp>
+#include "scenario_sequence/event.hpp"
 
 namespace scenario_sequence
 {

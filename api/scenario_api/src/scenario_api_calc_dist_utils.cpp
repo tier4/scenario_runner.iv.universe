@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_api/scenario_calc_dist_utils.hpp>
+#include "scenario_api/scenario_calc_dist_utils.hpp"
 
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
 
-#include <boost/assign/list_of.hpp>
+#include "boost/assign/list_of.hpp"
 
 namespace scenario_api_utils
 {

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_api/scenario_api_core.hpp>
-#include <scenario_api_utils/scenario_api_utils.hpp>
+#include "scenario_api/scenario_api_core.hpp"
+#include "scenario_api_utils/scenario_api_utils.hpp"
 
 namespace {
 // TODO(fred-apex-ai) how to print msg to stdout? https://answers.ros.org/question/365776/how-to-print-a-message-to-stdout-in-ros2/

@@ -15,10 +15,10 @@
 #ifndef SCENARIO_ENTITIES_ENTITY_MANAGER_H_INCLUDED
 #define SCENARIO_ENTITIES_ENTITY_MANAGER_H_INCLUDED
 
-#include <scenario_api/scenario_api_core.hpp>
-#include <scenario_entities/entity_base.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "scenario_api/scenario_api_core.hpp"
+#include "scenario_entities/entity_base.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 #include <yaml-cpp/yaml.h>
 

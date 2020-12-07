@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <entity_plugins/pedestrian_entity.hpp>
+#include "entity_plugins/pedestrian_entity.hpp"
 
 namespace entity_plugins
 {
@@ -23,6 +23,6 @@ PedestrianEntity::PedestrianEntity()
 
 } // namespace entity_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(entity_plugins::PedestrianEntity, scenario_entities::EntityBase)
 

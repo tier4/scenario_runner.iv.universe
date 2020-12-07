@@ -15,9 +15,9 @@
 #ifndef TEST_CONDITIONS_ALWAYS_FALSE_CONDITION_H_INCLUDED
 #define TEST_CONDITIONS_ALWAYS_FALSE_CONDITION_H_INCLUDED
 
-#include <scenario_conditions/condition_base.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "scenario_conditions/condition_base.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 namespace condition_plugins
 {

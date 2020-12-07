@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_entities/entity_manager.hpp>
-#include <scenario_utility/parse.hpp>
+#include "scenario_entities/entity_manager.hpp"
+#include "scenario_utility/parse.hpp"
 
-#include <pluginlib/class_loader.hpp>
+#include "pluginlib/class_loader.hpp"
 
 namespace scenario_entities
 {

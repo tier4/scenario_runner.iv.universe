@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <scenario_api/scenario_api_coordinate_manager.hpp>
+#include "scenario_api/scenario_api_coordinate_manager.hpp"
 
 ScenarioAPICoordinateManager::ScenarioAPICoordinateManager()
 : logger_(rclcpp::get_logger("scn_api_coord_mngr"))

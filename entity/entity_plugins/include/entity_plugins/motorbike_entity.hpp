@@ -15,7 +15,7 @@
 #ifndef INCLUDED_ENTITY_PLUGINS_MOTORBIKE_ENTITY_H
 #define INCLUDED_ENTITY_PLUGINS_MOTORBIKE_ENTITY_H
 
-#include <scenario_entities/entity_base.hpp>
+#include "scenario_entities/entity_base.hpp"
 
 namespace entity_plugins
 {

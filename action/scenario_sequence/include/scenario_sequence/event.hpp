@@ -16,10 +16,10 @@
 #define SCENARIO_SEQUENCE_EVENT_H_INCLUDED
 
 
-#include <scenario_actions/action_manager.hpp>
-#include <scenario_expression/expression.hpp>
-#include <scenario_intersection/intersection_manager.hpp>
-#include <scenario_utility/scenario_utility.hpp>
+#include "scenario_actions/action_manager.hpp"
+#include "scenario_expression/expression.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_utility/scenario_utility.hpp"
 
 #include <yaml-cpp/yaml.h>
 

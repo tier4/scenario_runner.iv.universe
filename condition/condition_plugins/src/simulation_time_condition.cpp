@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <condition_plugins/simulation_time_condition.hpp>
+#include "condition_plugins/simulation_time_condition.hpp"
 
 namespace condition_plugins
 {
@@ -73,6 +73,6 @@ bool SimulationTimeCondition::update(
 
 } // namespace condition_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(condition_plugins::SimulationTimeCondition, scenario_conditions::ConditionBase)
 
