@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_UTILS_SCENARIO_UTILS_H_INCLUDED
-#define SCENARIO_UTILS_SCENARIO_UTILS_H_INCLUDED
+#ifndef SCENARIO_UTILITY__SCENARIO_UTILITY_HPP_
+#define SCENARIO_UTILITY__SCENARIO_UTILITY_HPP_
 
 #include "parse.hpp"
 #include "converter.hpp"
 #include "misc.hpp"
 
-#endif // SCENARIO_UTILS_SCENARIO_UTILS_H_INCLUDED
-
+#endif  // SCENARIO_UTILITY__SCENARIO_UTILITY_HPP_
