@@ -17,10 +17,11 @@
 double normalizeRadian(const double rad, const double min_rad, const double max_rad)
 {
   const auto value = std::fmod(rad, 2 * M_PI);
-  if (min_rad < value && value <= max_rad)
+  if (min_rad < value && value <= max_rad) {
     return value;
-  else
+  } else {
     return value - std::copysign(2 * M_PI, value);
+  }
 }
 
 geometry_msgs::msg::Quaternion quatFromYaw(double yaw)
@@ -76,7 +77,9 @@ geometry_msgs::msg::Pose poseFromValue(
   return pose;
 }
 
-geometry_msgs::msg::Pose movePose(const geometry_msgs::msg::Pose & pose, const double move_dist_to_forward)
+geometry_msgs::msg::Pose movePose(
+  const geometry_msgs::msg::Pose & pose,
+  const double move_dist_to_forward)
 {
   geometry_msgs::msg::Pose move_pose = pose;
   const double yaw = tf2::getYaw(pose.orientation);
