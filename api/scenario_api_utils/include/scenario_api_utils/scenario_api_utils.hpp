@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_API_SCENARIO_API_UTILS_H_INCLUDED
-#define SCENARIO_API_SCENARIO_API_UTILS_H_INCLUDED
+#ifndef SCENARIO_API_UTILS__SCENARIO_API_UTILS_HPP_
+#define SCENARIO_API_UTILS__SCENARIO_API_UTILS_HPP_
 
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/transform.hpp"
@@ -39,6 +39,8 @@ geometry_msgs::msg::Pose poseFromValue(
   const double o_z, const double o_w);
 geometry_msgs::msg::Pose poseFromValue(
   const double p_x, const double p_y, const double p_z, const double yaw);
-geometry_msgs::msg::Pose movePose(const geometry_msgs::msg::Pose & pose, const double move_dist_to_forward);
+geometry_msgs::msg::Pose movePose(
+  const geometry_msgs::msg::Pose & pose,
+  const double move_dist_to_forward);
 
-#endif  // SCENARIO_API_SCENARIO_API_UTILS_H_INCLUDED
+#endif  // SCENARIO_API_UTILS__SCENARIO_API_UTILS_HPP_
