@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_UTILITY__CONVERTER_HPP_
-#define SCENARIO_UTILITY__CONVERTER_HPP_
+#ifndef SCENARIO_UTILS_CONVERTER_H_INCLUDED
+#define SCENARIO_UTILS_CONVERTER_H_INCLUDED
 
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/vector3.hpp"
@@ -22,11 +22,13 @@
 
 namespace scenario_utility
 {
-namespace converter
+inline namespace converter
 {
+
 geometry_msgs::msg::Quaternion convert(geometry_msgs::msg::Vector3 rpy);
 geometry_msgs::msg::Vector3 convert(geometry_msgs::msg::Quaternion quat);
+
 }  // namespace converter
 }  // namespace scenario_utility
 
-#endif  // SCENARIO_UTILITY__CONVERTER_HPP_
+#endif  // SCENARIO_UTILS_CONVERTER_H_INCLUDED
