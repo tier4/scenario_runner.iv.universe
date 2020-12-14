@@ -22,7 +22,7 @@
 
 namespace scenario_utility
 {
-inline namespace converter
+namespace converter
 {
 geometry_msgs::msg::Quaternion convert(geometry_msgs::msg::Vector3 rpy);
 geometry_msgs::msg::Vector3 convert(geometry_msgs::msg::Quaternion quat);
