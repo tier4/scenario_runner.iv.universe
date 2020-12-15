@@ -15,14 +15,16 @@
 #include "scenario_api/scenario_api_core.hpp"
 #include "scenario_api_utils/scenario_api_utils.hpp"
 
-namespace {
+namespace
+{
 // TODO(fred-apex-ai) how to print msg to stdout? https://answers.ros.org/question/365776/how-to-print-a-message-to-stdout-in-ros2/
 // Once available, use the `to_yaml` function instead instead of this handcrafted operator
-std::ostream & operator<<(std::ostream & out, const geometry_msgs::msg::Pose &pose) {
-  out << "position = {x=" << pose.position.x << ", y=" << pose.position.y << ", z="
-  << pose.position.z << "}" << std::endl;
-  out << "orientation = {x=" << pose.orientation.x << ", y=" << pose.orientation.y << ", z="
-  << pose.orientation.z << ", w=" << pose.orientation.w << "}" << std::endl;
+std::ostream & operator<<(std::ostream & out, const geometry_msgs::msg::Pose & pose)
+{
+  out << "position = {x=" << pose.position.x << ", y=" << pose.position.y << ", z=" <<
+    pose.position.z << "}" << std::endl;
+  out << "orientation = {x=" << pose.orientation.x << ", y=" << pose.orientation.y << ", z=" <<
+    pose.orientation.z << ", w=" << pose.orientation.w << "}" << std::endl;
   return out;
 }
 }
@@ -149,7 +151,7 @@ int main(int argc, char ** argv)
   obj->setTrafficLightArrow(34806, "up", false);
   if (obj->getTrafficLightArrow(34806, &arrows, false)) {
     RCLCPP_INFO_STREAM(obj->get_logger(), "traffic:34806 arrow size(2) is " << arrows.size());
-    for (const auto arrow : arrows) {
+    for (const auto & arrow : arrows) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "traffic:34806 arrow (left, up)) is " << arrow);
     }
   }
@@ -159,7 +161,7 @@ int main(int argc, char ** argv)
   obj->resetTrafficLightArrow(34806, false);
   if (obj->getTrafficLightArrow(34806, &arrows, false)) {
     RCLCPP_INFO_STREAM(obj->get_logger(), "traffic:34806 arrow size(0) is " << arrows.size());
-    for (const auto arrow : arrows) {
+    for (const auto & arrow : arrows) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "traffic:34806 arrow (null)) is " << arrow);
     }
   }
@@ -177,7 +179,7 @@ int main(int argc, char ** argv)
 
   geometry_msgs::msg::Pose line_pose;
   if (obj->getTrafficLineCenterPose(34806, line_pose)) {
-     RCLCPP_INFO_STREAM(obj->get_logger(), "traffic:34806 pose is " << line_pose);
+    RCLCPP_INFO_STREAM(obj->get_logger(), "traffic:34806 pose is " << line_pose);
   } else {
     RCLCPP_INFO_STREAM(obj->get_logger(), "failed to get traffic:34806 pose");
   }
@@ -197,15 +199,17 @@ int main(int argc, char ** argv)
     int current_id;
     double dist1, dist2, dist3;
     bool over_line;
-    if (obj->getCurrentLaneID(current_id))
+    if (obj->getCurrentLaneID(current_id)) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "getCurrentLaneID:" << current_id);
+    }
     if (obj->getDistanceToTrafficLight(34806, dist1)) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "dist to traffic light: 34806 is " << dist1);
     }
     if (obj->getDistanceToTrafficLine(34806, dist2)) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "dist to traffic light line: 34806 is " << dist2);
-    } else if (obj->getDistancefromCenterLine(dist3))
+    } else if (obj->getDistancefromCenterLine(dist3)) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "getDistancefromCenterLine:" << dist3);
+    }
     if (obj->checkOverTrafficLine(34806, over_line)) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "over stop line (34806)? :" << over_line);
     }
@@ -218,7 +222,7 @@ int main(int argc, char ** argv)
     Pose2D p = obj->getCurrentPose();
     RCLCPP_INFO_STREAM(obj->get_logger(), "selfpose:" << p.x << "," << p.y << "," << p.yaw);
     geometry_msgs::msg::PoseStamped p2 = obj->getCurrentPoseRos();
-        RCLCPP_INFO_STREAM(obj->get_logger(), "selfpose:" << p2.pose);
+    RCLCPP_INFO_STREAM(obj->get_logger(), "selfpose:" << p2.pose);
     double dist_npc;
     if (obj->calcDistToNPC(dist_npc, "car0")) {
       RCLCPP_INFO_STREAM(obj->get_logger(), "distance to npc:car0:" << dist_npc);
@@ -233,7 +237,7 @@ int main(int argc, char ** argv)
     }
     RCLCPP_INFO_STREAM(
       obj->get_logger(), "NPC:car_acc_tr_0 in area?" << obj->isObjectInArea(
-                           "car_acc_tr_0", car_acc_tr_0_pose, 10.0, M_PI / 4.0));
+        "car_acc_tr_0", car_acc_tr_0_pose, 10.0, M_PI / 4.0));
     bool finish_lane_change;
     if (obj->finishNPCLaneChange("car_uturn_0", &finish_lane_change)) {
       RCLCPP_INFO_STREAM(
@@ -248,7 +252,8 @@ int main(int argc, char ** argv)
     //   bool isInArea(double x, double y, double yaw, double dist_thresh, double delta_yaw_thresh)
     if (
       obj->isStopped() &&
-      obj->isObjectInArea("EgoCar", ego_car_goal_pose, 1.0, M_PI / 10.0, "Front")) {
+      obj->isObjectInArea("EgoCar", ego_car_goal_pose, 1.0, M_PI / 10.0, "Front"))
+    {
       // bool deleteNPC(const uint16_t id)
       obj->deleteNPC("ped0");
       // bool modifyNPC(const uint16_t id, double velocity)
