@@ -21,19 +21,20 @@ namespace scenario_conditions
 ConditionVisualizer::ConditionVisualizer(const rclcpp::Node::SharedPtr node)
 : node_(node)
 {
-  pub_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("condition_marker", rclcpp::QoS{1});
+  pub_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>(
+    "condition_marker",
+    rclcpp::QoS{1});
 }
 
-void ConditionVisualizer::publishMarker(ConditionManager& manager)
+void ConditionVisualizer::publishMarker(ConditionManager & manager)
 {
   marker_array_.markers.clear();
   bool is_success_condition;
   auto add_func = [this, &is_success_condition](std::shared_ptr<ConditionBase> condition) {
-    if (condition)
-    {
-      addMarker(condition->getName(), condition->getResult(), is_success_condition);
-    }
-  };
+      if (condition) {
+        addMarker(condition->getName(), condition->getResult(), is_success_condition);
+      }
+    };
   is_success_condition = false;
   manager.applyVisitorForFailureConditions(add_func);
   is_success_condition = true;
@@ -71,12 +72,9 @@ void ConditionVisualizer::addMarker(std::string name, bool result, bool is_succe
 
   std::string text;
   text += (is_success_condition ? "[S][All]" : "[F][Any]");
-  if (result)
-  {
+  if (result) {
     marker.color.g = 1.0f;
-  }
-  else
-  {
+  } else {
     marker.color.r = 1.0f;
   }
   text += name;

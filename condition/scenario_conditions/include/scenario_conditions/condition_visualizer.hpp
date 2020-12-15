@@ -27,7 +27,7 @@ class ConditionVisualizer
 {
 public:
   ConditionVisualizer(const rclcpp::Node::SharedPtr node);
-  void publishMarker(ConditionManager& manager);
+  void publishMarker(ConditionManager & manager);
 
 private:
   void addMarker(std::string name, bool result, bool is_success_condition);
