@@ -32,12 +32,11 @@ enum class Color : int
   Yellow,
 };
 
-template <>
-Color convert<Color>(const std::string&);
+template<>
+Color convert<Color>(const std::string &);
 
-std::ostream& operator<<(std::ostream& os, const Color color);
+std::ostream & operator<<(std::ostream & os, const Color color);
 
 } // namespace scenario_intersection
 
 #endif // INCLUDED_SCENARIO_INTERSECTION_COLOR_H
-

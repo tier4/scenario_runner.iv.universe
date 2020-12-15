@@ -46,74 +46,68 @@ class Intersection
       const Color color_;
       std::vector<Arrow> arrows_;
 
-    public:
+public:
       Transition()
-        : target_ {-1}
-        , color_ {Color::Blank}
+      : target_{-1},
+        color_{Color::Blank}
       {}
 
       Transition(
-        const YAML::Node& target,
-        const YAML::Node& color,
-        const YAML::Node& arrows)
-        : target_ {target.as<int>()}
-        , color_ {color ? convert<Color>(color.as<std::string>()) : Color::Blank}
+        const YAML::Node & target,
+        const YAML::Node & color,
+        const YAML::Node & arrows)
+      : target_{target.as<int>()},
+        color_{color ? convert<Color>(color.as<std::string>()) : Color::Blank}
       {
-        if (arrows and not arrows.IsNull())
-        {
-          if (arrows.IsScalar()) // NOTE: deperecated behavior
-          {
-            const auto value { convert<Arrow>(arrows.as<std::string>()) };
+        if (arrows and not arrows.IsNull()) {
+          if (arrows.IsScalar()) { // NOTE: deperecated behavior
+            const auto value {convert<Arrow>(arrows.as<std::string>())};
 
-            if (value != Arrow::Blank)
-            {
+            if (value != Arrow::Blank) {
               arrows_.emplace_back(value);
             }
-          }
-          else for (const auto& each : arrows)
-          {
-            const auto value { convert<Arrow>(each.as<std::string>()) };
+          } else {
+            for (const auto & each : arrows) {
+              const auto value {convert<Arrow>(each.as<std::string>())};
 
-            if (value != Arrow::Blank)
-            {
-              arrows_.emplace_back(value);
+              if (value != Arrow::Blank) {
+                arrows_.emplace_back(value);
+              }
             }
           }
         }
       }
 
-      bool changeColor(ScenarioAPI& simulator) const
+      bool changeColor(ScenarioAPI & simulator) const
       {
-        if (target_ < 0 or color_ == Color::Blank)
-        {
+        if (target_ < 0 or color_ == Color::Blank) {
           return simulator.resetTrafficLightColor(target_, false);
-        }
-        else // NOTE: Maybe specified illiegal traffic-light-id.
-        {
-          return simulator.setTrafficLightColor(target_, boost::lexical_cast<std::string>(color_), false);
+        } else { // NOTE: Maybe specified illiegal traffic-light-id.
+          return simulator.setTrafficLightColor(
+            target_, boost::lexical_cast<std::string>(
+              color_), false);
         }
       }
 
-      bool changeArrow(ScenarioAPI& simulator) const
+      bool changeArrow(ScenarioAPI & simulator) const
       {
         simulator.resetTrafficLightArrow(target_, false);
 
-        if (0 <= target_)
-        {
+        if (0 <= target_) {
           return
             std::all_of(
-              std::begin(arrows_), std::end(arrows_),
-              [&](const auto& each)
-              {
-                return
-                  simulator.setTrafficLightArrow(
-                    target_, boost::lexical_cast<std::string>(each), false);
-              });
+            std::begin(arrows_), std::end(arrows_),
+            [&](const auto & each)
+            {
+              return
+              simulator.setTrafficLightArrow(
+                target_, boost::lexical_cast<std::string>(each), false);
+            });
         }
         return false;
       }
 
-      bool operator()(ScenarioAPI& simulator) const
+      bool operator()(ScenarioAPI & simulator) const
       {
         return changeColor(simulator) and changeArrow(simulator);
       }
@@ -121,7 +115,7 @@ class Intersection
 
     std::vector<Transition> transitions_;
 
-  public:
+public:
     Controller()
     {
       transitions_.emplace_back();
@@ -129,38 +123,31 @@ class Intersection
 
     Controller(const YAML::Node & node, const rclcpp::Logger & logger)
     {
-      if (const auto traffic_lights {node["TrafficLight"]})
-      {
-        for (const auto& each : traffic_lights)
-        {
-          if (const auto arrow { each["Arrow"] })
-          {
+      if (const auto traffic_lights {node["TrafficLight"]}) {
+        for (const auto & each : traffic_lights) {
+          if (const auto arrow {each["Arrow"]}) {
             // NOTE: tag 'Arrow' is deperecated
             RCLCPP_WARN_STREAM(
               logger, "Tag 'Arrow: <String>' is deprecated. Use 'Arrows: [<String>*]'");
             transitions_.emplace_back(each["Id"], each["Color"], arrow);
-          }
-          else
-          {
+          } else {
             transitions_.emplace_back(each["Id"], each["Color"], each["Arrows"]);
           }
         }
-      }
-      else
-      {
+      } else {
         RCLCPP_ERROR_STREAM(logger, "Each element of node 'Control' requires hash 'TrafficLight'.");
       }
     }
 
-    bool operator()(ScenarioAPI& simulator) const
+    bool operator()(ScenarioAPI & simulator) const
     {
       return
         std::all_of(
-          transitions_.begin(), transitions_.end(),
-          [&](const auto& transition)
-          {
-            return transition(simulator);
-          });
+        transitions_.begin(), transitions_.end(),
+        [&](const auto & transition)
+        {
+          return transition(simulator);
+        });
     }
   };
 
@@ -175,16 +162,16 @@ class Intersection
   std::string current_state_;
 
 public:
-  Intersection(const YAML::Node&, const std::shared_ptr<ScenarioAPI>&);
+  Intersection(const YAML::Node &, const std::shared_ptr<ScenarioAPI> &);
 
-  bool change_to(const std::string& the_state);
+  bool change_to(const std::string & the_state);
 
-  bool is(const std::string& state) const
+  bool is(const std::string & state) const
   {
     return current_state_ == state;
   }
 
-  const std::vector<std::size_t>& ids() const;
+  const std::vector<std::size_t> & ids() const;
 
   simulation_is update();
 };
@@ -192,4 +179,3 @@ public:
 } // namespace scenario_intersection
 
 #endif // SCENARIO_INTERSECTION_INTERSECTION_H_INCLUDED
-

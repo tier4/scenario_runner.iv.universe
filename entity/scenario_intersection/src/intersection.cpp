@@ -18,53 +18,42 @@ namespace scenario_intersection
 {
 
 Intersection::Intersection(
-  const YAML::Node& script,
-  const std::shared_ptr<ScenarioAPI>& simulator
+  const YAML::Node & script,
+  const std::shared_ptr<ScenarioAPI> & simulator
 )
-  : script_ {script}
-  , simulator_ {simulator}
+: script_{script},
+  simulator_{simulator}
 {
   rclcpp::Logger logger = rclcpp::get_logger("scenario_intersection");
-  if (const auto ids {script_["TrafficLightId"]})
-  {
-    for (const auto& each : ids)
-    {
+  if (const auto ids {script_["TrafficLightId"]}) {
+    for (const auto & each : ids) {
       ids_.emplace_back(each.as<std::size_t>());
     }
-  }
-  else
-  {
+  } else {
     RCLCPP_ERROR_STREAM(
       logger, "Each element of node 'Intersection' requires hash 'TrafficLightId'.");
   }
 
-  if (const auto controls {script_["Control"]})
-  {
-    for (const auto& each : controls)
-    {
-      if (const auto& state_name {each["StateName"]})
-      {
+  if (const auto controls {script_["Control"]}) {
+    for (const auto & each : controls) {
+      if (const auto & state_name {each["StateName"]}) {
         change_to_.emplace(state_name.as<std::string>(), Controller(each, logger));
-      }
-      else
-      {
+      } else {
         RCLCPP_ERROR_STREAM(logger, "Each element of node 'Control' requires hash 'StateName'.");
       }
     }
-  }
-  else
-  {
+  } else {
     RCLCPP_ERROR_STREAM(logger, "Each element of node 'Intersection' requires hash 'Control'.");
   }
 }
 
-bool Intersection::change_to(const std::string& the_state)
+bool Intersection::change_to(const std::string & the_state)
 {
   // NOTE: Any unspecified state names are treated as "Blank" state
   return change_to_[current_state_ = the_state](*simulator_);
 }
 
-const std::vector<std::size_t>& Intersection::ids() const
+const std::vector<std::size_t> & Intersection::ids() const
 {
   return ids_;
 }
