@@ -15,6 +15,13 @@
 #ifndef SCENARIO_API_SCENARIO_API_AUTOWARE_H_INCLUDED
 #define SCENARIO_API_SCENARIO_API_AUTOWARE_H_INCLUDED
 
+#include <chrono>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "autoware_perception_msgs/msg/traffic_light_state_array.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
@@ -40,12 +47,6 @@
 #include "vehicle_info_util/vehicle_info.hpp"
 
 #include "boost/geometry.hpp"
-#include <chrono>
-#include <iostream>
-#include <limits>
-#include <memory>
-#include <string>
-#include <vector>
 
 /* define vehicle shape structure*/
 struct VehicleData
@@ -61,16 +62,16 @@ struct VehicleData
   double min_longitudinal_offset;
   double max_height_offset;
   double min_height_offset;
-  double left_from_base() { return wheel_tread / 2.0 + wheel_width / 2.0; };
-  double right_from_base() { return -(wheel_tread / 2.0 + wheel_width / 2.0); };
+  double left_from_base() {return wheel_tread / 2.0 + wheel_width / 2.0;}
+  double right_from_base() {return -(wheel_tread / 2.0 + wheel_width / 2.0);}
 };
 
 class ScenarioAPIAutoware
 {
 public:
-using Point = boost::geometry::model::d2::point_xy<double>;
-using Polygon = boost::geometry::model::polygon<Point>;
-using Line = boost::geometry::model::linestring<Point>;
+  using Point = boost::geometry::model::d2::point_xy<double>;
+  using Polygon = boost::geometry::model::polygon<Point>;
+  using Line = boost::geometry::model::linestring<Point>;
 
   /**
    * @brief constructor
@@ -144,7 +145,9 @@ using Line = boost::geometry::model::linestring<Point>;
   bool getTrafficLightColor(const int traffic_relation_id, std::string * traffic_color);
   bool getTrafficLightArrow(
     const int traffic_relation_id, std::vector<std::string> * const traffic_arrow);
-  bool getTrafficLineCenterPose(const int traffic_relation_id, geometry_msgs::msg::Pose & line_pose);
+  bool getTrafficLineCenterPose(
+    const int traffic_relation_id,
+    geometry_msgs::msg::Pose & line_pose);
   bool getDistanceToTrafficLight(
     const int traffic_relation_id, const geometry_msgs::msg::Pose self_pose, double & distance);
   bool getDistanceToTrafficLine(
@@ -269,10 +272,12 @@ private:
   bool getCurrentLeftLaneID(
     int & current_left_id, const std::shared_ptr<lanelet::Lanelet> current_lane);
   bool getDistancefromCenterLine(
-    double & dist_from_center, const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
+    double & dist_from_center,
+    const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
     std::shared_ptr<lanelet::Lanelet> current_lanelet);
   bool getDistancefromCenterLine(
-    double & dist_from_center, const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
+    double & dist_from_center,
+    const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
     const std::shared_ptr<lanelet::LaneletMap> & lanelet_map_ptr, lanelet::Id lane_id);
 
   bool isInLane(
