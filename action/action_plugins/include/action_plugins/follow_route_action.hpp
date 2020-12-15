@@ -33,13 +33,13 @@ public:
   FollowRouteAction();
 
   void configure(
-    const YAML::Node& node,
+    const YAML::Node & node,
     const std::vector<std::string> actors,
-    const std::shared_ptr<ScenarioAPI>& api_ptr) override;
+    const std::shared_ptr<ScenarioAPI> & api_ptr) override;
 
   auto run(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&)
-    -> void override;
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &)
+  ->void override;
 };
 
 }  // namespace action_plugins
