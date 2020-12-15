@@ -36,13 +36,12 @@ class SequenceManager
   scenario_expression::Context context_;
 
 public:
-  SequenceManager(const scenario_expression::Context&, const YAML::Node&);
+  SequenceManager(const scenario_expression::Context &, const YAML::Node &);
 
   simulation_is update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &);
 };
 
 } // namespace scenario_sequence
 
 #endif // SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
-

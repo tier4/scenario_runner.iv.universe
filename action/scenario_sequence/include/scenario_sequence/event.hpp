@@ -45,13 +45,12 @@ class Event
   bool ignited_;
 
 public:
-  Event(const scenario_expression::Context&, const YAML::Node&);
+  Event(const scenario_expression::Context &, const YAML::Node &);
 
   simulation_is update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &);
 };
 
 } // namespace scenario_sequence
 
 #endif // SCENARIO_SEQUENCE_EVENT_H_INCLUDED
-

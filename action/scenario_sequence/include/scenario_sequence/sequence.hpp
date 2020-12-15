@@ -42,13 +42,12 @@ class Sequence
   bool ignited_;
 
 public:
-  Sequence(const scenario_expression::Context&, const YAML::Node&);
+  Sequence(const scenario_expression::Context &, const YAML::Node &);
 
   simulation_is update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &);
 };
 
 } // namespace scenario_sequence
 
 #endif // SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
-
