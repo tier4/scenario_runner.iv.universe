@@ -33,13 +33,13 @@ class ActionManager
 {
 public:
   ActionManager(
-    const YAML::Node& node,
-    const std::vector<std::string>& actors,
-    const std::shared_ptr<ScenarioAPI>& api_ptr);
+    const YAML::Node & node,
+    const std::vector<std::string> & actors,
+    const std::shared_ptr<ScenarioAPI> & api_ptr);
 
   auto run(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&)
-    -> void;
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &)
+  ->void;
 
 private:
   const YAML::Node actions_node_;
@@ -49,7 +49,7 @@ private:
 
   std::vector<std::shared_ptr<EntityActionBase>> actions_;
 
-  void loadPlugin(const YAML::Node& node);
+  void loadPlugin(const YAML::Node & node);
 };
 
 }  // namespace scenario_actions

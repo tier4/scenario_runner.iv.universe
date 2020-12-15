@@ -31,9 +31,9 @@ class EntityActionBase
 {
 public:
   virtual auto run(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&)
-    -> void
-    = 0;
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &)
+  ->void =
+    0;
 
   virtual void configure(
     const YAML::Node & node, const std::vector<std::string> actors,
@@ -47,12 +47,14 @@ public:
   EntityActionBase() = default;
 
   EntityActionBase(const std::string & type)
-    : type_ { type }
+  : type_{type}
   {
     std::stringstream ss;
-    ss << type << "Action<" << static_cast<const void*>(this) << ">";
+    ss << type << "Action<" << static_cast<const void *>(this) << ">";
     name_ = ss.str();
   }
+
+  virtual ~EntityActionBase() = default;
 
 protected:
   std::string type_, name_;

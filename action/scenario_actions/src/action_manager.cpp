@@ -21,69 +21,59 @@ namespace scenario_actions
 {
 
 ActionManager::ActionManager(
-  const YAML::Node& actions_node,
-  const std::vector<std::string>& actors,
-  const std::shared_ptr<ScenarioAPI>& api_ptr)
+  const YAML::Node & actions_node,
+  const std::vector<std::string> & actors,
+  const std::shared_ptr<ScenarioAPI> & api_ptr)
 try
-  : actions_node_ {actions_node}
-  , actors_ {actors}
-  , api_ptr_ {api_ptr}
+: actions_node_{actions_node},
+  actors_{actors},
+  api_ptr_{api_ptr}
 {
-  for (const auto& action_node : actions_node_)
-  {
+  for (const auto & action_node : actions_node_) {
     loadPlugin(action_node);
   }
-}
-catch (...)
-{
+} catch (...) {
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to initialize actions.");
 }
 
-void ActionManager::loadPlugin(const YAML::Node& node)
+void ActionManager::loadPlugin(const YAML::Node & node)
 try
 {
-  const auto type { read_essential<std::string>(node, "Type") + "Action" };
+  const auto type {read_essential<std::string>(node, "Type") + "Action"};
 
-  pluginlib::ClassLoader<scenario_actions::EntityActionBase> loader("scenario_actions", "scenario_actions::EntityActionBase");
+  pluginlib::ClassLoader<scenario_actions::EntityActionBase> loader("scenario_actions",
+    "scenario_actions::EntityActionBase");
 
   const std::vector<std::string> classes = loader.getDeclaredClasses();
 
   auto iter =
-    std::find_if(classes.begin(), classes.end(),
+    std::find_if(
+    classes.begin(), classes.end(),
     [&](std::string c)
     {
       return loader.getName(c) == type;
     });
 
-  if (iter == classes.end())
-  {
+  if (iter == classes.end()) {
     SCENARIO_ERROR_THROW(CATEGORY(), "There is no plugin of type '" << type << "'.");
-  }
-  else
-  {
+  } else {
     std::shared_ptr<EntityActionBase> plugin = loader.createSharedInstance(*iter);
     plugin->configure(node, actors_, api_ptr_);
     actions_.push_back(plugin);
   }
-}
-catch (...)
-{
+} catch (...) {
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to load action plugin.");
 }
 
 void ActionManager::run(
-  const std::shared_ptr<scenario_intersection::IntersectionManager>& intersection_manager)
+  const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
 try
 {
-  for (const auto& each : actions_)
-  {
+  for (const auto & each : actions_) {
     each->run(intersection_manager);
   }
-}
-catch (...)
-{
+} catch (...) {
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to execute action.");
 }
 
 } // namespace scenario_actions
-
