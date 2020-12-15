@@ -29,4 +29,3 @@ struct BicycleEntity
 } // namespace entity_plugins
 
 #endif // INCLUDED_ENTITY_PLUGINS_BICYCLE_ENTITY_H
-
