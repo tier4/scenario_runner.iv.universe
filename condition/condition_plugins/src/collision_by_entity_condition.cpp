@@ -19,7 +19,7 @@ namespace condition_plugins
 {
 
 CollisionByEntityCondition::CollisionByEntityCondition()
-  : scenario_conditions::ConditionBase {"CollisionByEntity"}
+: scenario_conditions::ConditionBase{"CollisionByEntity"}
 {}
 
 bool CollisionByEntityCondition::configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr)
@@ -34,17 +34,14 @@ try
 
   target_entity_ = read_essential<std::string>(node_, "TargetEntity");
 
-  if ((*api_ptr_).isEgoCarName(target_entity_))
-  {
+  if ((*api_ptr_).isEgoCarName(target_entity_)) {
     std::swap(trigger_, target_entity_);
   }
 
   keep_ = read_optional<bool>(node_, "Keep", false);
 
   return configured_ = true;
-}
-catch (...)
-{
+} catch (...) {
   configured_ = false;
   SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION();
 }
@@ -52,25 +49,18 @@ catch (...)
 bool CollisionByEntityCondition::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  if (!configured_)
-  {
+  if (!configured_) {
     SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
   }
 
-  if (keep_ && result_)
-  {
+  if (keep_ && result_) {
     return result_;
-  }
-  else
-  {
+  } else {
     double distance;
 
-    if ((*api_ptr_).isEgoCarName(trigger_))
-    {
+    if ((*api_ptr_).isEgoCarName(trigger_)) {
       (*api_ptr_).calcDistToNPC(distance, target_entity_);
-    }
-    else
-    {
+    } else {
       (*api_ptr_).calcDistToNPCFromNPC(distance, trigger_, target_entity_);
     }
 
@@ -81,5 +71,6 @@ bool CollisionByEntityCondition::update(
 }  // namespace condition_plugins
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(condition_plugins::CollisionByEntityCondition, scenario_conditions::ConditionBase)
-
+PLUGINLIB_EXPORT_CLASS(
+  condition_plugins::CollisionByEntityCondition,
+  scenario_conditions::ConditionBase)

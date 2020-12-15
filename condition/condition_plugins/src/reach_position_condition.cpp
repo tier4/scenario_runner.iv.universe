@@ -18,7 +18,7 @@ namespace condition_plugins
 {
 
 ReachPositionCondition::ReachPositionCondition()
-  : scenario_conditions::ConditionBase {"ReachPosition"}
+: scenario_conditions::ConditionBase{"ReachPosition"}
 {}
 
 bool ReachPositionCondition::configure(
@@ -34,17 +34,14 @@ try
 
   trigger_ = read_essential<std::string>(node_, "Trigger");
 
-  const auto pose_stamped { read_essential<geometry_msgs::msg::PoseStamped>(node_, "Pose") };
+  const auto pose_stamped {read_essential<geometry_msgs::msg::PoseStamped>(node_, "Pose")};
 
-  if (pose_stamped.header.frame_id == "/map")
-  {
+  if (pose_stamped.header.frame_id == "/map") {
     target_pose_ = pose_stamped.pose;
-  }
-  else
-  {
+  } else {
     target_pose_ =
       api_ptr_->getRelativePose(
-        pose_stamped.header.frame_id, pose_stamped.pose);
+      pose_stamped.header.frame_id, pose_stamped.pose);
   }
 
   tolerance_ = read_essential<float>(node_, "Tolerance");
@@ -54,34 +51,27 @@ try
   keep_ = read_optional<bool>(node_, "Keep", false);
 
   return configured_ = true;
-}
-catch (...)
-{
+} catch (...) {
   configured_ = false;
   SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION();
 }
 
-bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection::IntersectionManager> &)
+bool ReachPositionCondition::update(
+  const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  if (keep_ and result_)
-  {
+  if (keep_ and result_) {
     return result_;
-  }
-  else
-  {
-    if (!configured_)
-    {
+  } else {
+    if (!configured_) {
       SCENARIO_THROW_ERROR_ABOUT_INCOMPLETE_CONFIGURATION();
     }
 
     if (api_ptr_->isObjectInArea(
-          trigger_, target_pose_, tolerance_, boost::math::constants::two_pi<double>(), shift_))
+        trigger_, target_pose_, tolerance_, boost::math::constants::two_pi<double>(), shift_))
     {
       SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT();
       return result_ = true;
-    }
-    else
-    {
+    } else {
       return result_ = false;
     }
   }
@@ -90,4 +80,6 @@ bool ReachPositionCondition::update(const std::shared_ptr<scenario_intersection:
 }  // namespace condition_plugins
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(condition_plugins::ReachPositionCondition, scenario_conditions::ConditionBase)
+PLUGINLIB_EXPORT_CLASS(
+  condition_plugins::ReachPositionCondition,
+  scenario_conditions::ConditionBase)

@@ -41,4 +41,3 @@ public:
 } // namespace condition_plugins
 
 #endif // INCLUDED_CONDITION_PLUGINS_SIGNAL_CONDITION_H
-

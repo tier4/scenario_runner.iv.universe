@@ -18,7 +18,7 @@ namespace condition_plugins
 {
 
 SignalCondition::SignalCondition()
-  : scenario_conditions::ConditionBase {"Signal"}
+: scenario_conditions::ConditionBase{"Signal"}
 {}
 
 bool SignalCondition::configure(
@@ -39,14 +39,13 @@ try
   keep_ = read_optional<bool>(node_, "Keep", false);
 
   return configured_ = true;
-}
-catch (...)
-{
+} catch (...) {
   configured_ = false;
   SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION();
 }
 
-bool SignalCondition::update(const std::shared_ptr<scenario_intersection::IntersectionManager> & intersections)
+bool SignalCondition::update(
+  const std::shared_ptr<scenario_intersection::IntersectionManager> & intersections)
 {
   // ROS_WARN_STREAM("IDs = [");
   //
@@ -57,12 +56,9 @@ bool SignalCondition::update(const std::shared_ptr<scenario_intersection::Inters
   //
   // ROS_WARN_STREAM("]");
 
-  if (keep_ && result_)
-  {
+  if (keep_ && result_) {
     return result_;
-  }
-  else
-  {
+  } else {
     return result_ = (*intersections).at(trigger_).is(state_);
   }
 }
