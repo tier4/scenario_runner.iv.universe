@@ -37,31 +37,33 @@ namespace scenario_expression
 
 class Context
 {
-#define boilerplate(TYPE, NAME)                                                \
-private:                                                                       \
-  std::shared_ptr<TYPE> NAME##_;                                               \
-                                                                               \
-public:                                                                        \
-  void define(const std::shared_ptr<TYPE>& NAME)                               \
-  {                                                                            \
-    NAME##_ = NAME;                                                            \
-  }                                                                            \
-                                                                               \
-  const auto& NAME##_pointer() const noexcept                                  \
-  {                                                                            \
-    return NAME##_;                                                            \
-  }                                                                            \
-                                                                               \
-  auto& NAME()                                                                 \
-  {                                                                            \
-    if (NAME##_)                                                               \
-    {                                                                          \
-      return *NAME##_;                                                         \
-    }                                                                          \
-    else                                                                       \
-    {                                                                          \
-      SCENARIO_ERROR_THROW(CATEGORY(), "No " #NAME " defined, but scenario execution requires this."); \
-    }                                                                          \
+#define boilerplate(TYPE, NAME) \
+private: \
+  std::shared_ptr<TYPE> NAME ## _; \
+ \
+public: \
+  void define(const std::shared_ptr<TYPE>&NAME) \
+  { \
+    NAME ## _ = NAME; \
+  } \
+ \
+  const auto & NAME ## _pointer() const noexcept \
+  { \
+    return NAME ## _; \
+  } \
+ \
+  auto & NAME() \
+  { \
+    if (NAME ## _) \
+    { \
+      return *NAME ## _; \
+    } \
+    else \
+    { \
+      SCENARIO_ERROR_THROW( \
+        CATEGORY(), \
+        "No " #NAME " defined, but scenario execution requires this."); \
+    } \
   } static_assert(true, "")
 
   boilerplate(ScenarioAPI, api);
@@ -109,7 +111,7 @@ public:                                                                        \
  *
  * -------------------------------------------------------------------------- */
 
-template <typename T>
+template<typename T>
 class Literal;
 
 using Boolean = Literal<bool>;
@@ -130,59 +132,57 @@ class Expression
 
 public:
   Expression()
-    : data { nullptr }
-    , count { 0 }
+  : data{nullptr},
+    count{0}
   {}
 
-  Expression(const Expression& expression)
-    : data { expression.data }
-    , count { 0 }
+  Expression(const Expression & expression)
+  : data{expression.data},
+    count{0}
   {
-    if (data)
-    {
+    if (data) {
       ++(data->count);
     }
   }
 
   virtual ~Expression()
   {
-    if (data && --(data->count) == 0)
-    {
+    if (data && --(data->count) == 0) {
       delete data;
     }
   }
 
-  Expression& operator =(const Expression& rhs)
+  Expression & operator=(const Expression & rhs)
   {
-    Expression e { rhs };
+    Expression e {rhs};
     swap(e);
     return *this;
   }
 
-  virtual Expression evaluate(Context& context)
+  virtual Expression evaluate(Context & context)
   {
     return data ? data->evaluate(context) : *this;
   }
 
-  template <typename T, typename... Ts>
-  static auto make(Ts&&... xs)
+  template<typename T, typename ... Ts>
+  static auto make(Ts && ... xs)
   {
     Expression e {};
-    e.remake(new T { std::forward<decltype(xs)>(xs)... });
+    e.remake(new T {std::forward<decltype(xs)>(xs)...});
     return e;
   }
 
-  void swap(Expression& e) noexcept
+  void swap(Expression & e) noexcept
   {
     std::swap(data, e.data);
   }
 
-  virtual std::ostream& write(std::ostream& os) const
+  virtual std::ostream & write(std::ostream & os) const
   {
     return os << "()";
   }
 
-  friend std::ostream& operator <<(std::ostream& os, const Expression& expression)
+  friend std::ostream & operator<<(std::ostream & os, const Expression & expression)
   {
     return expression.data ? expression.data->write(os) : (os << "()");
   }
@@ -194,29 +194,28 @@ public:
 
 protected:
   Expression(std::integral_constant<decltype(0), 0>)
-    : data { nullptr }
-    , count { 1 }
+  : data{nullptr},
+    count{1}
   {}
 
 private:
-  void remake(Expression* e)
+  void remake(Expression * e)
   {
-    if (data && --(data->count) == 0)
-    {
+    if (data && --(data->count) == 0) {
       delete data;
     }
 
     data = e;
   }
 
-  Expression* data;
+  Expression * data;
 
   std::size_t count;
 };
 
-Expression read(Context&, const YAML::Node&);
+Expression read(Context &, const YAML::Node &);
 
-template <typename T>
+template<typename T>
 class Literal
   : public Expression
 {
@@ -225,24 +224,24 @@ class Literal
   T value;
 
 protected:
-  Literal(const T& value)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-    , value { value }
+  Literal(const T & value)
+  : Expression{std::integral_constant<decltype(0), 0>()},
+    value{value}
   {}
 
-  Literal(const Literal& rhs)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-    , value { rhs.value }
+  Literal(const Literal & rhs)
+  : Expression{std::integral_constant<decltype(0), 0>()},
+    value{rhs.value}
   {}
 
   virtual ~Literal() = default;
 
-  std::ostream& write(std::ostream& os) const override
+  std::ostream & write(std::ostream & os) const override
   {
     return os << std::boolalpha << value;
   }
 
-  Expression evaluate(Context&) override
+  Expression evaluate(Context &) override
   {
     return *this;
   }
@@ -253,65 +252,65 @@ protected:
   }
 };
 
-#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR, BASE_CASE)             \
-class NAME                                                                     \
-  : public Expression                                                          \
-{                                                                              \
-  friend Expression;                                                           \
-                                                                               \
-  OPERATOR<bool> combine;                                                      \
-                                                                               \
-  std::vector<Expression> operands;                                            \
-                                                                               \
-protected:                                                                     \
-  NAME(const NAME& rhs)                                                        \
-    : Expression { std::integral_constant<decltype(0), 0>() }                  \
-    , operands { rhs.operands }                                                \
-  {}                                                                           \
-                                                                               \
-  NAME(Context& context, const YAML::Node& node)                               \
-    : Expression { std::integral_constant<decltype(0), 0>() }                  \
-  {                                                                            \
-    if (node.IsSequence())                                                     \
-    {                                                                          \
-      for (const auto& each : node)                                            \
-      {                                                                        \
-        operands.push_back(read(context, each));                               \
-      }                                                                        \
-    }                                                                          \
-  }                                                                            \
-                                                                               \
-  virtual ~NAME() = default;                                                   \
-                                                                               \
-  Expression evaluate(Context& context) override                               \
-  {                                                                            \
-    return                                                                     \
-      Expression::make<Boolean>(                                               \
-      std::accumulate(                                                         \
-        operands.begin(), operands.end(), BASE_CASE,                           \
-        [&](const auto& lhs, auto&& rhs)                                       \
-        {                                                                      \
-          return combine(lhs, rhs.evaluate(context));                          \
-        }));                                                                   \
-  }                                                                            \
-                                                                               \
-  std::ostream& write(std::ostream& os) const override                         \
-  {                                                                            \
-    os << "(" #NAME;                                                           \
-                                                                               \
-    for (const auto& each : operands)                                          \
-    {                                                                          \
-      os << " " << each;                                                       \
-    }                                                                          \
-                                                                               \
-    return os << ")";                                                          \
-  }                                                                            \
-}
+#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR, BASE_CASE) \
+  class NAME \
+    : public Expression \
+  { \
+    friend Expression; \
+ \
+    OPERATOR<bool> combine; \
+ \
+    std::vector<Expression> operands; \
+ \
+protected: \
+    NAME(const NAME & rhs) \
+      : Expression {std::integral_constant<decltype(0), 0>()} \
+    , operands {rhs.operands} \
+    {} \
+ \
+    NAME(Context & context, const YAML::Node & node) \
+      : Expression {std::integral_constant<decltype(0), 0>()} \
+    { \
+      if (node.IsSequence()) \
+      { \
+        for (const auto & each : node) \
+        { \
+          operands.push_back(read(context, each)); \
+        } \
+      } \
+    } \
+ \
+    virtual ~NAME() = default; \
+ \
+    Expression evaluate(Context & context) override \
+    { \
+      return \
+        Expression::make<Boolean>( \
+        std::accumulate( \
+          operands.begin(), operands.end(), BASE_CASE, \
+          [&](const auto & lhs, auto && rhs) \
+          { \
+            return combine(lhs, rhs.evaluate(context)); \
+          })); \
+    } \
+ \
+    std::ostream & write(std::ostream & os) const override \
+    { \
+      os << "(" #NAME; \
+ \
+      for (const auto & each : operands) \
+      { \
+        os << " " << each; \
+      } \
+ \
+      return os << ")"; \
+    } \
+  }
 
 DEFINE_N_ARY_LOGICAL_EXPRESSION(And, std::logical_and, true);
 DEFINE_N_ARY_LOGICAL_EXPRESSION(Or, std::logical_or, false);
 
-template <typename PluginBase>
+template<typename PluginBase>
 class Procedure
   : public Expression
 {
@@ -321,29 +320,27 @@ protected:
   std::shared_ptr<PluginBase> plugin;
 
   Procedure()
-    : Expression { std::integral_constant<decltype(0), 0>() }
+  : Expression{std::integral_constant<decltype(0), 0>()}
   {}
 
-  Procedure(const Procedure& proc)
-    : Expression { std::integral_constant<decltype(0), 0>() }
-    , plugin { proc.plugin }
+  Procedure(const Procedure & proc)
+  : Expression{std::integral_constant<decltype(0), 0>()},
+    plugin{proc.plugin}
   {}
 
   virtual ~Procedure() = default;
 
-  std::ostream& write(std::ostream& os) const override
+  std::ostream & write(std::ostream & os) const override
   {
     return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
   }
 
-  virtual pluginlib::ClassLoader<PluginBase>& loader() const = 0;
+  virtual pluginlib::ClassLoader<PluginBase> & loader() const = 0;
 
-  auto load(const std::string& name)
+  auto load(const std::string & name)
   {
-    for (const auto& declaration : loader().getDeclaredClasses())
-    {
-      if (loader().getName(declaration) == name)
-      {
+    for (const auto & declaration : loader().getDeclaredClasses()) {
+      if (loader().getName(declaration) == name) {
         return loader().createSharedInstance(declaration);
       }
     }
@@ -351,7 +348,7 @@ protected:
     SCENARIO_ERROR_THROW(CATEGORY(), "Failed to load Procedure " << name);
   }
 
-  Expression evaluate(Context& context) override
+  Expression evaluate(Context & context) override
   {
     return Expression::make<Boolean>(plugin->update(context.intersections_pointer()));
   }
@@ -365,27 +362,24 @@ class Predicate
 protected:
   using Procedure::Procedure;
 
-  Predicate(Context& context, const YAML::Node& node)
+  Predicate(Context & context, const YAML::Node & node)
   try
-    : Procedure {}
+  : Procedure{}
   {
-    if (plugin = load(read_essential<std::string>(node, "Type") + "Condition"))
-    {
+    if (plugin = load(read_essential<std::string>(node, "Type") + "Condition")) {
       plugin->configure(node, context.api_pointer());
+    } else {
+      SCENARIO_ERROR_THROW(
+        CATEGORY(),
+        "Failed to load procedure of type " << read_essential<std::string>(node, "Type"));
     }
-    else
-    {
-      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to load procedure of type " << read_essential<std::string>(node, "Type"));
-    }
-  }
-  catch (...)
-  {
+  } catch (...) {
     SCENARIO_ERROR_RETHROW(CATEGORY(), "Syntax error: malformed predicate.\n\n" << node << "\n");
   }
 
   virtual ~Predicate() = default;
 
-  pluginlib::ClassLoader<scenario_conditions::ConditionBase>& loader() const
+  pluginlib::ClassLoader<scenario_conditions::ConditionBase> & loader() const
   {
     static pluginlib::ClassLoader<scenario_conditions::ConditionBase> loader {
       "scenario_conditions", "scenario_conditions::ConditionBase"
