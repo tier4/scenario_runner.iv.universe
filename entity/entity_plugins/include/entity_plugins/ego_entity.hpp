@@ -32,15 +32,15 @@ public:
   bool init() override;
 
   bool configure(
-    const YAML::Node&,
-    const std::shared_ptr<ScenarioAPI>&)
-    override;
+    const YAML::Node &,
+    const std::shared_ptr<ScenarioAPI> &)
+  override;
 
 private:
   std::string urdf_;
   std::string initial_frame_id_;
 
-  std::shared_ptr<scenario_actions::ActionManager>         action_manager_ptr_;
+  std::shared_ptr<scenario_actions::ActionManager> action_manager_ptr_;
   std::shared_ptr<scenario_actions::ActionManager> initial_action_manager_ptr_;
 };
 

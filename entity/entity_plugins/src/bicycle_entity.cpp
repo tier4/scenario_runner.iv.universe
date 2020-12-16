@@ -18,11 +18,10 @@ namespace entity_plugins
 {
 
 BicycleEntity::BicycleEntity()
-  : scenario_entities::EntityBase {"Bicycle"}
+: scenario_entities::EntityBase{"Bicycle"}
 {}
 
 } // namespace entity_plugins
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(entity_plugins::BicycleEntity, scenario_entities::EntityBase)
-

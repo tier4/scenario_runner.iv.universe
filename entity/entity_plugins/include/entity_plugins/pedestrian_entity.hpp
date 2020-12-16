@@ -29,4 +29,3 @@ struct PedestrianEntity
 } // namespace entity_plugins
 
 #endif // INCLUDED_ENTITY_PLUGINS_PEDESTRIAN_ENTITY_H
-

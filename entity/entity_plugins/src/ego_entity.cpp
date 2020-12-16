@@ -18,89 +18,86 @@ namespace entity_plugins
 {
 
 EgoEntity::EgoEntity()
-  : scenario_entities::EntityBase {"Ego"}
+: scenario_entities::EntityBase{"Ego"}
 {}
 
 bool EgoEntity::configure(
-  const YAML::Node& entity,
-  const std::shared_ptr<ScenarioAPI>& api)
+  const YAML::Node & entity,
+  const std::shared_ptr<ScenarioAPI> & api)
 try
 {
-  EntityBase::configure(entity, api);
+  if (!EntityBase::configure(entity, api)) {
+    return false;
+  }
 
   urdf_ = read_optional<std::string>(entity, "Urdf");
 
   initial_frame_id_ =
     read_optional<std::string>(
-      entity, "InitialFrameId", "ego-initial-pose");
+    entity, "InitialFrameId", "ego-initial-pose");
 
-  if (not (*api_).setEgoCarName(name_))
-  {
+  if (not api_->setEgoCarName(name_)) {
     SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set ego-car-name.");
   }
-}
-catch (...)
-{
-  SCENARIO_ERROR_RETHROW(CATEGORY(),
+  return true;
+} catch (...) {
+  SCENARIO_ERROR_RETHROW(
+    CATEGORY(),
     "Failed to configure entity named '" << name_ << "' of type " << type_ << ".");
 }
 
 bool EgoEntity::init()
 try
 {
-  if (const auto speed_node {init_entity_["InitialStates"]["Speed"]})
-  {
+  if (const auto speed_node {init_entity_["InitialStates"]["Speed"]}) {
     const auto speed {speed_node.as<float>()};
-    if (not api_->setMaxSpeed(speed))
-    {
+    if (not api_->setMaxSpeed(speed)) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set max-speed.");
     }
   }
 
-  if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
-  {
-    if (not api_->sendStartVelocity(initial_speed.as<float>()))
-    {
+  if (const auto initial_speed {init_entity_["InitialStates"]["InitialSpeed"]}) {
+    if (not api_->sendStartVelocity(initial_speed.as<float>())) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
     }
-  }
-  else
-  {
-    if (not api_->sendStartVelocity(0))
-    {
+  } else {
+    if (not api_->sendStartVelocity(0)) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
     }
   }
 
-  call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
-  {
-    const auto pose { read_essential<geometry_msgs::msg::Pose>(node, "Pose") };
-
-    if (not api_->sendStartPoint(pose, true, read_optional<std::string>(node, "Shift", "Center")))
+  call_with_essential(
+    init_entity_, "InitialStates", [&](const auto & node) mutable
     {
-      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-point.");
-    }
+      const auto pose {read_essential<geometry_msgs::msg::Pose>(node, "Pose")};
 
-    if (not api_->setFrameId(initial_frame_id_, pose))
+      if (not api_->sendStartPoint(
+        pose, true, read_optional<std::string>(
+          node, "Shift",
+          "Center")))
+      {
+        SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-point.");
+      }
+
+      if (not api_->setFrameId(initial_frame_id_, pose)) {
+        SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set frame-id.");
+      }
+    });
+
+  call_with_optional(
+    init_entity_, "Actions", [&](const auto & node) mutable
     {
-      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set frame-id.");
-    }
-  });
-
-  call_with_optional(init_entity_, "Actions", [&](const auto& node) mutable
-  {
-    initial_action_manager_ptr_ =
+      initial_action_manager_ptr_ =
       std::make_shared<scenario_actions::ActionManager>(
-        node, std::vector<std::string> { name_ }, api_);
+        node, std::vector<std::string> {name_}, api_);
 
-    initial_action_manager_ptr_->run(nullptr);
-  });
+      initial_action_manager_ptr_->run(nullptr);
+    });
 
   return true;
-}
-catch (...)
-{
-  SCENARIO_ERROR_RETHROW(CATEGORY(),
+} catch (...) {
+  SCENARIO_ERROR_RETHROW(
+    CATEGORY(),
     "Failed to initialize entity named '" << name_ << "' of type " << type_ << ".");
 }
 

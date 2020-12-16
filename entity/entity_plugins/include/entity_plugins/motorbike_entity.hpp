@@ -29,4 +29,3 @@ struct MotorBikeEntity
 } // namespace entity_plugins
 
 #endif // INCLUDED_ENTITY_PLUGINS_MOTORBIKE_ENTITY_H
-

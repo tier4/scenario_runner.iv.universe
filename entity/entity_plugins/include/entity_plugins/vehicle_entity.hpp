@@ -29,4 +29,3 @@ struct VehicleEntity
 }  // namespace entity_plugins
 
 #endif  // ENTITY_PLUGINS_VEHICLE_ENTITY_H_INCLUDED
-
