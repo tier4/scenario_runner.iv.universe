@@ -25,7 +25,8 @@ static void failureCallback()
   scenario_logger::log.write();
 }
 
-void dump_diagnostics(const std::string & path, double mileage, double duration, int exit_code){
+void dump_diagnostics(const std::string & path, double mileage, double duration, int exit_code)
+{
   boost::property_tree::ptree pt;
   pt.put("code", exit_code);
   pt.put("duration", duration);
@@ -74,30 +75,28 @@ int main(int argc, char * argv[])
   scenario_logger::log.setLogOutputPath(log_output_path);
 
   SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
-  std::this_thread::sleep_for(std::chrono::seconds { 10 });
+  std::this_thread::sleep_for(std::chrono::seconds {10});
   SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
   const auto & path = runner_ptr->declare_parameter("json_dump_path").get<std::string>();
-  const auto dump = [&runner_ptr, path](int exit_code){
-    dump_diagnostics(path, runner_ptr->current_mileage(),
-                     (runner_ptr->now() -  scenario_logger::log.begin()).seconds(), exit_code);
-  };
+  const auto dump = [&runner_ptr, path](int exit_code) {
+      dump_diagnostics(
+        path, runner_ptr->current_mileage(),
+        (runner_ptr->now() - scenario_logger::log.begin()).seconds(), exit_code);
+    };
 
-  try{
+  try {
     /*
   * start simulation
   */
-    for (runner_ptr->run(); rclcpp::ok(); rclcpp::spin_some(runner_ptr))
-    {
+    for (runner_ptr->run(); rclcpp::ok(); rclcpp::spin_some(runner_ptr)) {
       runner_ptr->spin_simulator();
       static auto previously{runner_ptr->currently};
 
-      if (previously != runner_ptr->currently)
-      {
-        switch (runner_ptr->currently)
-        {
+      if (previously != runner_ptr->currently) {
+        switch (runner_ptr->currently) {
           case simulation_is::succeeded:
-          SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
-             scenario_logger::log.write();
+            SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation succeeded");
+            scenario_logger::log.write();
             {
               const auto ret = boost::exit_success;
               dump(ret);
@@ -106,8 +105,8 @@ int main(int argc, char * argv[])
             }
 
           case simulation_is::failed:
-          SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
-             scenario_logger::log.write();
+            SCENARIO_INFO_STREAM(CATEGORY("simulator", "endcondition"), "simulation failed");
+            scenario_logger::log.write();
             {
               const auto ret = boost::exit_test_failure;
               dump(ret);
@@ -122,29 +121,32 @@ int main(int argc, char * argv[])
       }
     }
 
-    if (runner_ptr->currently == simulation_is::ongoing)
-    {
+    if (runner_ptr->currently == simulation_is::ongoing) {
       SCENARIO_INFO_STREAM(CATEGORY(), "Simulation aborted.");
       scenario_logger::log.write();
       const auto ret = boost::exit_failure;
       dump(ret);
       rclcpp::shutdown();
       return ret;
-    }
-    else
-    {
+    } else {
       SCENARIO_INFO_STREAM(CATEGORY(), "Simulation unexpectedly failed.");
       scenario_logger::log.write();
       rclcpp::shutdown();
       return boost::exit_exception_failure;
     }
-  } catch (const std::exception& e) {
-    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Unexpected standard exception thrown: " << e.what());
+  } catch (const std::exception & e) {
+    SCENARIO_ERROR_STREAM(
+      CATEGORY(
+        "simulator",
+        "endcondition"),
+      "Unexpected standard exception thrown: " << e.what());
     scenario_logger::log.write();
     dump(boost::exit_exception_failure);
-  } catch (...)
-  {
-    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Unexpected non-standard exception thrown.");
+  } catch (...) {
+    SCENARIO_ERROR_STREAM(
+      CATEGORY(
+        "simulator",
+        "endcondition"), "Unexpected non-standard exception thrown.");
     scenario_logger::log.write();
     dump(boost::exit_exception_failure);
   }
