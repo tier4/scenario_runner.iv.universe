@@ -234,7 +234,6 @@ public:
   bool getNPCAccel(const std::string id, double * accel);
 
   std::vector<std::string> getNpcList();
-  bool isNpcExist(const std::string & name);
 
   // traffic light API
   bool setTrafficLightColor(
@@ -268,7 +267,7 @@ public:
     const std::string & name, const geometry_msgs::msg::Pose pose, const double dist_thresh,
     const double delta_yaw_thresh,
     const std::string & frame_type =
-      "Center");  //!< @brief object(ego-car, NPC) is in designated area or not
+    "Center");    //!< @brief object(ego-car, NPC) is in designated area or not
   geometry_msgs::msg::Pose genPoseROS(
     const double x, const double y, const double z, const double yaw);
   geometry_msgs::msg::Pose genPoseROS(

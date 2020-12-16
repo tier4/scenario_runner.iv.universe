@@ -25,11 +25,11 @@ ScenarioAPI::ScenarioAPI()
 
 void ScenarioAPI::init()
 {
-  if(!simulator_api_){
-    simulator_api_ =std::make_shared<ScenarioAPISimulator>(Node::shared_from_this());
+  if (!simulator_api_) {
+    simulator_api_ = std::make_shared<ScenarioAPISimulator>(Node::shared_from_this());
   }
-  if (!autoware_api_){
-  autoware_api_ = std::make_shared<ScenarioAPIAutoware>(Node::shared_from_this());
+  if (!autoware_api_) {
+    autoware_api_ = std::make_shared<ScenarioAPIAutoware>(Node::shared_from_this());
   }
 }
 
@@ -40,7 +40,7 @@ bool ScenarioAPI::setEgoCarName(const std::string & name)
   return true;
 }
 
-bool ScenarioAPI::isEgoCarName(const std::string & name) { return ego_car_name_ == name; }
+bool ScenarioAPI::isEgoCarName(const std::string & name) {return ego_car_name_ == name;}
 
 bool ScenarioAPI::isAPIReady()
 {
@@ -53,16 +53,16 @@ bool ScenarioAPI::isAPIReady()
   return true;
 }
 
-bool ScenarioAPI::waitAPIReady() { return autoware_api_->waitAPIReady(); }
+bool ScenarioAPI::waitAPIReady() {return autoware_api_->waitAPIReady();}
 
-bool ScenarioAPI::updateState() { return simulator_api_->updateState(); }
+bool ScenarioAPI::updateState() {return simulator_api_->updateState();}
 
 // start API
 bool ScenarioAPI::sendStartPoint(
   const geometry_msgs::msg::Pose pose, const bool wait_ready, const std::string & frame_type)
 {
-  if (!simulator_api_->spawnStartPoint(pose)) return false;
-  if (!autoware_api_->sendStartPoint(pose, wait_ready, frame_type)) return false;
+  if (!simulator_api_->spawnStartPoint(pose)) {return false;}
+  if (!autoware_api_->sendStartPoint(pose, wait_ready, frame_type)) {return false;}
   return true;
 }
 
@@ -111,9 +111,9 @@ bool ScenarioAPI::sendEngage(const bool engage)
   return status_autoware && status_simulator;
 }
 
-bool ScenarioAPI::waitAutowareInitialize() { return autoware_api_->waitAutowareInitialize(); }
+bool ScenarioAPI::waitAutowareInitialize() {return autoware_api_->waitAutowareInitialize();}
 
-bool ScenarioAPI::setMaxSpeed(double velocity) { return autoware_api_->setMaxSpeed(velocity); }
+bool ScenarioAPI::setMaxSpeed(double velocity) {return autoware_api_->setMaxSpeed(velocity);}
 
 // coordinate API
 bool ScenarioAPI::setFrameId(std::string frame_id, const geometry_msgs::msg::Pose pose)
@@ -128,24 +128,24 @@ geometry_msgs::msg::Pose ScenarioAPI::getRelativePose(
 }
 
 // self-vehicle API
-Pose2D ScenarioAPI::getCurrentPose() { return autoware_api_->getCurrentPose(); }
+Pose2D ScenarioAPI::getCurrentPose() {return autoware_api_->getCurrentPose();}
 
 geometry_msgs::msg::PoseStamped ScenarioAPI::getCurrentPoseRos()
 {
   return autoware_api_->getCurrentPoseRos();
 }
 
-double ScenarioAPI::getVelocity() { return autoware_api_->getVelocity(); }
+double ScenarioAPI::getVelocity() {return autoware_api_->getVelocity();}
 
-double ScenarioAPI::getAccel() { return autoware_api_->getAccel(); }
+double ScenarioAPI::getAccel() {return autoware_api_->getAccel();}
 
-double ScenarioAPI::getJerk() { return autoware_api_->getJerk(); }
+double ScenarioAPI::getJerk() {return autoware_api_->getJerk();}
 
-double ScenarioAPI::getMoveDistance() { return autoware_api_->getMoveDistance(); }
+double ScenarioAPI::getMoveDistance() {return autoware_api_->getMoveDistance();}
 
 bool ScenarioAPI::isStopped(double thresh_velocity)
 {
-  return (std::abs(getVelocity()) <= thresh_velocity);
+  return std::abs(getVelocity()) <= thresh_velocity;
 }
 
 bool ScenarioAPI::isInArea(
@@ -158,10 +158,10 @@ bool ScenarioAPI::isInArea(
   return (delta_dist < dist_thresh) and (delta_yaw < delta_yaw_thresh);
 }
 
-bool ScenarioAPI::willLaneChange() { return autoware_api_->willLaneChange(); }
+bool ScenarioAPI::willLaneChange() {return autoware_api_->willLaneChange();}
 
-bool ScenarioAPI::getLeftBlinker() { return autoware_api_->getLeftBlinker(); }
-bool ScenarioAPI::getRightBlinker() { return autoware_api_->getRightBlinker(); }
+bool ScenarioAPI::getLeftBlinker() {return autoware_api_->getLeftBlinker();}
+bool ScenarioAPI::getRightBlinker() {return autoware_api_->getRightBlinker();}
 
 bool ScenarioAPI::approveLaneChange(bool approve_lane_change)
 {
@@ -191,14 +191,14 @@ bool ScenarioAPI::getCurrentLaneID(int & current_id, double max_dist, double max
   return autoware_api_->getCurrentLaneID(current_id, max_dist, max_delta_yaw);
 }
 
-bool ScenarioAPI::isChangeLaneID() { return autoware_api_->isChangeLaneID(); }
+bool ScenarioAPI::isChangeLaneID() {return autoware_api_->isChangeLaneID();}
 
 bool ScenarioAPI::getDistancefromCenterLine(double & dist_from_center_line)
 {
   return autoware_api_->getDistancefromCenterLine(dist_from_center_line);
 }
 
-bool ScenarioAPI::isInLane() { return autoware_api_->isInLane(); }
+bool ScenarioAPI::isInLane() {return autoware_api_->isInLane();}
 
 // NPC API
 bool ScenarioAPI::addNPC(
@@ -275,7 +275,7 @@ bool ScenarioAPI::changeNPCIgnoreLane(const std::string & name)
   return simulator_api_->changeNPCIgnoreLane(name);
 }
 
-bool ScenarioAPI::deleteNPC(const std::string & name) { return simulator_api_->deleteNPC(name); }
+bool ScenarioAPI::deleteNPC(const std::string & name) {return simulator_api_->deleteNPC(name);}
 
 bool ScenarioAPI::getNPC(
   const std::string & name, geometry_msgs::msg::Pose & object_pose,
@@ -292,7 +292,7 @@ bool ScenarioAPI::calcDistToNPC(double & dist_to_npc, const std::string & name)
   geometry_msgs::msg::Vector3 obj_size;
   std::string obj_name;
 
-  if (!getNPC(name, obj_pose, obj_twist, obj_size, obj_name)) return false;
+  if (!getNPC(name, obj_pose, obj_twist, obj_size, obj_name)) {return false;}
 
   // create polygon
   ScenarioAPIAutoware::Polygon self_poly = autoware_api_->getSelfPolygon2D();
@@ -323,10 +323,10 @@ bool ScenarioAPI::calcDistToNPCFromNPC(
   }
 
   const auto npc1_polygon{scenario_api_utils::makeRelativePolygonFromSelf(
-    getCurrentPoseRos().pose, npc1_pose, npc1_size)};
+      getCurrentPoseRos().pose, npc1_pose, npc1_size)};
 
   const auto npc2_polygon{scenario_api_utils::makeRelativePolygonFromSelf(
-    getCurrentPoseRos().pose, npc2_pose, npc2_size)};
+      getCurrentPoseRos().pose, npc2_pose, npc2_size)};
 
   return !std::isnan(distance = scenario_api_utils::calcDistOfPolygon(npc1_polygon, npc2_polygon));
 }
@@ -351,9 +351,7 @@ bool ScenarioAPI::getNPCAccel(const std::string name, double * accel)
   return simulator_api_->getNPCAccel(name, accel);
 }
 
-std::vector<std::string> ScenarioAPI::getNpcList() { return simulator_api_->getNpcList(); }
-
-bool ScenarioAPI::isNpcExist(const std::string & name) { return true; }
+std::vector<std::string> ScenarioAPI::getNpcList() {return simulator_api_->getNpcList();}
 
 // traffic light API
 bool ScenarioAPI::setTrafficLightColor(

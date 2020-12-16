@@ -45,7 +45,7 @@ double calcDistFromPolygonToPointCloud(
       if ((top >= p.z && p.z >= bottom) || !consider_height) {
         const ScenarioAPIAutoware::Point point2d(p.x, p.y);
         const double distance = bg::distance(point2d, poly);
-        if (distance < minimum_distance) minimum_distance = distance;
+        if (distance < minimum_distance) {minimum_distance = distance;}
       }
     }
     return minimum_distance;
