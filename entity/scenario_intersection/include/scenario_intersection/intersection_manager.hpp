@@ -41,18 +41,18 @@ class IntersectionManager
 
 public:
   IntersectionManager(
-    const YAML::Node&,
-    const std::shared_ptr<ScenarioAPI>&
+    const YAML::Node &,
+    const std::shared_ptr<ScenarioAPI> &
   );
 
-  bool initialize(const YAML::Node&);
+  bool initialize(const YAML::Node &);
 
-  bool change(const std::string&, const std::string&);
+  bool change(const std::string &, const std::string &);
 
   simulation_is update();
 
-  template <typename... Ts>
-  constexpr decltype(auto) at(Ts&&... xs) const
+  template<typename ... Ts>
+  constexpr decltype(auto) at(Ts && ... xs) const
   {
     return intersections_.at(std::forward<decltype(xs)>(xs)...);
   }
@@ -61,4 +61,3 @@ public:
 } // namespace scenario_intersection
 
 #endif // SCENARIO_INTERSECTION_INTERSECTON_MANAGER_H_INCLUDED
-

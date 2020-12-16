@@ -35,12 +35,11 @@ enum class Arrow : int
   StraightRight,
 };
 
-template <>
-Arrow convert<Arrow>(const std::string&);
+template<>
+Arrow convert<Arrow>(const std::string &);
 
-std::ostream& operator<<(std::ostream& os, const Arrow arrow);
+std::ostream & operator<<(std::ostream & os, const Arrow arrow);
 
 } // namespace scenario_intersection
 
 #endif // INCLUDED_SCENARIO_INTERSECTION_ARROW_H
-
