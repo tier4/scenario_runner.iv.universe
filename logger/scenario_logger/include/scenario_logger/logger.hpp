@@ -12,19 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_LOGGER_LOGGER_H_INCLUDED
-#define SCENARIO_LOGGER_LOGGER_H_INCLUDED
+#ifndef SCENARIO_LOGGER__LOGGER_HPP_
+#define SCENARIO_LOGGER__LOGGER_HPP_
+
+#include <cstdio>
+#include <new>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "boost/date_time/posix_time/posix_time.hpp"
+
 #include "boost/optional.hpp"
 #include "boost/property_tree/json_parser.hpp"
 #include "boost/property_tree/ptree.hpp"
-#include <cstdio>
-#include <new>
 #include "rclcpp/rclcpp.hpp"
 #include "scenario_logger_msgs/msg/logged_data.hpp"
-#include <sstream>
 
+// Disable uncrustify for this section
+/* *INDENT-OFF* */
 #define SCENARIO_LOG_FROM \
   std::string(__FILE__) + ":" + std::to_string(__LINE__)
 
@@ -104,7 +110,7 @@
 #define SCENARIO_LOG_ABOUT_TOGGLE_CONDITION_RESULT() \
   SCENARIO_LOG_STREAM(CATEGORY(), \
     "Changed value from " << std::boolalpha << result_ \
-                << " to " << std::boolalpha << (not result_) \
+                << " to " << std::boolalpha << (!result_) \
                 << " (Condition named '" << name_ << "' of type " << type_ << ").")
 
 #define SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION() \
@@ -119,18 +125,20 @@
   SCENARIO_WARN_STREAM(CATEGORY(), \
     "No actors specified for Action named '" << name_ << "' of type " << type_ << ". " \
     "The action will cause no effects.\n\n" << node_ << "\n")
+/* *INDENT-ON* */
 
 namespace scenario_logger
 {
 
-const rclcpp::Time& begin();
+const rclcpp::Time & begin();
 
-std::string toIso6801(const rclcpp::Time& stamp);
+std::string toIso6801(const rclcpp::Time & stamp);
 
-boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::MetaData& data);
-boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::msg::Log& data);
-boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::LoggedData& data,
-                                                    const rclcpp::Logger & rclcpp_logger);
+boost::property_tree::ptree toJson(const scenario_logger_msgs::msg::MetaData & data);
+boost::optional<boost::property_tree::ptree> toJson(const scenario_logger_msgs::msg::Log & data);
+boost::property_tree::ptree toJson(
+  const scenario_logger_msgs::msg::LoggedData & data,
+  const rclcpp::Logger & rclcpp_logger);
 
 class Logger
 {
@@ -144,27 +152,28 @@ class Logger
 public:
   Logger();
 
-  void setStartDatetime(const rclcpp::Time&);
-  void setScenarioID(const std::string&);
-  void setLogOutputPath(const std::string& directory);
+  void setStartDatetime(const rclcpp::Time &);
+  void setScenarioID(const std::string &);
+  void setLogOutputPath(const std::string & directory);
 
-  const rclcpp::Time& initialize(const rclcpp::Time&);
-  const rclcpp::Time& begin() const;
+  const rclcpp::Time & initialize(const rclcpp::Time &);
+  const rclcpp::Time & begin() const;
 
   void write();
 
-  void append(const scenario_logger_msgs::msg::Log&);
-  void append(int level,
-              const std::vector<std::string>& categories,
-              const std::string& description,
-              const std::string& from);
+  void append(const scenario_logger_msgs::msg::Log &);
+  void append(
+    int level,
+    const std::vector<std::string> & categories,
+    const std::string & description,
+    const std::string & from);
 
   std::size_t getNumberOfLog() const;
 
   void updateMoveDistance(float move_distance);
 };
 
-extern Logger& log;
+extern Logger & log;
 
 static struct LoggerInitializer
 {
@@ -172,6 +181,6 @@ static struct LoggerInitializer
   ~LoggerInitializer();
 } initializer;
 
-} // static Logger Log;
+}  // namespace scenario_logger
 
-#endif  // SCENARIO_LOGGER_LOGGER_H_INCLUDED
+#endif  // SCENARIO_LOGGER__LOGGER_HPP_
