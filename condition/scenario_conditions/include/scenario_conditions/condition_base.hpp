@@ -30,24 +30,26 @@ public:
   ConditionBase() = default;
 
   ConditionBase(const std::string & type)
-    : type_ { type }
+  : type_{type}
   {
     std::stringstream ss;
-    ss << type << "Condition<" << static_cast<const void*>(this) << ">";
+    ss << type << "Condition<" << static_cast<const void *>(this) << ">";
     name_ = ss.str();
   }
 
-  template <typename T>
-  using Comparator = std::function<bool(const T &, const T &)>;
+  virtual ~ConditionBase() = default;
+
+  template<typename T>
+  using Comparator = std::function<bool (const T &, const T &)>;
 
   virtual bool update(const std::shared_ptr<scenario_intersection::IntersectionManager> &) = 0;
   virtual bool configure(YAML::Node node, std::shared_ptr<ScenarioAPI> api_ptr) = 0;
 
-  const std::string & getName() const noexcept { return name_; }
+  const std::string & getName() const noexcept {return name_;}
 
-  bool getResult() const noexcept { return result_; }
+  bool getResult() const noexcept {return result_;}
 
-  const std::string & getType() const noexcept { return type_; }
+  const std::string & getType() const noexcept {return type_;}
 
 protected:
   std::shared_ptr<ScenarioAPI> api_ptr_;
