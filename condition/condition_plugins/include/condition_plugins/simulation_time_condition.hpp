@@ -33,6 +33,7 @@ class SimulationTimeCondition
 
   Comparator<rclcpp::Duration> compare_;
   rclcpp::Clock clock_;
+
 public:
   SimulationTimeCondition();
 
@@ -46,4 +47,3 @@ public:
 } // namespace condition_plugins
 
 #endif // CONDITION_PLUGINS_SIMULATION_TIME_H_INCLUDED
-

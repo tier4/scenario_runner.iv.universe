@@ -36,4 +36,3 @@ public:
 } // namespace condition_plugins
 
 #endif // TEST_CONDITIONS_ALWAYS_FALSE_CONDITION_H_INCLUDED
-

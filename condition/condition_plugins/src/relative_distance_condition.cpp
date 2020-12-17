@@ -18,7 +18,7 @@ namespace condition_plugins
 {
 
 RelativeDistanceCondition::RelativeDistanceCondition()
-  : scenario_conditions::ConditionBase {"RelativeDistance"}
+: scenario_conditions::ConditionBase{"RelativeDistance"}
 {}
 
 bool RelativeDistanceCondition::configure(
@@ -36,24 +36,20 @@ try
 
   target_entity_ = read_essential<std::string>(node_, "TargetEntity");
 
-  if ((*api_ptr_).isEgoCarName(target_entity_))
-  {
+  if ((*api_ptr_).isEgoCarName(target_entity_)) {
     std::swap(trigger_, target_entity_);
   }
 
   value_ = read_essential<float>(node_, "Value");
 
-  if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
-  {
+  if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_)) {
     return configured_ = false;
   }
 
   keep_ = read_optional<bool>(node_, "Keep", false);
 
-  return configured_= true;
-}
-catch (...)
-{
+  return configured_ = true;
+} catch (...) {
   configured_ = false;
   SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION();
 }
@@ -61,20 +57,14 @@ catch (...)
 bool RelativeDistanceCondition::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  if (keep_ and result_)
-  {
+  if (keep_ and result_) {
     return result_;
-  }
-  else
-  {
+  } else {
     double distance {0};
 
-    if ((*api_ptr_).isEgoCarName(trigger_))
-    {
+    if ((*api_ptr_).isEgoCarName(trigger_)) {
       (*api_ptr_).calcDistToNPC(distance, target_entity_);
-    }
-    else
-    {
+    } else {
       (*api_ptr_).calcDistToNPCFromNPC(distance, trigger_, target_entity_);
     }
 
@@ -85,5 +75,6 @@ bool RelativeDistanceCondition::update(
 } // namespace condition_plugins
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(condition_plugins::RelativeDistanceCondition, scenario_conditions::ConditionBase)
-
+PLUGINLIB_EXPORT_CLASS(
+  condition_plugins::RelativeDistanceCondition,
+  scenario_conditions::ConditionBase)

@@ -18,7 +18,7 @@ namespace condition_plugins
 {
 
 SpeedCondition::SpeedCondition()
-  : scenario_conditions::ConditionBase {"Speed"}
+: scenario_conditions::ConditionBase{"Speed"}
 {}
 
 bool SpeedCondition::configure(
@@ -35,17 +35,14 @@ try
 
   value_ = read_essential<float>(node_, "Value");
 
-  if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_))
-  {
+  if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_)) {
     return configured_ = false;
   }
 
   keep_ = read_optional<bool>(node_, "Keep", false);
 
   return configured_ = true;
-}
-catch (...)
-{
+} catch (...) {
   configured_ = false;
   SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION();
 }
@@ -53,28 +50,20 @@ catch (...)
 bool SpeedCondition::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  if (keep_ && result_)
-  {
+  if (keep_ && result_) {
     return true;
-  }
-  else
-  {
-    if ((*api_ptr_).isEgoCarName(trigger_))
-    {
+  } else {
+    if ((*api_ptr_).isEgoCarName(trigger_)) {
       return result_ = compare_((*api_ptr_).getVelocity(), value_);
-    }
-    else
-    {
-      double npc_velocity { 0.0 };
+    } else {
+      double npc_velocity {0.0};
 
-      if (!(*api_ptr_).getNPCVelocity(trigger_, &npc_velocity))
-      {
-        RCLCPP_ERROR_STREAM(api_ptr_->get_logger().get_child("AccelerationCondition"),
-                            "Invalid trigger name specified for " << getType() << " condition named " << getName());
+      if (!(*api_ptr_).getNPCVelocity(trigger_, &npc_velocity)) {
+        RCLCPP_ERROR_STREAM(
+          api_ptr_->get_logger().get_child("AccelerationCondition"),
+          "Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
-      }
-      else
-      {
+      } else {
         return result_ = compare_(npc_velocity, value_);
       }
     }
@@ -85,4 +74,3 @@ bool SpeedCondition::update(
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(condition_plugins::SpeedCondition, scenario_conditions::ConditionBase)
-

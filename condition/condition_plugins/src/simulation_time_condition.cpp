@@ -18,8 +18,8 @@ namespace condition_plugins
 {
 
 SimulationTimeCondition::SimulationTimeCondition()
-  : scenario_conditions::ConditionBase {"SimulationTime"}
-  , duration_(0)
+: scenario_conditions::ConditionBase{"SimulationTime"},
+  duration_(0)
 {}
 
 bool SimulationTimeCondition::configure(
@@ -33,11 +33,11 @@ try
 
   duration_ =
     rclcpp::Duration(
-      read_essential<float>(node_, "Value"));
+    read_essential<float>(node_, "Value"));
 
   if (!parseRule<rclcpp::Duration>(
-            read_essential<std::string>(node_, "Rule"),
-            compare_))
+      read_essential<std::string>(node_, "Rule"),
+      compare_))
   {
     return configured_ = false;
   }
@@ -45,9 +45,7 @@ try
   keep_ = read_optional<bool>(node_, "Keep", false);
 
   return configured_ = true;
-}
-catch (...)
-{
+} catch (...) {
   configured_ = false;
   SCENARIO_RETHROW_ERROR_FROM_CONDITION_CONFIGURATION();
 }
@@ -61,12 +59,9 @@ rclcpp::Duration SimulationTimeCondition::elapsed() const noexcept
 bool SimulationTimeCondition::update(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  if (keep_ && result_)
-  {
+  if (keep_ && result_) {
     return true;
-  }
-  else
-  {
+  } else {
     return result_ = compare_(elapsed(), duration_);
   }
 }
@@ -74,5 +69,6 @@ bool SimulationTimeCondition::update(
 } // namespace condition_plugins
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(condition_plugins::SimulationTimeCondition, scenario_conditions::ConditionBase)
-
+PLUGINLIB_EXPORT_CLASS(
+  condition_plugins::SimulationTimeCondition,
+  scenario_conditions::ConditionBase)
