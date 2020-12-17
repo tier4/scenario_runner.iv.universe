@@ -34,16 +34,15 @@ public:
   SpeedAction();
 
   void configure(
-    const YAML::Node&,
+    const YAML::Node &,
     const std::vector<std::string>,
-    const std::shared_ptr<ScenarioAPI>&) override;
+    const std::shared_ptr<ScenarioAPI> &) override;
 
   auto run(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&)
-    -> void override;
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &)
+  ->void override;
 };
 
 } // namespace action_plugins
 
 #endif // INCLUDED_ACTION_PLUGINS_SPEED_ACTION_H
-

@@ -31,18 +31,18 @@ class ChangeSignalAction
 
 public:
   ChangeSignalAction()
-    : EntityActionBase {"ChangeSignal"}
+  : EntityActionBase{"ChangeSignal"}
   {}
 
   void configure(
-    const YAML::Node& node,
+    const YAML::Node & node,
     const std::vector<std::string> actors,
-    const std::shared_ptr<ScenarioAPI>& api_ptr)
-    override;
+    const std::shared_ptr<ScenarioAPI> & api_ptr)
+  override;
 
   void run(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&)
-    override;
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &)
+  override;
 };
 
 } // namespace action_plugins

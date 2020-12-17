@@ -28,4 +28,9 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 pluginlib_export_plugin_description_file(scenario_actions plugins.xml)
 
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_auto_package()
