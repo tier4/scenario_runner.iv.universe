@@ -33,25 +33,25 @@ namespace scenario_entities
 class EntityBase
 {
 public:
-  EntityBase(const std::string& type)
-    : type_ {type}
+  EntityBase(const std::string & type)
+  : type_{type}
   {}
 
-  const std::string& getName() const
+  const std::string & getName() const
   {
     return name_;
-  };
+  }
 
-  const std::string& getType() const
+  const std::string & getType() const
   {
     return type_;
-  };
+  }
 
   virtual bool configure(
-    const YAML::Node& entity,
-    const std::shared_ptr<ScenarioAPI>& api);
+    const YAML::Node & entity,
+    const std::shared_ptr<ScenarioAPI> & api);
 
-  virtual bool setStory(const YAML::Node& story);
+  virtual bool setStory(const YAML::Node & story);
 
   virtual bool init();
 
@@ -79,4 +79,3 @@ protected:
 }  // namespace scenario_entities
 
 #endif  // SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
-

@@ -31,8 +31,8 @@ class EntityManager
 {
 public:
   EntityManager(
-    const YAML::Node& node,
-    const std::shared_ptr<ScenarioAPI>& api_ptr);
+    const YAML::Node & node,
+    const std::shared_ptr<ScenarioAPI> & api_ptr);
 
   bool setStory(const YAML::Node & story);
 
@@ -52,4 +52,3 @@ private:
 }  // namespace scenario_entities
 
 #endif // SCENARIO_ENTITIES_ENTITY_MANAGER_H_INCLUDED
-
