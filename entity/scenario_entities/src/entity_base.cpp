@@ -65,7 +65,7 @@ bool EntityBase::init()
 try
 {
   LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates");
-  call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
+  call_with_essential(init_entity_, "InitialStates", [&](const auto& node)
   {
     const auto type { type_ != "Vehicle" ? boost::to_lower_copy(type_) : "car" };
 
@@ -74,7 +74,7 @@ try
       name_,
       read_essential<geometry_msgs::Pose>(node, "Pose"),
       read_optional<float>(node, "Speed", 0),
-      false,
+      false, // stop_by_vehicle
       read_optional<std::string>(node, "Shift", "Center"));
   });
 
