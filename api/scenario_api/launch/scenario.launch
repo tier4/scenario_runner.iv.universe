@@ -61,6 +61,9 @@
     </include>
   </group>
 
+  <!-- AutowareAPI -->
+  <include file="$(find-pkg-share awapi_awiv_adapter)/launch/awapi_awiv_adapter.launch" />
+
   <!-- Rviz -->
   <node pkg="rviz" exec="rviz" name="rviz" output="screen" args="-d $(find-pkg-share scenario_api)/rviz/planning_simulator.rviz" if="$(var rviz)" />
 
