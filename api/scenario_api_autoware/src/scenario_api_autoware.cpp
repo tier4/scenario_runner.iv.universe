@@ -527,7 +527,8 @@ void ScenarioAPIAutoware::updateTotalMoveDistance()
 
   //calculate delta-distance
   const double dt =
-    current_pose_ptr_->header.stamp.sec - previous_pose_ptr_.header.stamp.sec;
+    rclcpp::Time(current_pose_ptr_->header.stamp).seconds() -
+    rclcpp::Time(previous_pose_ptr_.header.stamp).seconds();
   const double dx = current_pose_ptr_->pose.position.x - previous_pose_ptr_.pose.position.x;
   const double dy = current_pose_ptr_->pose.position.y - previous_pose_ptr_.pose.position.y;
   const double dist = std::hypot(dx, dy);  //do not consider height

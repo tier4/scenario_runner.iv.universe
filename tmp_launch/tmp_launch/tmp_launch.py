@@ -20,8 +20,9 @@ def main():
     scenario_id = "0"
 
     #TODO: Edit
-    scenario_path = "/home/kosuke/scenario_tests/odd2/scenario/UC-000-0000/PSim_1/UC-000-0000_PSim_1_case1.yaml"
-    log_output_base_dir = "/home/kosuke/AutowareArchitectureProposal/src/simulator/scenario_runner/tmp_launch/log"
+    # scenario_path = "/home/kosuke/scenario_tests/odd3/scenario/UC-003-0003/PSim_1/UC-003-0003_PSim_1_case1.yaml"
+    scenario_path = "/home/kosuke/scenario_tests/odd2/scenario/UC-001-0003/PSim_1/UC-001-0003_PSim_1_case1.yaml"
+    log_output_base_dir = "/home/kosuke/AutowareArchitectureProposal/src/simulator/scenario_runner/tmp_launch"
     scenario_runner_args = {
                     'scenario_id': scenario_id,
                     'scenario_path': str(scenario_path),
