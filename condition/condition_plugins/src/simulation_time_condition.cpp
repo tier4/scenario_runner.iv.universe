@@ -33,7 +33,7 @@ try
 
   duration_ =
     rclcpp::Duration(
-    read_essential<float>(node_, "Value"));
+    read_essential<float>(node_, "Value"), 0);
 
   if (!parseRule<rclcpp::Duration>(
       read_essential<std::string>(node_, "Rule"),
