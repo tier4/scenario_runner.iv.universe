@@ -1,4 +1,4 @@
-<library path="lib/libcondition_plugins">
+<library path="condition_plugins">
   <class name="condition_plugins/AccelerationCondition"
          type="condition_plugins::AccelerationCondition"
          base_class_type="scenario_conditions::ConditionBase">
