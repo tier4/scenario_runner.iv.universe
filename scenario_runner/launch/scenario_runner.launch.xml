@@ -1,25 +1,35 @@
 <?xml version="1.0" ?>
 <launch>
-    <arg name="map_path" default="/media/tier4/ExtremeSSD2TB/t4b/kashiwanoha"/>
-    <arg name="t4b_launch_path" default="$(find-pkg-share scenario_api)/launch/scenario.launch.xml"/>
-    <arg name="scenario_path" default=""/>
+    <arg name="scenario_path" default="" />
     <arg name="log_output_dir" default=""/>
     <arg name="scenario_id" default=""/>
-<!--    <arg name="scenario_runner_output" default="screen"/>-->
     <arg name="use_sim_time" default="false"/>
+    <arg name="vehicle_model" default="lexus"/>
+    <arg name="vehicle_param_file" default="$(find-pkg-share $(var vehicle_model)_description)/config/vehicle_info.yaml"/>
 
-    <node pkg="scenario_runner" exec="scenario_runner_node" output="screen">
+    <node pkg="scenario_runner" exec="scenario_runner_node" output="screen" />
+
+        <param from="$(var vehicle_param_file)" />
         <param name="/use_sim_time" value="$(var use_sim_time)"/>
+
         <param name="scenario_id" value="$(var scenario_id)"/>
         <param name="scenario_path" value="$(var scenario_path)"/>
         <param name="log_output_path" value="$(var log_output_dir)/$(var scenario_id).json"/>
+        <param name="json_dump_path" value="$(var log_output_dir)/result-of-$(var scenario_id).json"/>
+        <param name="camera_frame_id" value="camera5/camera_optical_link" /> <!-- base link of front camera-->
+        <param name="initial_engage_state" value="false"/>
+
         <param name="diagnostic_output_path" value="$(var log_output_dir)/$(var scenario_id)_diagnostic.json"/>
+
         <remap from="input/pointcloud" to="/sensing/lidar/no_ground/pointcloud" />
         <remap from="input/vectormap" to="/map/vector_map" />
         <remap from="input/route" to="/planning/mission_planning/route" />
         <remap from="input/autoware_state" to="/autoware/state" />
         <remap from="input/vehicle_twist" to="/vehicle/status/twist" />
         <remap from="input/signal_command" to="/vehicle/status/turn_signal" />
+        <remap from="input/engage" to="/simulation/npc_simulator/engage" />
+        <remap from="input/ego_vehicle_pose" to="/current_pose" />
+1
         <remap from="output/start_point" to="/initialpose" />
         <remap from="output/initial_velocity" to="/initialtwist" />
         <remap from="output/goal_point" to="/planning/mission_planning/goal" />
@@ -31,15 +41,8 @@
         <remap from="output/object_info" to="/simulation/npc_simulator/object_info" />
         <remap from="output/traffic_detection_result" to="/perception/traffic_light_recognition/traffic_light_states" />
         <remap from="output/lane_change_permission" to="/planning/scenario_planning/lane_driving/lane_change_approval" />
-        <remap from="rosparam/add_simulator_noise" to="/simple_planning_simulator/add_measurement_noise" /> <!-- rosparam: add simulator noise or not -->
-        <remap from="rosparam/simulator_pos_noise" to="/simple_planning_simulator/pos_noise_stddev" /> <!-- rosparam: std of simulator pos noise -->
-        <remap from="rosparam/max_velocity" to="/planning/scenario_planning/motion_velocity_optimizer/max_velocity" /> <!-- rosparam: max velocity -->
-        <param name="camera_frame_id" value="camera5/camera_optical_link" /> <!-- base link of front camera-->
+        <remap from="output/dynamic_object_info" to="/simulation/dummy_perception_publisher/object_info" />
+        <remap from="output/debug_object_info" to="/simulation/npc_simulator/ground_truth_object_info" />
     </node>
 
-    <include file="$(var t4b_launch_path)">
-        <arg name="map_path" value="$(var map_path)" />
-    </include>
-
-    <executable cmd="ros2 bag record --all -o $(var log_output_dir)/$(var scenario_id)" name="rosbag_recorder" output="screen" shell="true"/>
 </launch>
