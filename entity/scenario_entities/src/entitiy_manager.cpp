@@ -104,5 +104,4 @@ try
 } catch (...) {
   SCENARIO_ERROR_RETHROW(CATEGORY(), "Failed to load entity plugin.");
 }
-
 }  // namespace scenario_entities

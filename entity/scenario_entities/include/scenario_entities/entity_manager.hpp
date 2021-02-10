@@ -48,7 +48,5 @@ private:
 
   const std::shared_ptr<ScenarioAPI> api_ptr_;
 };
-
 }  // namespace scenario_entities
-
-#endif // SCENARIO_ENTITIES_ENTITY_MANAGER_H_INCLUDED
+#endif  // SCENARIO_ENTITIES_ENTITY_MANAGER_H_INCLUDED

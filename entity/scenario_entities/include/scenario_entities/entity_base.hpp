@@ -75,7 +75,5 @@ protected:
 
   float speed_;
 };
-
 }  // namespace scenario_entities
-
 #endif  // SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
