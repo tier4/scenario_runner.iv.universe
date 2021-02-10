@@ -20,10 +20,10 @@ repositories:
     type: git
     url: https://github.com/ApexAI/topic_tools.git
     version: autoware
-  vendor/osqp:
+  vendor/rosbridge_suite:
     type: git
-    url: https://github.com/tier4/osqp_vendor.git
-    version: 0.0.2
+    url: https://github.com/RobotWebTools/rosbridge_suite.git
+    version: ros2
   vendor/ublox:
     type: git
     url: https://github.com/tier4/ublox.git

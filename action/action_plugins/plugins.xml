@@ -1,4 +1,4 @@
-<library path="lib/libaction_plugins">
+<library path="action_plugins">
   <class name="action_plugins/AccelerationAction"
          type="action_plugins::AccelerationAction"
          base_class_type="scenario_actions::EntityActionBase">

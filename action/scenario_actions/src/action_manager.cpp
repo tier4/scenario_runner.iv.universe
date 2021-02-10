@@ -57,7 +57,7 @@ try
   if (iter == classes.end()) {
     SCENARIO_ERROR_THROW(CATEGORY(), "There is no plugin of type '" << type << "'.");
   } else {
-    std::shared_ptr<EntityActionBase> plugin = loader.createSharedInstance(*iter);
+    auto plugin = loader.createSharedInstance(*iter);
     plugin->configure(node, actors_, api_ptr_);
     actions_.push_back(plugin);
   }

@@ -20,6 +20,7 @@
 #include "scenario_logger/logger.hpp"
 #include "scenario_sequence/sequence_manager.hpp"
 #include "scenario_utility/scenario_utility.hpp"
+#include "scenario_entities/entity_manager.hpp"
 
 #include <memory>
 #include "rclcpp/rclcpp.hpp"

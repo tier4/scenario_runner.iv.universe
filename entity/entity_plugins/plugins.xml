@@ -1,4 +1,4 @@
-<library path="lib/libentity_plugins">
+<library path="entity_plugins">
   <class name="entity_plugins/BicycleEntity"
          type="entity_plugins::BicycleEntity"
          base_class_type="scenario_entities::EntityBase">

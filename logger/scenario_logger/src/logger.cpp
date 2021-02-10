@@ -74,9 +74,8 @@ const rclcpp::Time & Logger::begin() const
 
 std::string toIso6801(const rclcpp::Time & stamp)
 {
-  const boost::posix_time::time_duration duration(0, 0, 0, stamp.nanoseconds());
-  const boost::posix_time::ptime boost_time(boost::gregorian::date(1970, 1, 1), duration);
-  return boost::posix_time::to_iso_extended_string(boost_time);
+  // TODO(kosuke murakami): Convert stamp to YYYY-MM-DDTHH:MM:SS
+  return std::string("2000-1-1-0000:00:00");
 }
 
 void Logger::write()

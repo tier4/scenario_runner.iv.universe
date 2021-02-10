@@ -53,10 +53,10 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
     "input/pointcloud", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackPointCloud, this, std::placeholders::_1));
   sub_map_ = node_->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vectormap", rclcpp::QoS{10},
+    "/map/vector_map", rclcpp::QoS{1}.transient_local(),
     std::bind(&ScenarioAPIAutoware::callbackMap, this, std::placeholders::_1));
   sub_route_ = node_->create_subscription<autoware_planning_msgs::msg::Route>(
-    "input/route", rclcpp::QoS{1},
+    "input/route", rclcpp::QoS{1}.transient_local(),
     std::bind(&ScenarioAPIAutoware::callbackRoute, this, std::placeholders::_1));
   sub_state_ = node_->create_subscription<autoware_system_msgs::msg::AutowareState>(
     "input/autoware_state", rclcpp::QoS{1},
@@ -99,7 +99,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
     "output/initial_velocity",
     durable_qos);
   pub_autoware_engage_ =
-    node_->create_publisher<std_msgs::msg::Bool>("output/autoware_engage", durable_qos);
+    node_->create_publisher<autoware_control_msgs::msg::EngageMode>("output/autoware_engage", durable_qos);
   pub_max_velocity_ =
     node_->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "output/limit_velocity",
@@ -385,9 +385,9 @@ bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
 
 bool ScenarioAPIAutoware::sendEngage(const bool engage)
 {
-  std_msgs::msg::Bool boolmsg;
-  boolmsg.data = engage;
-  pub_autoware_engage_->publish(boolmsg);
+  autoware_control_msgs::msg::EngageMode engage_msg;
+  engage_msg.is_engaged = engage;
+  pub_autoware_engage_->publish(engage_msg);
   return true;  // TODO check success
 }
 
@@ -527,7 +527,8 @@ void ScenarioAPIAutoware::updateTotalMoveDistance()
 
   //calculate delta-distance
   const double dt =
-    current_pose_ptr_->header.stamp.sec - previous_pose_ptr_.header.stamp.sec;
+    rclcpp::Time(current_pose_ptr_->header.stamp).seconds() -
+    rclcpp::Time(previous_pose_ptr_.header.stamp).seconds();
   const double dx = current_pose_ptr_->pose.position.x - previous_pose_ptr_.pose.position.x;
   const double dy = current_pose_ptr_->pose.position.y - previous_pose_ptr_.pose.position.y;
   const double dist = std::hypot(dx, dy);  //do not consider height

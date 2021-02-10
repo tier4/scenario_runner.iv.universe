@@ -74,9 +74,9 @@ int main(int argc, char * argv[])
   std::string log_output_path{runner_ptr->declare_parameter("log_output_path").get<std::string>()};
   scenario_logger::log.setLogOutputPath(log_output_path);
 
-  SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
-  std::this_thread::sleep_for(std::chrono::seconds {10});
-  SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
+  // SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
+  // std::this_thread::sleep_for(std::chrono::seconds {10});
+  // SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
   const auto & path = runner_ptr->declare_parameter("json_dump_path").get<std::string>();
   const auto dump = [&runner_ptr, path](int exit_code) {
       dump_diagnostics(
