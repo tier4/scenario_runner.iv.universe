@@ -27,9 +27,9 @@
 #include "rclcpp/logger.hpp"
 
 #include "scenario_api/scenario_api_core.hpp"
-#include "scenario_intersection/arrow.h"
-#include "scenario_intersection/color.h"
-#include "scenario_intersection/utility.h"
+#include "scenario_intersection/arrow.hpp"
+#include "scenario_intersection/color.hpp"
+#include "scenario_intersection/utility.hpp"
 #include "scenario_utility/scenario_utility.hpp"
 
 namespace scenario_intersection
