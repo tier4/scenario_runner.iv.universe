@@ -18,7 +18,6 @@ find_package(Boost COMPONENTS filesystem REQUIRED)
 
 ament_auto_add_library(scenario_logger SHARED
   src/logger.cpp
-  src/simple_logger.cpp
 )
 
 if(BUILD_TESTING)
