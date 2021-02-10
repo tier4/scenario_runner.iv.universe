@@ -446,7 +446,7 @@ bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
   LOG_SIMPLE(info() << "Sending max-speed " << velocity << " to Autoware");
 
   autoware_debug_msgs::msg::Float32Stamped floatmsg;
-  floatmsg.stamp = *node_->get_clock()->now();
+  floatmsg.stamp = node_->get_clock()->now();
   floatmsg.data = velocity;
   pub_max_velocity_->publish(floatmsg);
   return true;  // TODO check success
