@@ -467,7 +467,7 @@ double ScenarioAPI::getDistanceToArea(
       return false;
     }
   } else { // npc-object
-    npc_simulator::Object obj;
+    npc_simulator::msg::Object obj;
     if (!simulator_api_->getNPC(name, obj)) {
       return false;
     }
