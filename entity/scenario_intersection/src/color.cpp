@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scenario_intersection/color.hpp"
+#include "scenario_intersection/color.h"
 
 #include <unordered_map>
 

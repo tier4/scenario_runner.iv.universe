@@ -23,7 +23,7 @@
 #include "rclcpp/logger.hpp"
 
 #include "scenario_api/scenario_api_core.hpp"
-#include "scenario_intersection/intersection.hpp"
+#include "scenario_intersection/intersection.h"
 #include "scenario_utility/scenario_utility.hpp"
 
 namespace scenario_intersection

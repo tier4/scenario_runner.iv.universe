@@ -19,7 +19,7 @@
 #include <string>
 #include <utility>
 
-#include "scenario_intersection/utility.hpp"
+#include "scenario_intersection/utility.h"
 
 namespace scenario_intersection
 {
