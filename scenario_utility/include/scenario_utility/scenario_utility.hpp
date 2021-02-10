@@ -15,8 +15,9 @@
 #ifndef SCENARIO_UTILITY__SCENARIO_UTILITY_HPP_
 #define SCENARIO_UTILITY__SCENARIO_UTILITY_HPP_
 
-#include "parse.hpp"
 #include "converter.hpp"
+#include "indentation.hpp"
 #include "misc.hpp"
+#include "parse.hpp"
 
 #endif  // SCENARIO_UTILITY__SCENARIO_UTILITY_HPP_
