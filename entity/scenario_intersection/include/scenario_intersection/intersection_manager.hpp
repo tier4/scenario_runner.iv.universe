@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_INTERSECTION_INTERSECTON_MANAGER_H_INCLUDED
-#define SCENARIO_INTERSECTION_INTERSECTON_MANAGER_H_INCLUDED
-
-#include <string>
-#include <unordered_map>
+#ifndef SCENARIO_INTERSECTION__INTERSECTION_MANAGER_HPP_
+#define SCENARIO_INTERSECTION__INTERSECTION_MANAGER_HPP_
 
 #include <yaml-cpp/yaml.h>
+
+#include <memory>
+#include <string>
+#include <utility>
+#include <unordered_map>
+
 #include "rclcpp/logging.hpp"
 #include "rclcpp/logger.hpp"
 
@@ -58,6 +61,5 @@ public:
   }
 };
 
-} // namespace scenario_intersection
-
-#endif // SCENARIO_INTERSECTION_INTERSECTON_MANAGER_H_INCLUDED
+}  // namespace scenario_intersection
+#endif  // SCENARIO_INTERSECTION__INTERSECTION_MANAGER_HPP_

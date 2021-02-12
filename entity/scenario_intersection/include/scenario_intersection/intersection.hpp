@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_INTERSECTION_INTERSECTION_H_INCLUDED
-#define SCENARIO_INTERSECTION_INTERSECTION_H_INCLUDED
+#ifndef SCENARIO_INTERSECTION__INTERSECTION_HPP_
+#define SCENARIO_INTERSECTION__INTERSECTION_HPP_
+
+#include <yaml-cpp/yaml.h>
 
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "boost/lexical_cast.hpp"
-#include <yaml-cpp/yaml.h>
 
 #include "rclcpp/logging.hpp"
 #include "rclcpp/logger.hpp"
@@ -59,8 +61,8 @@ public:
       : target_{target.as<int>()},
         color_{color ? convert<Color>(color.as<std::string>()) : Color::Blank}
       {
-        if (arrows and not arrows.IsNull()) {
-          if (arrows.IsScalar()) { // NOTE: deperecated behavior
+        if (arrows && !arrows.IsNull()) {
+          if (arrows.IsScalar()) {  // NOTE: deperecated behavior
             const auto value {convert<Arrow>(arrows.as<std::string>())};
 
             if (value != Arrow::Blank) {
@@ -80,9 +82,9 @@ public:
 
       bool changeColor(ScenarioAPI & simulator) const
       {
-        if (target_ < 0 or color_ == Color::Blank) {
+        if (target_ < 0 || color_ == Color::Blank) {
           return simulator.resetTrafficLightColor(target_, false);
-        } else { // NOTE: Maybe specified illiegal traffic-light-id.
+        } else {  // NOTE: Maybe specified illiegal traffic-light-id.
           return simulator.setTrafficLightColor(
             target_, boost::lexical_cast<std::string>(
               color_), false);
@@ -103,13 +105,14 @@ public:
               simulator.setTrafficLightArrow(
                 target_, boost::lexical_cast<std::string>(each), false);
             });
+        } else {
+          return false;
         }
-        return false;
       }
 
       bool operator()(ScenarioAPI & simulator) const
       {
-        return changeColor(simulator) and changeArrow(simulator);
+        return changeColor(simulator) && changeArrow(simulator);
       }
     };
 
@@ -166,9 +169,14 @@ public:
 
   bool change_to(const std::string & the_state);
 
+  const auto & current_state() const noexcept
+  {
+    return current_state_;
+  }
+
   bool is(const std::string & state) const
   {
-    return current_state_ == state;
+    return current_state() == state;
   }
 
   const std::vector<std::size_t> & ids() const;
@@ -176,6 +184,5 @@ public:
   simulation_is update();
 };
 
-} // namespace scenario_intersection
-
-#endif // SCENARIO_INTERSECTION_INTERSECTION_H_INCLUDED
+}  // namespace scenario_intersection
+#endif  // SCENARIO_INTERSECTION__INTERSECTION_HPP_

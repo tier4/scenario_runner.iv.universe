@@ -264,7 +264,7 @@ public:
 
   //util API
   double getDistanceToArea(
-    const std::string &, const geometry_msgs::Pose, const std::string & = "Center");
+    const std::string &, const geometry_msgs::msg::Pose, const std::string & = "Center");
 
   bool isObjectInArea(
     const std::string & name, const geometry_msgs::msg::Pose pose, const double dist_thresh,
