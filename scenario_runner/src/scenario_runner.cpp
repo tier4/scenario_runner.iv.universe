@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "scenario_logger/logger.hpp"
-#include "scenario_runner/scenario_runner.hpp"
+#include "scenario_runner/scenario_runner.h"
 
 namespace scenario_runner
 {

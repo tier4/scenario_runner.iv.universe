@@ -14,7 +14,7 @@
 
 #include "glog/logging.h"
 #include "scenario_logger/logger.hpp"
-#include "scenario_runner/scenario_runner.hpp"
+#include "scenario_runner/scenario_runner.h"
 #include "boost/cstdlib.hpp"
 #include <exception>
 #include "rclcpp/rclcpp.hpp"
