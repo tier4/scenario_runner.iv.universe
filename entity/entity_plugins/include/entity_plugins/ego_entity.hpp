@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ENTITY_PLUGINS_EGO_CAR_ENTITIY_H_INCLUDED
-#define ENTITY_PLUGINS_EGO_CAR_ENTITIY_H_INCLUDED
+#ifndef ENTITY_PLUGINS__EGO_ENTITY_HPP_
+#define ENTITY_PLUGINS__EGO_ENTITY_HPP_
+
+#include <memory>
+#include <string>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -46,4 +49,4 @@ private:
 
 }  // namespace entity_plugins
 
-#endif  // ENTITY_PLUGINS_EGO_CAR_ENTITIY_H_INCLUDED
+#endif  // ENTITY_PLUGINS__EGO_ENTITY_HPP_

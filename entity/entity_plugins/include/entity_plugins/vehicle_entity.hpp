@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ENTITY_PLUGINS_VEHICLE_ENTITY_H_INCLUDED
-#define ENTITY_PLUGINS_VEHICLE_ENTITY_H_INCLUDED
+#ifndef ENTITY_PLUGINS__VEHICLE_ENTITY_HPP_
+#define ENTITY_PLUGINS__VEHICLE_ENTITY_HPP_
 
 #include "scenario_entities/entity_base.hpp"
 
@@ -28,4 +28,4 @@ struct VehicleEntity
 
 }  // namespace entity_plugins
 
-#endif  // ENTITY_PLUGINS_VEHICLE_ENTITY_H_INCLUDED
+#endif  // ENTITY_PLUGINS__VEHICLE_ENTITY_HPP_

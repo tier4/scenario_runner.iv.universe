@@ -18,7 +18,7 @@
   <depend>scenario_utility</depend>
 
   <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_cmake_cppcheck</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
     <scenario_entities plugin="${prefix}/plugins.xml" />

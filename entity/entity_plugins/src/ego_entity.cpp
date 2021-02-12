@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "entity_plugins/ego_entity.hpp"
 #include "scenario_logger/simple_logger.hpp"
 
@@ -37,7 +41,7 @@ try
     read_optional<std::string>(
     entity, "InitialFrameId", "ego-initial-pose");
 
-  if (not api_->setEgoCarName(name_)) {
+  if (!api_->setEgoCarName(name_)) {
     SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set ego-car-name.");
   }
   return true;
@@ -52,18 +56,18 @@ try
 {
   LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates.Speed");
   if (const auto speed_node {init_entity_["InitialStates"]["Speed"]}) {
-    if (not api_->setMaxSpeed(speed_node.as<float>())) {
+    if (!api_->setMaxSpeed(speed_node.as<float>())) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set max-speed.");
     }
   }
 
   LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates.InitialSpeed");
   if (const auto initial_speed {init_entity_["InitialStates"]["InitialSpeed"]}) {
-    if (not api_->sendStartVelocity(initial_speed.as<float>())) {
+    if (!api_->sendStartVelocity(initial_speed.as<float>())) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
     }
   } else {
-    if (not api_->sendStartVelocity(0)) {
+    if (!api_->sendStartVelocity(0)) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
     }
   }
@@ -74,14 +78,14 @@ try
     {
       const auto pose {read_essential<geometry_msgs::msg::Pose>(node, "Pose")};
 
-      if (not api_->sendStartPoint(
+      if (!api_->sendStartPoint(
         pose, true, read_optional<std::string>(
           node, "Shift",
           "Center")))
       {
         const auto pose {read_essential<geometry_msgs::msg::Pose>(node, "Pose")};
 
-        if (not api_->sendStartPoint(
+        if (!api_->sendStartPoint(
           pose, true, read_optional<std::string>(
             node, "Shift",
             "Center")))
@@ -89,7 +93,7 @@ try
           SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-point.");
         }
 
-        if (not api_->setFrameId(initial_frame_id_, pose)) {
+        if (!api_->setFrameId(initial_frame_id_, pose)) {
           SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set frame-id.");
         }
       }
@@ -112,7 +116,7 @@ try
     "Failed to initialize entity named '" << name_ << "' of type " << type_ << ".");
 }
 
-} // namespace entity_plugins
+}  // namespace entity_plugins
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(entity_plugins::EgoEntity, scenario_entities::EntityBase)

@@ -21,7 +21,7 @@ VehicleEntity::VehicleEntity()
 : scenario_entities::EntityBase{"Vehicle"}
 {}
 
-}  // namespace scenario_entities
+}  // namespace entity_plugins
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(entity_plugins::VehicleEntity, scenario_entities::EntityBase)
