@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "entity_plugins/ego_entity.h"
+#include "entity_plugins/ego_entity.hpp"
 #include "scenario_logger/simple_logger.hpp"
 
 namespace entity_plugins
