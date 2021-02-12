@@ -20,7 +20,7 @@
 
 #include "tf2/transform_datatypes.h"
 
-namespace scenario_utility
+inline namespace scenario_utility
 {
 inline namespace converter
 {
