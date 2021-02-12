@@ -53,7 +53,7 @@ public:
     return name_ = new_name;
   }
 
-  const bool getResult() const noexcept { return result_; }
+  bool getResult() const noexcept { return result_; }
 
   const std::string & getType() const noexcept {return type_;}
 
