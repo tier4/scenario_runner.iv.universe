@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef INCLUDED_SCENARIO_INTERSECTION_ARROW_H
-#define INCLUDED_SCENARIO_INTERSECTION_ARROW_H
+#ifndef SCENARIO_INTERSECTION__ARROW_HPP_
+#define SCENARIO_INTERSECTION__ARROW_HPP_
 
 #include <ostream>
 #include <string>
@@ -40,6 +40,5 @@ Arrow convert<Arrow>(const std::string &);
 
 std::ostream & operator<<(std::ostream & os, const Arrow arrow);
 
-} // namespace scenario_intersection
-
-#endif // INCLUDED_SCENARIO_INTERSECTION_ARROW_H
+}  // namespace scenario_intersection
+#endif  // SCENARIO_INTERSECTION__ARROW_HPP_

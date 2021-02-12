@@ -14,7 +14,9 @@
 
 #include "scenario_intersection/color.hpp"
 
+#include <string>
 #include <unordered_map>
+#include <utility>
 
 namespace scenario_intersection
 {
@@ -49,6 +51,4 @@ std::ostream & operator<<(std::ostream & os, const Color color)
       return os << "Blank";
   }
 }
-
-
-} // namespace scenario_intersection
+}  // namespace scenario_intersection

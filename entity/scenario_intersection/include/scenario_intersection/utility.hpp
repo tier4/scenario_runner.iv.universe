@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_INTERSECTION_UTILITY_H_INCLUDED
-#define SCENARIO_INTERSECTION_UTILITY_H_INCLUDED
+#ifndef SCENARIO_INTERSECTION__UTILITY_HPP_
+#define SCENARIO_INTERSECTION__UTILITY_HPP_
+
+#include <yaml-cpp/yaml.h>
 
 #include <string>
+#include <utility>
 
 #include "rclcpp/logging.hpp"
 #include "rclcpp/logger.hpp"
 
-#include <yaml-cpp/yaml.h>
 
 namespace scenario_intersection
 {
@@ -40,13 +42,12 @@ decltype(auto) if_exist(
       RCLCPP_ERROR_STREAM(
         logger,
         "A bad-conversion exception occurred when parsing the key '" << key << "'. "
-          "You have specified in your scenario a value of a type that is not appropriate for that key.");
+          "You have specified in your scenario a value of a type that is not appropriate for that key.");  // NOLINT
     }
   } else {
     RCLCPP_ERROR_STREAM(logger, "Missing key '" << key << "' in following tree.\n" << node);
   }
 }
 
-} // namespace scenario_intersection
-
-#endif // SCENARIO_INTERSECTION_UTILITY_H_INCLUDED
+}  // namespace scenario_intersection
+#endif  // SCENARIO_INTERSECTION__UTILITY_HPP_

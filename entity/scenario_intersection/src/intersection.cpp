@@ -14,6 +14,10 @@
 
 #include "scenario_intersection/intersection.hpp"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace scenario_intersection
 {
 
@@ -62,5 +66,4 @@ simulation_is Intersection::update()
 {
   return simulation_is::ongoing;
 }
-
-} // namespace scenario_intersection
+}  // namespace scenario_intersection

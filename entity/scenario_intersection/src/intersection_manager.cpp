@@ -14,6 +14,9 @@
 
 #include "scenario_intersection/intersection_manager.hpp"
 
+#include <memory>
+#include <string>
+
 namespace scenario_intersection
 {
 
@@ -60,7 +63,7 @@ bool IntersectionManager::initialize(const YAML::Node & intersections)
         }
       });
   } else {
-    return true; // Story.Init.Intersection is optional.
+    return true;  // Story.Init.Intersection is optional.
   }
 }
 
@@ -82,5 +85,4 @@ simulation_is IntersectionManager::update()
 {
   return simulation_is::ongoing;
 }
-
-} // namespace scenario_intersection
+}  // namespace scenario_intersection
