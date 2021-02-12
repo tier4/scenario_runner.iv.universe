@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ACION_PLUGINS_LANE_CHANGE_ACTION_H_INCLUDED
-#define ACION_PLUGINS_LANE_CHANGE_ACTION_H_INCLUDED
+#ifndef ACTION_PLUGINS__LANE_CHANGE_ACTION_HPP_
+#define ACTION_PLUGINS__LANE_CHANGE_ACTION_HPP_
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "scenario_actions/entity_action_base.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
@@ -40,6 +44,6 @@ public:
   ->void override;
 };
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
-#endif // ACION_PLUGINS_LANE_CHANGE_ACTION_H_INCLUDED
+#endif  // ACTION_PLUGINS__LANE_CHANGE_ACTION_HPP_

@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ACION_PLUGINS_FOLLOW_ROUTE_ACTION_H_INCLUDED
-#define ACION_PLUGINS_FOLLOW_ROUTE_ACTION_H_INCLUDED
+#ifndef ACTION_PLUGINS__FOLLOW_ROUTE_ACTION_HPP_
+#define ACTION_PLUGINS__FOLLOW_ROUTE_ACTION_HPP_
+
+#include <yaml-cpp/node/node.h>
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "scenario_actions/entity_action_base.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
-#include <yaml-cpp/node/node.h>
 #include "geometry_msgs/msg/pose.hpp"
+
 namespace action_plugins
 {
 
@@ -44,4 +50,4 @@ public:
 
 }  // namespace action_plugins
 
-#endif  // ACION_PLUGINS_FOLLOW_ROUTE_ACTION_H_INCLUDED
+#endif  // ACTION_PLUGINS__FOLLOW_ROUTE_ACTION_HPP_

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "action_plugins/acceleration_action.hpp"
 
 namespace action_plugins
@@ -62,17 +67,17 @@ try
 }
 
 void AccelerationAction::run(
-  const std::shared_ptr<scenario_intersection::IntersectionManager>&)
+  const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
   for (const auto & actor : actors_) {
-    if (not std::isnan(min_) and not (*api_ptr_).changeNPCAccelMin(actor, min_)) {
+    if (!std::isnan(min_) && !(*api_ptr_).changeNPCAccelMin(actor, min_)) {
       SCENARIO_ERROR_THROW(
         CATEGORY(),
         type_ << "Action failed to change " << actor <<
           "'s minimum acceleration (Note: This action cannot be used for Ego Type entities).");
     }
 
-    if (not std::isnan(max_) and not (*api_ptr_).changeNPCAccelMax(actor, max_)) {
+    if (!std::isnan(max_) && !(*api_ptr_).changeNPCAccelMax(actor, max_)) {
       SCENARIO_ERROR_THROW(
         CATEGORY(),
         type_ << "Action failed to change " << actor <<
@@ -81,6 +86,6 @@ void AccelerationAction::run(
   }
 }
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
 PLUGINLIB_EXPORT_CLASS(action_plugins::AccelerationAction, scenario_actions::EntityActionBase)

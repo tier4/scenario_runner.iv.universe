@@ -17,13 +17,13 @@ ament_auto_find_build_dependencies()
 include_directories(
   include)
 
-ament_auto_add_library(${PROJECT_NAME} SHARED
-   src/acceleration_action.cpp
-   src/change_signal_action.cpp
-   src/follow_route_action.cpp
-   src/lane_change_action.cpp
-   src/speed_action.cpp
-  )
+ament_auto_add_library(action_plugins SHARED
+  src/acceleration_action.cpp
+  src/change_signal_action.cpp
+  src/follow_route_action.cpp
+  src/lane_change_action.cpp
+  src/speed_action.cpp
+)
 
 pluginlib_export_plugin_description_file(scenario_actions plugins.xml)
 

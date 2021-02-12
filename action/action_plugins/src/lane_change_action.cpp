@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "action_plugins/lane_change_action.hpp"
 
 namespace action_plugins
@@ -50,7 +54,7 @@ void LaneChangeAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
   for (const auto & each : actors_) {
-    if (not (*api_ptr_).changeNPCLaneChange(each, target_lanelet_)) {
+    if (!(*api_ptr_).changeNPCLaneChange(each, target_lanelet_)) {
       SCENARIO_ERROR_THROW(
         CATEGORY(),
         type_ << "Action failed to change lane of " << each << ".");
@@ -58,7 +62,7 @@ void LaneChangeAction::run(
   }
 }
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(action_plugins::LaneChangeAction, scenario_actions::EntityActionBase)

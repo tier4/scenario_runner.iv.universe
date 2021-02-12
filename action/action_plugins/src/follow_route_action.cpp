@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "action_plugins/follow_route_action.hpp"
 #include "scenario_utility/scenario_utility.hpp"
 
@@ -61,7 +65,7 @@ void FollowRouteAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
   for (const auto & each : actors_) {
-    if (not api_ptr_->sendGoalPoint(each, goal_, true, shift_)) {
+    if (!api_ptr_->sendGoalPoint(each, goal_, true, shift_)) {
       SCENARIO_ERROR_THROW(
         CATEGORY(),
         type_ << "Action failed to send goal-pose to " << each << ".");
@@ -69,7 +73,7 @@ void FollowRouteAction::run(
   }
 }
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(action_plugins::FollowRouteAction, scenario_actions::EntityActionBase)

@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef INCLUDED_ACTION_PLUGINS_ACCELERATION_ACTION_H
-#define INCLUDED_ACTION_PLUGINS_ACCELERATION_ACTION_H
+#ifndef ACTION_PLUGINS__ACCELERATION_ACTION_HPP_
+#define ACTION_PLUGINS__ACCELERATION_ACTION_HPP_
 
 #include <cmath>
 #include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "pluginlib/class_list_macros.hpp"
 
@@ -48,6 +51,6 @@ public:
   ->void override;
 };
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
-#endif // INCLUDED_ACTION_PLUGINS_ACCELERATION_ACTION_H
+#endif  // ACTION_PLUGINS__ACCELERATION_ACTION_HPP_
