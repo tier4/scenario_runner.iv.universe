@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
-#define SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
+#ifndef SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
+#define SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 
 
 #include "scenario_expression/expression.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
-#include "scenario_sequence/sequence.hpp"
+#include "scenario_sequence/event.h"
 #include "scenario_utility/scenario_utility.hpp"
 
 #include <yaml-cpp/yaml.h>
@@ -29,14 +29,14 @@
 namespace scenario_sequence
 {
 
-class SequenceManager
+class EventManager
 {
-  std::queue<scenario_sequence::Sequence> sequences_;
-
   scenario_expression::Context context_;
 
+  std::queue<scenario_sequence::Event> events_;
+
 public:
-  SequenceManager(const scenario_expression::Context&, const YAML::Node&);
+  EventManager(const scenario_expression::Context&, const YAML::Node&);
 
   simulation_is update(
     const std::shared_ptr<scenario_intersection::IntersectionManager>&);
@@ -44,5 +44,5 @@ public:
 
 } // namespace scenario_sequence
 
-#endif // SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
+#endif // SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 

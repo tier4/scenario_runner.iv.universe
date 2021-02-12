@@ -18,7 +18,7 @@
 
 #include "scenario_expression/expression.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
-#include "scenario_sequence/event_manager.hpp"
+#include "scenario_sequence/event_manager.h"
 #include "scenario_utility/scenario_utility.hpp"
 
 #include <yaml-cpp/yaml.h>
