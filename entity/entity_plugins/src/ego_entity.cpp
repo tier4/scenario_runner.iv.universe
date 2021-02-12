@@ -51,19 +51,15 @@ bool EgoEntity::init()
 try
 {
   LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates.Speed");
-  if (const auto speed_node {init_entity_["InitialStates"]["Speed"]})
-  {
-    if (not api_->setMaxSpeed(speed_node.as<float>()))
-    {
+  if (const auto speed_node {init_entity_["InitialStates"]["Speed"]}) {
+    if (not api_->setMaxSpeed(speed_node.as<float>())) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set max-speed.");
     }
   }
 
   LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates.InitialSpeed");
-  if (const auto initial_speed { init_entity_["InitialStates"]["InitialSpeed"] })
-  {
-    if (not api_->sendStartVelocity(initial_speed.as<float>()))
-    {
+  if (const auto initial_speed {init_entity_["InitialStates"]["InitialSpeed"]}) {
+    if (not api_->sendStartVelocity(initial_speed.as<float>())) {
       SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
     }
   } else {
@@ -73,11 +69,8 @@ try
   }
 
   LOG_SIMPLE(info() << "Parsing 'Story.Entity[" << name_ << "].InitialStates");
-  call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
-  {
-    const auto pose { read_essential<geometry_msgs::msg::Pose>(node, "Pose") };
-
-    if (not api_->sendStartPoint(pose, true, read_optional<std::string>(node, "Shift", "Center")))
+  call_with_essential(
+    init_entity_, "InitialStates", [&](const auto & node) mutable
     {
       const auto pose {read_essential<geometry_msgs::msg::Pose>(node, "Pose")};
 
@@ -86,11 +79,19 @@ try
           node, "Shift",
           "Center")))
       {
-        SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-point.");
-      }
+        const auto pose {read_essential<geometry_msgs::msg::Pose>(node, "Pose")};
 
-      if (not api_->setFrameId(initial_frame_id_, pose)) {
-        SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set frame-id.");
+        if (not api_->sendStartPoint(
+          pose, true, read_optional<std::string>(
+            node, "Shift",
+            "Center")))
+        {
+          SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-point.");
+        }
+
+        if (not api_->setFrameId(initial_frame_id_, pose)) {
+          SCENARIO_ERROR_THROW(CATEGORY(), "Failed to set frame-id.");
+        }
       }
     });
 
