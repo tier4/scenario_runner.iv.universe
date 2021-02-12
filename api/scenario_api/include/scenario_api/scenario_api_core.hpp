@@ -263,6 +263,9 @@ public:
   bool checkOverTrafficLine(const int traffic_relation_id, bool & over_line);
 
   //util API
+  double getDistanceToArea(
+    const std::string &, const geometry_msgs::msg::Pose, const std::string & = "Center");
+
   bool isObjectInArea(
     const std::string & name, const geometry_msgs::msg::Pose pose, const double dist_thresh,
     const double delta_yaw_thresh,
