@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "action_plugins/change_signal_action.hpp"
 
 namespace action_plugins
@@ -23,7 +27,7 @@ void ChangeSignalAction::configure(
   const std::shared_ptr<ScenarioAPI> & api_ptr)
 try
 {
-  actors_ = actors; // NOTE: ChangeSignal Action has no dependency for Actors
+  actors_ = actors;  // NOTE: ChangeSignal Action has no dependency for Actors
   api_ptr_ = api_ptr;
   node_ = node;
 
@@ -40,13 +44,13 @@ try
 void ChangeSignalAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager> & intersection_manager)
 {
-  if (not (*intersection_manager).change(target_intersection_, state_)) {
+  if (!(*intersection_manager).change(target_intersection_, state_)) {
     SCENARIO_ERROR_THROW(
       CATEGORY(),
       type_ << "Action failed to change intersection state to " << state_ << ".");
   }
 }
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
 PLUGINLIB_EXPORT_CLASS(action_plugins::ChangeSignalAction, scenario_actions::EntityActionBase)

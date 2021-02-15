@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "action_plugins/enable_action.hpp"
 
 namespace action_plugins
@@ -52,7 +56,7 @@ void EnableAction::run(
 {
   if (automatic_emergency_braking_) {
     for (const auto & each : actors_) {
-      if (not (*api_ptr_).changeNPCConsiderVehicle(each, *automatic_emergency_braking_)) {
+      if (!(*api_ptr_).changeNPCConsiderVehicle(each, *automatic_emergency_braking_)) {
         SCENARIO_ERROR_THROW(
           CATEGORY(),
           type_ << "Action failed to change " << each << "'s feature.");
@@ -60,7 +64,6 @@ void EnableAction::run(
     }
   }
 }
-
-}
+}  // namespace action_plugins
 
 PLUGINLIB_EXPORT_CLASS(action_plugins::EnableAction, scenario_actions::EntityActionBase)

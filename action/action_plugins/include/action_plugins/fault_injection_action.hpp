@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef INCLUDED_ACTION_PLUGINS_FAULT_INJECTION_ACTION_H
-#define INCLUDED_ACTION_PLUGINS_FAULT_INJECTION_ACTION_H
+#ifndef ACTION_PLUGINS__FAULT_INJECTION_ACTION_HPP_
+#define ACTION_PLUGINS__FAULT_INJECTION_ACTION_HPP_
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "scenario_actions/entity_action_base.hpppp"
 #include "scenario_intersection/intersection_manager.hpp"
@@ -41,6 +45,6 @@ public:
   void run(const std::shared_ptr<scenario_intersection::IntersectionManager> &) override;
 };
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
-#endif // INCLUDED_ACTION_PLUGINS_FAULT_INJECTION_ACTION_H
+#endif  // ACTION_PLUGINS__FAULT_INJECTION_ACTION_HPP_

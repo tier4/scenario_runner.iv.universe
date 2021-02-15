@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "action_plugins/fault_injection_action.hpp"
 
 namespace action_plugins
@@ -59,6 +63,6 @@ void FaultInjectionAction::run(
   }
 }
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
 PLUGINLIB_EXPORT_CLASS(action_plugins::FaultInjectionAction, scenario_actions::EntityActionBase)

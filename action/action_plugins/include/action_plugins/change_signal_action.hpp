@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef INCLUDED_ACION_PLUGINS_CHANGE_SIGNAL_ACTION_H
-#define INCLUDED_ACION_PLUGINS_CHANGE_SIGNAL_ACTION_H
+#ifndef ACTION_PLUGINS__CHANGE_SIGNAL_ACTION_HPP_
+#define ACTION_PLUGINS__CHANGE_SIGNAL_ACTION_HPP_
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "pluginlib/class_list_macros.hpp"
 
@@ -45,6 +49,6 @@ public:
   override;
 };
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
-#endif // INCLUDED_ACION_PLUGINS_CHANGE_SIGNAL_ACTION_H
+#endif  // ACTION_PLUGINS__CHANGE_SIGNAL_ACTION_HPP_

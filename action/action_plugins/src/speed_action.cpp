@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "action_plugins/speed_action.hpp"
 
 namespace action_plugins
@@ -50,24 +54,24 @@ void SpeedAction::run(
   const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
   for (const auto & actor : actors_) {
-    if (not api_ptr_->isEgoCarName(actor)) {
-      if (not (*api_ptr_).changeNPCVelocity(actor, value_)) {
+    if (!api_ptr_->isEgoCarName(actor)) {
+      if (!(*api_ptr_).changeNPCVelocity(actor, value_)) {
         SCENARIO_ERROR_THROW(
           CATEGORY(),
           type_ << "Action failed to change " << actor << "'s speed.");
       }
     } else {
-      if (not api_ptr_->setMaxSpeed(value_)) {
+      if (!api_ptr_->setMaxSpeed(value_)) {
         SCENARIO_ERROR_THROW(
           CATEGORY(),
           type_ << "Action failed to change " << actor <<
-            "'s max-speed (Note: This action implicitly acts as a maximum speed setting for Type: Ego entities.");
+            "'s max-speed (Note: This action implicitly acts as a maximum speed setting for Type: Ego entities."); // NOLINT
       }
     }
   }
 }
 
 
-} // namespace action_plugins
+}  // namespace action_plugins
 
 PLUGINLIB_EXPORT_CLASS(action_plugins::SpeedAction, scenario_actions::EntityActionBase)
