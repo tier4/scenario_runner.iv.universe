@@ -18,7 +18,7 @@ namespace condition_plugins
 {
 
 RelativeDistanceCondition::RelativeDistanceCondition()
-: scenario_conditions::ConditionBase{"RelativeDistance"}
+  : scenario_conditions::ConditionBase { "RelativeDistance" }
 {}
 
 bool RelativeDistanceCondition::configure(
@@ -40,7 +40,7 @@ try
     std::swap(trigger_, target_entity_);
   }
 
-  value_ = read_essential<float>(node_, "Value");
+  target_value_ = read_essential<float>(node_, "Value");
 
   if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_)) {
     return configured_ = false;
@@ -59,16 +59,23 @@ bool RelativeDistanceCondition::update(
 {
   if (keep_ and result_) {
     return result_;
-  } else {
-    double distance {0};
+  }
+  else
+  {
+    double distance {};
 
-    if ((*api_ptr_).isEgoCarName(trigger_)) {
+    if ((*api_ptr_).isEgoCarName(trigger_))
+    {
       (*api_ptr_).calcDistToNPC(distance, target_entity_);
-    } else {
+    }
+    else
+    {
       (*api_ptr_).calcDistToNPCFromNPC(distance, trigger_, target_entity_);
     }
 
-    return result_ = compare_(distance, value_);
+    description_ = std::to_string(distance);
+
+    return result_ = compare_(distance, target_value_);
   }
 }
 

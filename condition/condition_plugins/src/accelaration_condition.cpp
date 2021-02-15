@@ -18,7 +18,7 @@ namespace condition_plugins
 {
 
 AccelerationCondition::AccelerationCondition()
-: scenario_conditions::ConditionBase{"Acceleration"}
+  : scenario_conditions::ConditionBase { "Acceleration" }
 {}
 
 bool AccelerationCondition::configure(
@@ -34,7 +34,7 @@ try
 
   trigger_ = read_essential<std::string>(node_, "Trigger");
 
-  value_ = read_essential<float>(node_, "Value");
+  target_ = read_essential<float>(node_, "Value");
 
   if (!parseRule<float>(read_essential<std::string>(node_, "Rule"), compare_)) {
     return configured_ = false;
@@ -53,19 +53,29 @@ bool AccelerationCondition::update(
 {
   if (keep_ && result_) {
     return result_;
-  } else {
-    if ((*api_ptr_).isEgoCarName(trigger_)) {
-      return result_ = compare_((*api_ptr_).getAccel(), value_);
-    } else {
-      double npc_acceleration {0.0};
+  }
+  else
+  {
+    if ((*api_ptr_).isEgoCarName(trigger_))
+    {
+      description_ = std::to_string((*api_ptr_).getAccel());
+      return result_ = compare_((*api_ptr_).getAccel(), target_);
+    }
+    else
+    {
+      double acceleration { 0 };
 
-      if (!(*api_ptr_).getNPCAccel(trigger_, &npc_acceleration)) {
+      if (not (*api_ptr_).getNPCAccel(trigger_, &acceleration))
+      {
         RCLCPP_ERROR_STREAM(
           api_ptr_->get_logger().get_child("AccelerationCondition"),
           "Invalid trigger name specified for " << getType() << " condition named " << getName());
         return result_ = false;
-      } else {
-        return result_ = compare_(npc_acceleration, value_);
+      }
+      else
+      {
+        description_ = std::to_string(acceleration);
+        return result_ = compare_(acceleration, target_);
       }
     }
   }

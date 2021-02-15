@@ -18,8 +18,7 @@ namespace condition_plugins
 {
 
 SimulationTimeCondition::SimulationTimeCondition()
-: scenario_conditions::ConditionBase{"SimulationTime"},
-  duration_(0)
+  : scenario_conditions::ConditionBase { "SimulationTime" }, duration_(0, 0)
 {}
 
 bool SimulationTimeCondition::configure(
@@ -61,7 +60,10 @@ bool SimulationTimeCondition::update(
 {
   if (keep_ && result_) {
     return true;
-  } else {
+  }
+  else
+  {
+    description_ = std::to_string(elapsed().seconds());
     return result_ = compare_(elapsed(), duration_);
   }
 }

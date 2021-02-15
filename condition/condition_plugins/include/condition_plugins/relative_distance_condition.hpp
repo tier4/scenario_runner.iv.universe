@@ -28,7 +28,7 @@ class RelativeDistanceCondition
 {
   std::string trigger_, target_entity_, rule_;
 
-  float value_;
+  float target_value_;
 
   Comparator<float> compare_;
 

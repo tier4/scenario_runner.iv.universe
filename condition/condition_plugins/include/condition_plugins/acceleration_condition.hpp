@@ -34,7 +34,7 @@ public:
 
 private:
   std::string trigger_;
-  float value_;
+  float target_;
   Comparator<float> compare_;
 };
 

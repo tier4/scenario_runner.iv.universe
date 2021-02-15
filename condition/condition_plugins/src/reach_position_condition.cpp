@@ -18,7 +18,7 @@ namespace condition_plugins
 {
 
 ReachPositionCondition::ReachPositionCondition()
-: scenario_conditions::ConditionBase{"ReachPosition"}
+  : scenario_conditions::ConditionBase { "ReachPosition" }
 {}
 
 bool ReachPositionCondition::configure(
