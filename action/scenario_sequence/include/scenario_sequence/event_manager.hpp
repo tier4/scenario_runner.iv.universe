@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
-#define SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
+#ifndef SCENARIO_SEQUENCE__EVENT_MANAGER_HPP_
+#define SCENARIO_SEQUENCE__EVENT_MANAGER_HPP_
 
 #include <yaml-cpp/yaml.h>
 
 #include <list>
 #include <memory>
 #include <queue>
+#include <string>
+#include <utility>
 
 #include "scenario_expression/expression.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
@@ -39,17 +41,14 @@ class EventManager
   decltype(events_)::iterator cursor;
 
 public:
-  EventManager(const scenario_expression::Context&, const YAML::Node&);
+  EventManager(const scenario_expression::Context &, const YAML::Node &);
 
-  const auto& current_event_name() const
+  const auto & current_event_name() const
   {
-    if (cursor != std::end(events_))
-    {
+    if (cursor != std::end(events_)) {
       return (*cursor).name();
-    }
-    else
-    {
-      static const std::string it { "" };
+    } else {
+      static const std::string it {""};
       return it;
     }
   }
@@ -58,28 +57,23 @@ public:
   {
     boost::property_tree::ptree result {};
 
-    if (not events_.empty())
-    {
-      for (const auto& each : events_)
-      {
+    if (!events_.empty()) {
+      for (const auto & each : events_) {
         result.push_back(std::make_pair("", each.property()));
       }
-    }
-    else
-    {
-      result.push_back(std::make_pair("", boost::property_tree::ptree())); // XXX HACK
+    } else {
+      result.push_back(std::make_pair("", boost::property_tree::ptree()));  // XXX HACK
     }
 
     return result;
   }
 
   state_is update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &);
 
   state_is currently;
 };
 
-} // namespace scenario_sequence
+}  // namespace scenario_sequence
 
-#endif // SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
-
+#endif  // SCENARIO_SEQUENCE__EVENT_MANAGER_HPP_

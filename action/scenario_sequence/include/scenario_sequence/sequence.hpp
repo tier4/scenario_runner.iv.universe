@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
-#define SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
+#ifndef SCENARIO_SEQUENCE__SEQUENCE_HPP_
+#define SCENARIO_SEQUENCE__SEQUENCE_HPP_
 
+#include <yaml-cpp/yaml.h>
+#include <memory>
+#include <string>
+#include <utility>
 
 #include "scenario_expression/expression.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
 #include "scenario_sequence/event_manager.hpp"
 #include "scenario_utility/scenario_utility.hpp"
 
-#include <yaml-cpp/yaml.h>
-
-#include <memory>
-#include <string>
 
 namespace scenario_sequence
 {
@@ -42,15 +42,15 @@ class Sequence
   bool ignited_;
 
 public:
-  Sequence(const scenario_expression::Context&, const YAML::Node&);
+  Sequence(const scenario_expression::Context &, const YAML::Node &);
 
-  const auto& name() const noexcept
+  const auto & name() const noexcept
   {
     return name_;
   }
 
-  template <typename... Ts>
-  decltype(auto) current_event_name(Ts&&... xs) const
+  template<typename ... Ts>
+  decltype(auto) current_event_name(Ts && ... xs) const
   {
     return (*event_manager_).current_event_name(std::forward<decltype(xs)>(xs)...);
   }
@@ -68,12 +68,11 @@ public:
   }
 
   state_is update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &);
 
   state_is currently;
 };
 
-} // namespace scenario_sequence
+}  // namespace scenario_sequence
 
-#endif // SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
-
+#endif  // SCENARIO_SEQUENCE__SEQUENCE_HPP_

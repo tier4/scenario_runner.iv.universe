@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_SEQUENCE_EVENT_H_INCLUDED
-#define SCENARIO_SEQUENCE_EVENT_H_INCLUDED
+#ifndef SCENARIO_SEQUENCE__EVENT_HPP_
+#define SCENARIO_SEQUENCE__EVENT_HPP_
 
 
 #include <yaml-cpp/yaml.h>
@@ -29,7 +29,6 @@
 #include "scenario_utility/scenario_utility.hpp"
 
 
-
 namespace scenario_sequence
 {
 
@@ -38,7 +37,7 @@ enum class state_is
   sleeping, running, finished,
 };
 
-std::ostream& operator <<(std::ostream&, const state_is&);
+std::ostream & operator<<(std::ostream &, const state_is &);
 
 class Event
 {
@@ -55,9 +54,9 @@ class Event
   bool ignited_;
 
 public:
-  Event(const scenario_expression::Context&, const YAML::Node&);
+  Event(const scenario_expression::Context &, const YAML::Node &);
 
-  const auto& name() const noexcept
+  const auto & name() const noexcept
   {
     return name_;
   }
@@ -74,12 +73,11 @@ public:
   }
 
   state_is update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &);
 
   state_is currently;
 };
 
-} // namespace scenario_sequence
+}  // namespace scenario_sequence
 
-#endif // SCENARIO_SEQUENCE_EVENT_H_INCLUDED
-
+#endif  // SCENARIO_SEQUENCE__EVENT_HPP_
