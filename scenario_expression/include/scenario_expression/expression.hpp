@@ -16,16 +16,24 @@
 #define INCLUDED_SCENARIO_EXPRESSION_EXPRESSION_H
 
 #include "pluginlib/class_loader.hpp"
+#include "scenario_api/scenario_api_core.hpp"
 #include "scenario_conditions/condition_base.hpp"
 #include "scenario_entities/entity_manager.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
-#include "scenario_logger/logger.hpp"
+#include "scenario_utility/indentation.hpp"
 #include <yaml-cpp/yaml.h>
 
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <functional>
 #include <ios>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -91,7 +99,7 @@ public: \
  *   <Logical> = <N-Ary Logical Operator> [ <Test>* ]
  *             | <Unary Logical Operator> { <Test> }
  *
- *   <N-Ary Logical Operator> = <And> | <Or>
+ *   <N-Ary Logical Operator> = <All> | <Any>
  *   <Unary Logical Operator> = <Not>
  *
  *   <Test> = <Expression>
@@ -116,19 +124,17 @@ class Literal;
 
 using Boolean = Literal<bool>;
 
-class And;
-class Or;
-
-class Predicate;
-
 class Expression
 {
   friend Boolean;
 
-  friend Predicate;
+  friend class Predicate;
 
-  friend And;
-  friend Or;
+  template <template <typename> typename, bool>
+  friend class NAryLogicalExpression;
+
+  friend struct All;
+  friend struct Any;
 
 public:
   Expression()
@@ -150,6 +156,12 @@ public:
     if (data && --(data->count) == 0) {
       delete data;
     }
+  }
+
+  virtual const std::string& type() const
+  {
+    static const std::string result { "Expression" };
+    return result;
   }
 
   Expression & operator=(const Expression & rhs)
@@ -177,14 +189,25 @@ public:
     std::swap(data, e.data);
   }
 
-  virtual std::ostream & write(std::ostream & os) const
+  virtual boost::property_tree::ptree property(
+    const std::string& prefix = "", std::size_t occurrence = 0) const
   {
-    return os << "()";
+    if (data)
+    {
+      return (*data).property(prefix, occurrence);
+    }
+    else
+    {
+      boost::property_tree::ptree result {};
+      result.push_back(
+        std::make_pair("", boost::property_tree::ptree()));
+      return result;
+    }
   }
 
   friend std::ostream & operator<<(std::ostream & os, const Expression & expression)
   {
-    return expression.data ? expression.data->write(os) : (os << "()");
+    return boost::property_tree::write_json(os, expression.data->property()), os;
   }
 
   virtual operator bool() const noexcept
@@ -236,12 +259,13 @@ protected:
 
   virtual ~Literal() = default;
 
-  std::ostream & write(std::ostream & os) const override
+  const std::string& type() const override
   {
-    return os << std::boolalpha << value;
+    static const std::string result { "Literal" };
+    return result;
   }
 
-  Expression evaluate(Context &) override
+  Expression evaluate(Context&) override
   {
     return *this;
   }
@@ -252,63 +276,108 @@ protected:
   }
 };
 
-#define DEFINE_N_ARY_LOGICAL_EXPRESSION(NAME, OPERATOR, BASE_CASE) \
-  class NAME \
-    : public Expression \
-  { \
-    friend Expression; \
- \
-    OPERATOR<bool> combine; \
- \
-    std::vector<Expression> operands; \
- \
-protected: \
-    NAME(const NAME & rhs) \
-      : Expression {std::integral_constant<decltype(0), 0>()} \
-    , operands {rhs.operands} \
-    {} \
- \
-    NAME(Context & context, const YAML::Node & node) \
-      : Expression {std::integral_constant<decltype(0), 0>()} \
-    { \
-      if (node.IsSequence()) \
-      { \
-        for (const auto & each : node) \
-        { \
-          operands.push_back(read(context, each)); \
-        } \
-      } \
-    } \
- \
-    virtual ~NAME() = default; \
- \
-    Expression evaluate(Context & context) override \
-    { \
-      return \
-        Expression::make<Boolean>( \
-        std::accumulate( \
-          operands.begin(), operands.end(), BASE_CASE, \
-          [&](const auto & lhs, auto && rhs) \
-          { \
-            return combine(lhs, rhs.evaluate(context)); \
-          })); \
-    } \
- \
-    std::ostream & write(std::ostream & os) const override \
-    { \
-      os << "(" #NAME; \
- \
-      for (const auto & each : operands) \
-      { \
-        os << " " << each; \
-      } \
- \
-      return os << ")"; \
-    } \
+template <template <typename> typename Operator, bool Basis>
+class NAryLogicalExpression
+  : public Expression
+{
+  friend Expression;
+
+  Operator<bool> combine;
+
+  std::vector<Expression> operands;
+
+protected:
+  NAryLogicalExpression(const NAryLogicalExpression& rhs)
+    : Expression { std::integral_constant<decltype(0), 0>() }
+    , operands { rhs.operands }
+  {}
+
+  NAryLogicalExpression(Context& context, const YAML::Node& node)
+    : Expression { std::integral_constant<decltype(0), 0>() }
+  {
+    if (node.IsSequence())
+    {
+      for (const auto& each : node)
+      {
+        operands.push_back(read(context, each));
+      }
+    }
   }
 
-DEFINE_N_ARY_LOGICAL_EXPRESSION(And, std::logical_and, true);
-DEFINE_N_ARY_LOGICAL_EXPRESSION(Or, std::logical_or, false);
+  virtual ~NAryLogicalExpression() = default;
+
+  Expression evaluate(Context& context) override
+  {
+    return
+      Expression::make<Boolean>(
+      std::accumulate(
+        operands.begin(), operands.end(), Basis,
+        [&](const auto& lhs, auto&& rhs)
+        {
+          return combine(lhs, rhs.evaluate(context));
+        }));
+  }
+
+  boost::property_tree::ptree property(
+    const std::string& prefix, std::size_t occurrence) const override
+  {
+    std::unordered_map<std::string, std::size_t> occurrences {};
+
+    boost::property_tree::ptree result {};
+
+    if (not operands.empty())
+    {
+      for (const auto& each : operands)
+      {
+        const auto property {
+          each.property(
+            prefix + type() + "(" + std::to_string(occurrence) + ")/",
+            occurrences[each.data->type()]++)
+        };
+
+        try
+        {
+          property.get_child("Name");
+          result.push_back(std::make_pair("", property));
+        }
+        catch (...)
+        {
+          for (const auto& each : property.get_child(""))
+          {
+            result.push_back(
+              std::make_pair("", each.second));
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+};
+
+struct All
+  : public NAryLogicalExpression<std::logical_and, true>
+{
+  using NAryLogicalExpression<std::logical_and, true>::NAryLogicalExpression;
+
+  const std::string& type() const override
+  {
+    static const std::string result { "All" };
+    return result;
+  }
+};
+
+struct Any
+  : public NAryLogicalExpression<std::logical_or, false>
+{
+  using NAryLogicalExpression<std::logical_or, false>::NAryLogicalExpression;
+
+  const std::string& type() const override
+  {
+    static const std::string result { "Any" };
+    return result;
+  }
+};
 
 template<typename PluginBase>
 class Procedure
@@ -330,9 +399,20 @@ protected:
 
   virtual ~Procedure() = default;
 
-  std::ostream & write(std::ostream & os) const override
+  const std::string& type() const override
   {
-    return os << "(" << (plugin ? plugin->getType() : "Error") << ")";
+    return (*plugin).getType();
+  }
+
+  boost::property_tree::ptree property(
+    const std::string& prefix, std::size_t occurrence) const override
+  {
+    if ((*plugin).getName().empty())
+    {
+      (*plugin).rename(prefix + (*plugin).getType() + "(" + std::to_string(occurrence) + ")");
+    }
+
+    return (*plugin).property();
   }
 
   virtual pluginlib::ClassLoader<PluginBase> & loader() const = 0;

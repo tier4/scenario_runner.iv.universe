@@ -27,15 +27,22 @@ Expression read(Context & context, const YAML::Node & node)
     SCENARIO_ERROR_THROW(
       CATEGORY(),
       "syntax-error: Sequence cannot appear in this context.\n\n" << node << "\n");
-  } else if (node.IsMap()) { // is <keyword>
-    if (const auto all {node["All"]}) { // NOTE: should be 'and'
-      return Expression::make<And>(context, all);
-    } else if (const auto any {node["Any"]}) { // NOTE: should be 'or'
-      return Expression::make<Or>(context, any);
-    } else if (const auto type {node["Type"]}) { // <procedure call>
-      if (const auto params {node["Params"]}) { // <action call>
-        SCENARIO_ERROR_THROW(
-          CATEGORY(),
+  }
+  else if (node.IsMap()) // is <keyword>
+  {
+    if (const auto all { node["All"] }) // NOTE: should be 'and'
+    {
+      return Expression::make<All>(context, all);
+    }
+    else if (const auto any { node["Any"] }) // NOTE: should be 'or'
+    {
+      return Expression::make<Any>(context, any);
+    }
+    else if (const auto type { node["Type"] }) // <procedure call>
+    {
+      if (const auto params { node["Params"] }) // <action call>
+      {
+        SCENARIO_ERROR_THROW(CATEGORY(),
           "syntax-error: Procedure-call cannot appear in this context.\n\n" << node << "\n");
       } else { // <predicate call>
         return Expression::make<Predicate>(context, node);
