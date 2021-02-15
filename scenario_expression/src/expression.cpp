@@ -17,8 +17,6 @@
 namespace scenario_expression
 {
 
-std::stringstream Context::json {};
-
 Expression read(Context & context, const YAML::Node & node)
 {
   if (node.IsScalar()) {
