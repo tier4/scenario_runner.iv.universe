@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "scenario_api_autoware/scenario_api_autoware.hpp"
+#include "scenario_logger/simple_logger.hpp"
 
 #include "boost/assign/list_of.hpp"
 
@@ -29,20 +30,31 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
 {
   /* Get Parameter*/
   camera_frame_id_ = node_->declare_parameter<std::string>("camera_frame_id", "camera_link");
+  LOG_SIMPLE(info() << "Parameter 'camera_frame_id' = " << camera_frame_id_);
 
   //parameter for getMoveDistance
   add_simulator_noise_ = node_->declare_parameter<bool>("rosparam/add_simulator_noise", true);
+  LOG_SIMPLE(info() << "Parameter 'rosparam/add_simulator_noise' = " << std::boolalpha << add_simulator_noise_);
   simulator_noise_pos_dev_ = node_->declare_parameter<double>("rosparam/simulator_pos_noise", 0.1);
+  LOG_SIMPLE(info() << "Parameter 'rosparam/simulator_pos_noise' = " << simulator_noise_pos_dev_);
   autoware_max_velocity_ = node_->declare_parameter<double>("rosparam/max_velocity", 30.0);
+  LOG_SIMPLE(info() << "Parameter 'rosparam/max_velocity' = " << autoware_max_velocity_);
 
   /* Scenario parameters*/
   vehicle_data_.wheel_radius = vehicle_info_.wheel_radius_m_;
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_radius' = " << vehicle_data_.wheel_radius);
   vehicle_data_.wheel_width = vehicle_info_.wheel_width_m_;
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_width' = " << vehicle_data_.wheel_width);
   vehicle_data_.wheel_base = vehicle_info_.wheel_base_m_;
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_base' = " << vehicle_data_.wheel_base);
   vehicle_data_.wheel_tread = vehicle_info_.wheel_tread_m_;
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_tread' = " << vehicle_data_.wheel_tread);
   vehicle_data_.front_overhang = vehicle_info_.front_overhang_m_;
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/front_overhang' = " << vehicle_data_.front_overhang);
   vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m_;
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/rear_overhang' = " << vehicle_data_.rear_overhang);
   vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
+  LOG_SIMPLE(info() << "Parameter '/vehicle_info/vehicle_height' = " << vehicle_data_.vehicle_height);
   vehicle_data_.max_longitudinal_offset = vehicle_info_.max_longitudinal_offset_m_;
   vehicle_data_.min_longitudinal_offset = vehicle_info_.min_longitudinal_offset_m_;
   vehicle_data_.max_height_offset = vehicle_info_.max_height_offset_m_;
@@ -52,21 +64,29 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   sub_pcl_ = node_->create_subscription<sensor_msgs::msg::PointCloud2>(
     "input/pointcloud", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackPointCloud, this, std::placeholders::_1));
+  LOG_SIMPLE(info() << "Register callback for topic 'input/pointcloud'");
   sub_map_ = node_->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
     "/map/vector_map", rclcpp::QoS{1}.transient_local(),
     std::bind(&ScenarioAPIAutoware::callbackMap, this, std::placeholders::_1));
+  LOG_SIMPLE(info() << "Register callback for topic 'input/vectormap'");
   sub_route_ = node_->create_subscription<autoware_planning_msgs::msg::Route>(
     "input/route", rclcpp::QoS{1}.transient_local(),
     std::bind(&ScenarioAPIAutoware::callbackRoute, this, std::placeholders::_1));
+  LOG_SIMPLE(info() << "Register callback for topic 'input/route'");
   sub_state_ = node_->create_subscription<autoware_system_msgs::msg::AutowareState>(
     "input/autoware_state", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackStatus, this, std::placeholders::_1));
+  LOG_SIMPLE(info() << "Register callback for topic 'input/autoware_state'");
   sub_twist_ = node_->create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/vehicle_twist", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackTwist, this, std::placeholders::_1));
+  LOG_SIMPLE(info() << "Register callback for topic 'input/vehicle_twist'");
   sub_turn_signal_ = node_->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
     "input/signal_command", rclcpp::QoS{1},
     std::bind(&ScenarioAPIAutoware::callbackTurnSignal, this, std::placeholders::_1));
+
+  LOG_SIMPLE(info() << "Register callback for topic 'input/signal_command'");
+  LOG_SIMPLE(info() << "Connection to Autoware established");
 
   /* register timer callbacks */
   auto fast_timer_callback = std::bind(&ScenarioAPIAutoware::timerCallbackFast, this);
@@ -92,27 +112,35 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   durable_qos.transient_local();
   pub_start_point_ = node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "output/start_point", durable_qos);
+  LOG_SIMPLE(info() << "Advertise topic 'output/start_point'");
   pub_goal_point_ =
     node_->create_publisher<geometry_msgs::msg::PoseStamped>("output/goal_point", durable_qos);
+  LOG_SIMPLE(info() << "Advertise topic 'output/goal_point'");
   pub_start_velocity_ =
     node_->create_publisher<geometry_msgs::msg::TwistStamped>(
     "output/initial_velocity",
     durable_qos);
+  LOG_SIMPLE(info() << "Advertise topic 'output/initial_velocity'");
   pub_autoware_engage_ =
     node_->create_publisher<autoware_control_msgs::msg::EngageMode>("output/autoware_engage", durable_qos);
+  LOG_SIMPLE(info() << "Advertise topic 'output/autoware_engage'");
   pub_max_velocity_ =
     node_->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "output/limit_velocity",
     durable_qos);
+  LOG_SIMPLE(info() << "Advertise topic 'output/limit_velocity'");
   pub_lane_change_permission_ =
     node_->create_publisher<std_msgs::msg::Bool>("output/lane_change_permission", durable_qos);
+  LOG_SIMPLE(info() << "Advertise topic 'output/lane_change_permission'");
   pub_check_point_ =
     node_->create_publisher<geometry_msgs::msg::PoseStamped>(
     "output/check_point",
     rclcpp::QoS{10}.transient_local());
+  LOG_SIMPLE(info() << "Advertise topic 'output/check_point'");
   pub_traffic_detection_result_ =
     node_->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
     "output/traffic_detection_result", rclcpp::QoS{10}.transient_local());
+  LOG_SIMPLE(info() << "Advertise topic 'output/traffic_detection_result'");
 }
 
 ScenarioAPIAutoware::~ScenarioAPIAutoware() {}
@@ -138,17 +166,17 @@ void ScenarioAPIAutoware::callbackPointCloud(
 
 void ScenarioAPIAutoware::callbackMap(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
 {
-  RCLCPP_INFO(node_->get_logger(), "Start loading lanelet");
+  LOG_SIMPLE(info() << "Receive autoware_lanelet2_msgs::MapBin");
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
     *msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
-  RCLCPP_INFO(node_->get_logger(), "Map is loaded");
 }
 
 void ScenarioAPIAutoware::callbackRoute(
   const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
 {
-  is_autoware_ready_routing = true;  // check autoware rady
+  LOG_SIMPLE(info() << "Receive autoware_planning_msgs::Route");
+  is_autoware_ready_routing = true;  // check autoware ready
 }
 
 void ScenarioAPIAutoware::callbackStatus(
@@ -158,6 +186,8 @@ void ScenarioAPIAutoware::callbackStatus(
   if (autoware_state_ != autoware_system_msgs::msg::AutowareState::EMERGENCY) {
     is_autoware_ready_initialize = true;
   }
+
+  LOG_TOGGLE("Autoware state", autoware_state_);
 }
 
 void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
@@ -170,6 +200,7 @@ void ScenarioAPIAutoware::callbackTwist(const geometry_msgs::msg::TwistStamped::
   if (current_twist_ptr_ != nullptr) {
     previous_twist_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*current_twist_ptr_);
   }
+
   current_twist_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*msg);
 }
 
@@ -183,52 +214,45 @@ void ScenarioAPIAutoware::callbackTurnSignal(
 bool ScenarioAPIAutoware::isAPIReady()
 {
   if (current_pose_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "current_pose is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'current_pose'");
   }
 
   if (pcl_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "pointcloud is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'pointcloud'");
   }
 
   if (lanelet_map_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "lanelet_map is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'lanelet2_map'");
   }
 
   if (current_twist_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "current_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'current_twist'");
   }
 
   if (previous_twist_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "previous_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'previous_twist'");
   }
 
   if (second_previous_twist_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "second_previous_twist is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'second_previous_twist'");
   }
 
   if (turn_signal_ptr_ == nullptr) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
-      "turn_signal is nullptr");
     return false;
+  } else {
+    LOG_SIMPLE_ONCE(info() << "Ready 'turn_signal'");
   }
 
   return true;
@@ -237,7 +261,9 @@ bool ScenarioAPIAutoware::isAPIReady()
 bool ScenarioAPIAutoware::waitAPIReady()
 {
   while (rclcpp::ok()) {
+    LOG_SIMPLE(info() << "Connect to Autoware");
     if (isAPIReady()) {
+      LOG_SIMPLE(info() << "Established connection to Autoware");
       break;
     }
     rclcpp::Rate(10.0).sleep();
@@ -251,6 +277,8 @@ bool ScenarioAPIAutoware::sendStartPoint(
   const geometry_msgs::msg::Pose pose, const bool wait_autoware_status,
   const std::string & frame_type)
 {
+  LOG_SIMPLE(info() << "Send start-point to Autoware");
+
   // ignore roll/pitch information
   const double yaw = yawFromQuat(pose.orientation);
   geometry_msgs::msg::PoseWithCovarianceStamped posewcs;
@@ -375,6 +403,8 @@ bool ScenarioAPIAutoware::waitState(const std::string state)
 
 bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
 {
+  LOG_SIMPLE(info() << "Send initial-velocity " << velocity << " to Autoware");
+
   geometry_msgs::msg::TwistStamped twistmsg;
   twistmsg.header.frame_id = "base_link";
   twistmsg.header.stamp = node_->now();
@@ -388,19 +418,20 @@ bool ScenarioAPIAutoware::sendEngage(const bool engage)
   autoware_control_msgs::msg::EngageMode engage_msg;
   engage_msg.is_engaged = engage;
   pub_autoware_engage_->publish(engage_msg);
-  return true;  // TODO check success
+  return true;
 }
 
 bool ScenarioAPIAutoware::waitAutowareInitialize()
 {
   while (rclcpp::ok()) {
+    LOG_SIMPLE(info() << "Waiting for Autoware (Current state is Emergency)");
     if (isAutowareReadyInitialize()) {
-      break;
+      return true;
     }
     rclcpp::Rate(10.0).sleep();
     rclcpp::spin_some(node_->get_node_base_interface());
   }
-  return true;
+  return false;
 }
 
 bool ScenarioAPIAutoware::isAutowareReadyInitialize() {return is_autoware_ready_initialize;}
@@ -412,8 +443,10 @@ bool ScenarioAPIAutoware::isAutowareReadyRouting()
 
 bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
 {
+  LOG_SIMPLE(info() << "Sending max-speed " << velocity << " to Autoware");
+
   autoware_debug_msgs::msg::Float32Stamped floatmsg;
-  floatmsg.stamp = node_->now();
+  floatmsg.stamp = node_->get_clock()->now();
   floatmsg.data = velocity;
   pub_max_velocity_->publish(floatmsg);
   return true;  // TODO check success
