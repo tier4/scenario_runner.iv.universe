@@ -12,63 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
-#define SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
+#ifndef SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
+#define SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
 
-#include <yaml-cpp/yaml.h>
-
-#include <list>
-#include <memory>
-#include <queue>
 
 #include "scenario_expression/expression.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
-#include "scenario_sequence/event.h"
+#include "scenario_sequence/event_manager.hpp"
 #include "scenario_utility/scenario_utility.hpp"
 
+#include <yaml-cpp/yaml.h>
+
+#include <memory>
+#include <string>
 
 namespace scenario_sequence
 {
 
-class EventManager
+class Sequence
 {
   scenario_expression::Context context_;
 
-  std::list<scenario_sequence::Event> events_;
+  const std::string name_;
 
-  decltype(events_)::iterator cursor;
+  std::shared_ptr<scenario_sequence::EventManager> event_manager_;
+
+  scenario_expression::Expression start_condition_;
+
+  bool ignited_;
 
 public:
-  EventManager(const scenario_expression::Context&, const YAML::Node&);
+  Sequence(const scenario_expression::Context&, const YAML::Node&);
 
-  const auto& current_event_name() const
+  const auto& name() const noexcept
   {
-    if (cursor != std::end(events_))
-    {
-      return (*cursor).name();
-    }
-    else
-    {
-      static const std::string it { "" };
-      return it;
-    }
+    return name_;
+  }
+
+  template <typename... Ts>
+  decltype(auto) current_event_name(Ts&&... xs) const
+  {
+    return (*event_manager_).current_event_name(std::forward<decltype(xs)>(xs)...);
   }
 
   auto property() const
   {
     boost::property_tree::ptree result {};
 
-    if (not events_.empty())
-    {
-      for (const auto& each : events_)
-      {
-        result.push_back(std::make_pair("", each.property()));
-      }
-    }
-    else
-    {
-      result.push_back(std::make_pair("", boost::property_tree::ptree())); // XXX HACK
-    }
+    result.put("Name", name());
+    result.put("State", boost::lexical_cast<std::string>(currently));
+    result.add_child("StartConditions", start_condition_.property());
+    result.add_child("Events", (*event_manager_).property());
 
     return result;
   }
@@ -81,5 +75,5 @@ public:
 
 } // namespace scenario_sequence
 
-#endif // SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
+#endif // SCENARIO_SEQUENCE_SEQUENCE_H_INCLUDED
 

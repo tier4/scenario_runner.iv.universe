@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scenario_sequence/sequence_manager.h"
+#include "scenario_sequence/sequence_manager.hpp"
 
 namespace scenario_sequence
 {

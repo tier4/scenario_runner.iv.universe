@@ -12,55 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
-#define SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
-
-#include <list>
-
-#include "scenario_expression/expression.hpp"
-#include "scenario_intersection/intersection_manager.hpp"
-#include "scenario_sequence/sequence.h"
-#include "scenario_utility/scenario_utility.hpp"
+#ifndef SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
+#define SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 
 #include <yaml-cpp/yaml.h>
 
+#include <list>
 #include <memory>
 #include <queue>
+
+#include "scenario_expression/expression.hpp"
+#include "scenario_intersection/intersection_manager.hpp"
+#include "scenario_sequence/event.hpp"
+#include "scenario_utility/scenario_utility.hpp"
+
 
 namespace scenario_sequence
 {
 
-class SequenceManager
+class EventManager
 {
-  std::list<scenario_sequence::Sequence> sequences_;
-
   scenario_expression::Context context_;
 
-  // NOTE: Adding, removing and moving the elements within the list or across
-  // several lists does not invalidate the iterators or references.
-  decltype(sequences_)::iterator cursor;
+  std::list<scenario_sequence::Event> events_;
+
+  decltype(events_)::iterator cursor;
 
 public:
-  SequenceManager(const scenario_expression::Context&, const YAML::Node&);
-
-  const auto& current_sequence_name() const
-  {
-    if (cursor != std::end(sequences_))
-    {
-      return (*cursor).name();
-    }
-    else
-    {
-      static const std::string it { "" };
-      return it;
-    }
-  }
+  EventManager(const scenario_expression::Context&, const YAML::Node&);
 
   const auto& current_event_name() const
   {
-    if (cursor != std::end(sequences_))
+    if (cursor != std::end(events_))
     {
-      return (*cursor).current_event_name();
+      return (*cursor).name();
     }
     else
     {
@@ -73,9 +58,9 @@ public:
   {
     boost::property_tree::ptree result {};
 
-    if (not sequences_.empty())
+    if (not events_.empty())
     {
-      for (const auto& each : sequences_)
+      for (const auto& each : events_)
       {
         result.push_back(std::make_pair("", each.property()));
       }
@@ -96,5 +81,5 @@ public:
 
 } // namespace scenario_sequence
 
-#endif // SCENARIO_SEQUENCE_SEQUENCE_MANAGER_H_INCLUDED
+#endif // SCENARIO_SEQUENCE_EVENT_MANAGER_H_INCLUDED
 
