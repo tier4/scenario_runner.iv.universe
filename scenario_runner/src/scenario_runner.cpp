@@ -51,8 +51,7 @@ void ScenarioRunner::spin_simulator()
   rclcpp::spin_some(simulator_);
 }
 
-void ScenarioRunner::run()
-try
+void ScenarioRunner::run() try
 {
   LOG_SIMPLE(info() << "Parse scenario");
   context.define(simulator_);
