@@ -12,23 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_SEQUENCE_EVENT_H_INCLUDED
-#define SCENARIO_SEQUENCE_EVENT_H_INCLUDED
+#ifndef SCENARIO_SEQUENCE__EVENT_HPP_
+#define SCENARIO_SEQUENCE__EVENT_HPP_
 
 
+#include <yaml-cpp/yaml.h>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "boost/lexical_cast.hpp"
+#include "boost/property_tree/ptree.hpp"
 #include "scenario_actions/action_manager.hpp"
 #include "scenario_expression/expression.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
 #include "scenario_utility/scenario_utility.hpp"
 
-#include <yaml-cpp/yaml.h>
-
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace scenario_sequence
 {
+
+enum class state_is
+{
+  sleeping, running, finished,
+};
+
+std::ostream & operator<<(std::ostream &, const state_is &);
 
 class Event
 {
@@ -45,13 +54,30 @@ class Event
   bool ignited_;
 
 public:
-  Event(const scenario_expression::Context&, const YAML::Node&);
+  Event(const scenario_expression::Context &, const YAML::Node &);
 
-  simulation_is update(
-    const std::shared_ptr<scenario_intersection::IntersectionManager>&);
+  const auto & name() const noexcept
+  {
+    return name_;
+  }
+
+  boost::property_tree::ptree property() const
+  {
+    boost::property_tree::ptree result {};
+
+    result.put("Name", name());
+    result.put("State", boost::lexical_cast<std::string>(currently));
+    result.add_child("Conditions", condition_.property());
+
+    return result;
+  }
+
+  state_is update(
+    const std::shared_ptr<scenario_intersection::IntersectionManager> &);
+
+  state_is currently;
 };
 
-} // namespace scenario_sequence
+}  // namespace scenario_sequence
 
-#endif // SCENARIO_SEQUENCE_EVENT_H_INCLUDED
-
+#endif  // SCENARIO_SEQUENCE__EVENT_HPP_

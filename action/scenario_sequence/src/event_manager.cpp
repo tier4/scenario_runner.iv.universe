@@ -14,40 +14,39 @@
 
 #include "scenario_sequence/event_manager.hpp"
 
+#include <memory>
+
 namespace scenario_sequence
 {
 
 EventManager::EventManager(
-  const scenario_expression::Context& context,
-  const YAML::Node& events_definition)
-  : context_ { context }
+  const scenario_expression::Context & context,
+  const YAML::Node & events_definition)
+: context_{context},
+  currently{state_is::sleeping}
 {
-  for (const auto& each : events_definition)
-  {
-    events_.emplace(context, each);
+  for (const auto & each : events_definition) {
+    events_.emplace_back(context, each);
   }
+
+  cursor = std::begin(events_);
 }
 
-simulation_is EventManager::update(
-  const std::shared_ptr<scenario_intersection::IntersectionManager>&)
+state_is EventManager::update(
+  const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  if (not events_.empty())
-  {
-    switch (const auto result { events_.front().update(context_.intersections_pointer()) })
-    {
-    case simulation_is::succeeded:
-      events_.pop();
-      return simulation_is::ongoing;
+  if (cursor != std::end(events_)) {
+    switch (currently = (*cursor).update(context_.intersections_pointer())) {
+      case state_is::finished:
+        ++cursor;
+        return currently = state_is::running;
 
-    default:
-      return result;
+      default:
+        return currently;
     }
-  }
-  else
-  {
-    return simulation_is::succeeded;
+  } else {
+    return currently = state_is::finished;
   }
 }
 
-} // namespace scenario_sequence
-
+}  // namespace scenario_sequence

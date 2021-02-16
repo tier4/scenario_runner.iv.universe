@@ -14,39 +14,38 @@
 
 #include "scenario_sequence/sequence_manager.hpp"
 
+#include <memory>
+
 namespace scenario_sequence
 {
 
 SequenceManager::SequenceManager(
-  const scenario_expression::Context& context, const YAML::Node& sequences)
-  : context_ { context }
+  const scenario_expression::Context & context, const YAML::Node & sequences)
+: context_{context},
+  currently{state_is::sleeping}
 {
-  for (const auto& each : sequences)
-  {
-    sequences_.emplace(context, each["Sequence"]);
+  for (const auto & each : sequences) {
+    sequences_.emplace_back(context, each["Sequence"]);
   }
+
+  cursor = std::begin(sequences_);
 }
 
-simulation_is SequenceManager::update(
-  const std::shared_ptr<scenario_intersection::IntersectionManager>&)
+state_is SequenceManager::update(
+  const std::shared_ptr<scenario_intersection::IntersectionManager> &)
 {
-  if (not sequences_.empty())
-  {
-    switch (const auto result { sequences_.front().update(context_.intersections_pointer()) })
-    {
-    case simulation_is::succeeded:
-      sequences_.pop();
-      return simulation_is::ongoing;
+  if (cursor != std::end(sequences_)) {
+    switch (currently = (*cursor).update(context_.intersections_pointer())) {
+      case state_is::finished:
+        ++cursor;
+        return currently = state_is::running;
 
-    default:
-      return result;
+      default:
+        return currently;
     }
-  }
-  else
-  {
-    return simulation_is::succeeded;
+  } else {
+    return currently = state_is::finished;
   }
 }
 
-} // namespace scenario_sequence
-
+}  // namespace scenario_sequence
