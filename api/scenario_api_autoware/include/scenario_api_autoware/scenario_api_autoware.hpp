@@ -24,7 +24,7 @@
 
 #include "autoware_perception_msgs/msg/traffic_light_state_array.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
-#include "autoware_control_msgs/msg/engage_mode.hpp"
+#include "autoware_vehicle_msgs/msg/engage.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"
@@ -184,7 +184,7 @@ private:
     pub_goal_point_;  //!< @brief topic pubscriber for goal point
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr
     pub_start_velocity_;  //!< @brief topic @publisher for initial velocity
-  rclcpp::Publisher<autoware_control_msgs::msg::EngageMode>::SharedPtr
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::Engage>::SharedPtr
     pub_autoware_engage_;  //!< @brief topic pubscriber for autoware engage
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
     pub_max_velocity_;  //!< @brief topic pubscriber for max velocity

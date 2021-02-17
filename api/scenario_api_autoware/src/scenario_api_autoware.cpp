@@ -122,7 +122,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
     durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/initial_velocity'");
   pub_autoware_engage_ =
-    node_->create_publisher<autoware_control_msgs::msg::EngageMode>("output/autoware_engage", durable_qos);
+    node_->create_publisher<autoware_vehicle_msgs::msg::Engage>("output/autoware_engage", durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/autoware_engage'");
   pub_max_velocity_ =
     node_->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
@@ -415,8 +415,9 @@ bool ScenarioAPIAutoware::sendStartVelocity(const double velocity)
 
 bool ScenarioAPIAutoware::sendEngage(const bool engage)
 {
-  autoware_control_msgs::msg::EngageMode engage_msg;
-  engage_msg.is_engaged = engage;
+  autoware_vehicle_msgs::msg::Engage engage_msg;
+  engage_msg.engage = engage;
+  engage_msg.stamp = node_->now();
   pub_autoware_engage_->publish(engage_msg);
   return true;
 }
