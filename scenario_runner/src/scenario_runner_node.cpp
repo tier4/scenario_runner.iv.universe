@@ -14,9 +14,13 @@
 
 #include "glog/logging.h"
 #include "scenario_logger/logger.hpp"
+#include "scenario_logger/simple_logger.hpp"
 #include "scenario_runner/scenario_runner.hpp"
 #include "boost/cstdlib.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/filesystem/operations.hpp"
 #include <exception>
+#include <signal.h>
 #include "rclcpp/rclcpp.hpp"
 
 static void failureCallback()
@@ -51,10 +55,63 @@ void dump_diagnostics(const std::string & path, double mileage, double duration,
   boost::property_tree::write_json(path, pt);
 }
 
+auto to_signal_name = [](int signal) -> std::string
+{
+  switch (signal)
+  {
+    case SIGABRT: return "SIGABRT";
+    case SIGFPE:  return "SIGPE";
+    case SIGILL:  return "SIGILL";
+    case SIGINT:  return "SIGINT";
+    case SIGSEGV: return "SIGSEGV";
+    case SIGTERM: return "SIGTERM";
+    default:      return "";
+  }
+};
+
+static void abort(int signal)
+{
+  rclcpp::shutdown();
+
+  const auto signal_name { to_signal_name(signal) };
+
+  if (signal_name.empty())
+  {
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly");
+  }
+  else
+  {
+    SCENARIO_ERROR_STREAM(CATEGORY("simulator", "endcondition"), "Simulation failed unexpectedly (" << signal_name << ")");
+  }
+  scenario_logger::log.write();
+
+  if (signal_name.empty())
+  {
+    LOG_SIMPLE(error() << "Abort simulation");
+  }
+  else
+  {
+    LOG_SIMPLE(error() << "Abort simulation (" << signal_name << ")");
+  }
+
+  std::quick_exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char * argv[])
 {
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureFunction(&failureCallback);
+  google::InstallFailureWriter([](const char*, int)
+  {
+    return abort(0);
+  });
+
+  struct sigaction action {};
+  memset(&action, 0, sizeof(struct sigaction));
+  sigemptyset(&action.sa_mask);
+  action.sa_flags |= SA_SIGINFO;
+  action.sa_handler = &abort;
+  sigaction(SIGINT, &action, nullptr);
 
   /*
   * setup scenario runner
@@ -62,7 +119,6 @@ int main(int argc, char * argv[])
 
   rclcpp::init(argc, argv);
 
-  SCENARIO_INFO_STREAM(CATEGORY("simulation", "progress"), "ScenarioRunner instantiated.");
   const auto runner_ptr = std::make_shared<scenario_runner::ScenarioRunner>();
 
   scenario_logger::log.setStartDatetime(runner_ptr->now());
@@ -70,13 +126,18 @@ int main(int argc, char * argv[])
 
   std::string scenario_id{runner_ptr->declare_parameter("scenario_id").get<std::string>()};
   scenario_logger::log.setScenarioID(scenario_id);
+  boost::filesystem::create_directory("/tmp/scenario_runner_node");
+  scenario_logger::slog.open("/tmp/scenario_runner_node/" + scenario_id + ".json", std::ios::trunc);
 
   std::string log_output_path{runner_ptr->declare_parameter("log_output_path").get<std::string>()};
   scenario_logger::log.setLogOutputPath(log_output_path);
 
-  // SCENARIO_INFO_STREAM(CATEGORY(), "Sleep for 10 seconds.");
-  // std::this_thread::sleep_for(std::chrono::seconds {10});
-  // SCENARIO_INFO_STREAM(CATEGORY(), "Wake-up.");
+  LOG_SIMPLE(info() << "Sleep for 10 seconds");
+  for (auto i { 10 }; 0 < i; std::this_thread::sleep_for(std::chrono::seconds(1)))
+  {
+    LOG_SIMPLE(info() << "Sleeping... " << --i);
+  }
+  LOG_SIMPLE(info() << "Wake-up");
   const auto & path = runner_ptr->declare_parameter("json_dump_path").get<std::string>();
   const auto dump = [&runner_ptr, path](int exit_code) {
       dump_diagnostics(
@@ -134,6 +195,8 @@ int main(int argc, char * argv[])
       rclcpp::shutdown();
       return boost::exit_exception_failure;
     }
+
+    // return EXIT_FAILURE;
   } catch (const std::exception & e) {
     SCENARIO_ERROR_STREAM(
       CATEGORY(

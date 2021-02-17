@@ -29,7 +29,6 @@
         <remap from="input/signal_command" to="/vehicle/status/turn_signal" />
         <remap from="input/engage" to="/simulation/npc_simulator/engage" />
         <remap from="input/ego_vehicle_pose" to="/current_pose" />
-1
         <remap from="output/start_point" to="/initialpose" />
         <remap from="output/initial_velocity" to="/initialtwist" />
         <remap from="output/goal_point" to="/planning/mission_planning/goal" />

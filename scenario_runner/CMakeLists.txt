@@ -23,6 +23,7 @@ ament_auto_add_library(scenario_runner SHARED
   src/scenario_runner.cpp)
 
 target_link_libraries(scenario_runner
+  Boost::filesystem
   glog
 )
 
