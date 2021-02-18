@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "scenario_entities/entity_base.hpp"
+#include "scenario_logger/simple_logger.hpp"
 
 #include <sstream>
 
@@ -76,24 +77,24 @@ try
 bool EntityBase::init()
 try
 {
-  call_with_essential(
-    init_entity_, "InitialStates", [&](const auto & node) mutable
-    {
-      const auto type {type_ != "Vehicle" ? boost::to_lower_copy(type_) : "car"};
+  LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates");
+  call_with_essential(init_entity_, "InitialStates", [&](const auto& node) mutable
+  {
+    const auto type { type_ != "Vehicle" ? boost::to_lower_copy(type_) : "car" };
 
-      api_->addNPC(
-        type,
-        name_,
-        read_essential<geometry_msgs::msg::Pose>(node, "Pose"),
-        read_optional<float>(node, "Speed", 0),
-        false,
-        read_optional<std::string>(node, "Shift", "Center"));
-    });
+    api_->addNPC(
+      type,
+      name_,
+      read_essential<geometry_msgs::msg::Pose>(node, "Pose"),
+      read_optional<float>(node, "Speed", 0),
+      false,
+      read_optional<std::string>(node, "Shift", "Center"));
+  });
 
-  call_with_optional(
-    init_entity_, "Actions", [&](const auto & node) mutable
-    {
-      action_manager_ =
+  LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].Actions");
+  call_with_optional(init_entity_, "Actions", [&](const auto& node) mutable
+  {
+    action_manager_ =
       std::make_shared<scenario_actions::ActionManager>(
         node, std::vector<std::string> {name_}, api_);
 
@@ -113,5 +114,4 @@ simulation_is EntityBase::update(
 {
   return simulation_is::succeeded;
 }
-
-} // namespace scenario_entities
+}  // namespace scenario_entities
