@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef INCLUDED_ENTITY_PLUGINS_MOTORBIKE_ENTITY_H
-#define INCLUDED_ENTITY_PLUGINS_MOTORBIKE_ENTITY_H
+#ifndef ENTITY_PLUGINS__MOTORBIKE_ENTITY_HPP_
+#define ENTITY_PLUGINS__MOTORBIKE_ENTITY_HPP_
 
 #include "scenario_entities/entity_base.hpp"
 
@@ -26,6 +26,6 @@ struct MotorBikeEntity
   MotorBikeEntity();
 };
 
-} // namespace entity_plugins
+}  // namespace entity_plugins
 
-#endif // INCLUDED_ENTITY_PLUGINS_MOTORBIKE_ENTITY_H
+#endif  // ENTITY_PLUGINS__MOTORBIKE_ENTITY_HPP_
