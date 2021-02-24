@@ -5,7 +5,7 @@
     <arg name="scenario_id" default=""/>
     <arg name="use_sim_time" default="false"/>
     <arg name="vehicle_model" default="lexus"/>
-    <arg name="vehicle_param_file" default="$(find-pkg-share $(var vehicle_model)_description)/config/vehicle_info.yaml"/>
+    <arg name="vehicle_param_file" default="$(find-pkg-share $(var vehicle_model)_description)/config/vehicle_info.param.yaml"/>
 
     <node pkg="scenario_runner" exec="scenario_runner_node" output="screen" />
 
