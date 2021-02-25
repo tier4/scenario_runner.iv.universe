@@ -34,7 +34,9 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
 
   //parameter for getMoveDistance
   add_simulator_noise_ = node_->declare_parameter<bool>("rosparam/add_simulator_noise", true);
-  LOG_SIMPLE(info() << "Parameter 'rosparam/add_simulator_noise' = " << std::boolalpha << add_simulator_noise_);
+  LOG_SIMPLE(
+    info() << "Parameter 'rosparam/add_simulator_noise' = " << std::boolalpha <<
+      add_simulator_noise_);
   simulator_noise_pos_dev_ = node_->declare_parameter<double>("rosparam/simulator_pos_noise", 0.1);
   LOG_SIMPLE(info() << "Parameter 'rosparam/simulator_pos_noise' = " << simulator_noise_pos_dev_);
   autoware_max_velocity_ = node_->declare_parameter<double>("rosparam/max_velocity", 30.0);
@@ -50,11 +52,15 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   vehicle_data_.wheel_tread = vehicle_info_.wheel_tread_m_;
   LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_tread' = " << vehicle_data_.wheel_tread);
   vehicle_data_.front_overhang = vehicle_info_.front_overhang_m_;
-  LOG_SIMPLE(info() << "Parameter '/vehicle_info/front_overhang' = " << vehicle_data_.front_overhang);
+  LOG_SIMPLE(
+    info() << "Parameter '/vehicle_info/front_overhang' = " <<
+      vehicle_data_.front_overhang);
   vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m_;
   LOG_SIMPLE(info() << "Parameter '/vehicle_info/rear_overhang' = " << vehicle_data_.rear_overhang);
   vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
-  LOG_SIMPLE(info() << "Parameter '/vehicle_info/vehicle_height' = " << vehicle_data_.vehicle_height);
+  LOG_SIMPLE(
+    info() << "Parameter '/vehicle_info/vehicle_height' = " <<
+      vehicle_data_.vehicle_height);
   vehicle_data_.max_longitudinal_offset = vehicle_info_.max_longitudinal_offset_m_;
   vehicle_data_.min_longitudinal_offset = vehicle_info_.min_longitudinal_offset_m_;
   vehicle_data_.max_height_offset = vehicle_info_.max_height_offset_m_;
@@ -122,7 +128,9 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
     durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/initial_velocity'");
   pub_autoware_engage_ =
-    node_->create_publisher<autoware_vehicle_msgs::msg::Engage>("output/autoware_engage", durable_qos);
+    node_->create_publisher<autoware_vehicle_msgs::msg::Engage>(
+    "output/autoware_engage",
+    durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/autoware_engage'");
   pub_max_velocity_ =
     node_->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
@@ -130,7 +138,8 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
     durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/limit_velocity'");
   pub_lane_change_permission_ =
-    node_->create_publisher<std_msgs::msg::Bool>("output/lane_change_permission", durable_qos);
+    node_->create_publisher<autoware_planning_msgs::msg::LaneChangeCommand>(
+    "output/lane_change_permission", durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/lane_change_permission'");
   pub_check_point_ =
     node_->create_publisher<geometry_msgs::msg::PoseStamped>(
@@ -649,9 +658,9 @@ bool ScenarioAPIAutoware::getRightBlinker() {return getRightBlinker(turn_signal_
 
 bool ScenarioAPIAutoware::approveLaneChange(bool approve_lane_change)
 {
-  std_msgs::msg::Bool boolmsg;
-  boolmsg.data = approve_lane_change;
-  pub_lane_change_permission_->publish(boolmsg);
+  autoware_planning_msgs::msg::LaneChangeCommand lc_cmd;
+  lc_cmd.command = approve_lane_change;
+  pub_lane_change_permission_->publish(lc_cmd);
   return true;  // TODO check successs
 }
 

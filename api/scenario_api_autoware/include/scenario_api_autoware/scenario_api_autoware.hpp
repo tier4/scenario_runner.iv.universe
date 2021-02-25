@@ -24,6 +24,7 @@
 
 #include "autoware_perception_msgs/msg/traffic_light_state_array.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
+#include "autoware_planning_msgs/msg/lane_change_command.hpp"
 #include "autoware_vehicle_msgs/msg/engage.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
@@ -188,7 +189,7 @@ private:
     pub_autoware_engage_;  //!< @brief topic pubscriber for autoware engage
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
     pub_max_velocity_;  //!< @brief topic pubscriber for max velocity
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr
+  rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr
     pub_lane_change_permission_;  //!< @brief topic pubscriber for approval of lane change
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr
     pub_check_point_;  //!< @brief topic pubscriber for check point
