@@ -210,7 +210,7 @@ void ScenarioRunner::update() try
   message.stamp = this->now();
   message.data = std::regex_replace(ss.str(), pattern, R"([])"); // XXX HACK
 
-  std::cout << message.data.c_str() << std::endl;
+  // std::cout << message.data.c_str() << std::endl;
 
   publisher_->publish(message);
 }
