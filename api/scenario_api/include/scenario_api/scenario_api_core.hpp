@@ -42,8 +42,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
-#include "std_msgs/msg/bool.hpp"
-#include "std_msgs/msg/float32.hpp"
 
 #include "unistd.h"
 
