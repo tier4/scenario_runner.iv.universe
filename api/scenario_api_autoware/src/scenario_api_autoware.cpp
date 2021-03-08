@@ -133,7 +133,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
     durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/autoware_engage'");
   pub_max_velocity_ =
-    node_->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+    node_->create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
     "output/limit_velocity",
     durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/limit_velocity'");
@@ -455,10 +455,10 @@ bool ScenarioAPIAutoware::setMaxSpeed(double velocity)
 {
   LOG_SIMPLE(info() << "Sending max-speed " << velocity << " to Autoware");
 
-  autoware_debug_msgs::msg::Float32Stamped floatmsg;
-  floatmsg.stamp = node_->get_clock()->now();
-  floatmsg.data = velocity;
-  pub_max_velocity_->publish(floatmsg);
+  autoware_planning_msgs::msg::VelocityLimit vel_limit_msg;
+  vel_limit_msg.stamp = node_->get_clock()->now();
+  vel_limit_msg.max_velocity = velocity;
+  pub_max_velocity_->publish(vel_limit_msg);
   return true;  // TODO check success
 }
 
