@@ -114,7 +114,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   node_->get_node_timers_interface()->add_timer(timer_control_slow_, nullptr);
 
   /* register publisher */
-  rclcpp::QoS durable_qos{1};
+  rclcpp::QoS durable_qos{10};
   durable_qos.transient_local();
   pub_start_point_ = node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "output/start_point", durable_qos);
@@ -144,11 +144,11 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   pub_check_point_ =
     node_->create_publisher<geometry_msgs::msg::PoseStamped>(
     "output/check_point",
-    rclcpp::QoS{10}.transient_local());
+    durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/check_point'");
   pub_traffic_detection_result_ =
     node_->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
-    "output/traffic_detection_result", rclcpp::QoS{10}.transient_local());
+    "output/traffic_detection_result", durable_qos);
   LOG_SIMPLE(info() << "Advertise topic 'output/traffic_detection_result'");
 }
 
