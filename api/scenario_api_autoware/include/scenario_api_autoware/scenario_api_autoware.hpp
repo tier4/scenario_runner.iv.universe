@@ -28,7 +28,7 @@
 #include "autoware_vehicle_msgs/msg/engage.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "autoware_planning_msgs/msg/velocity_limit.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -186,7 +186,7 @@ private:
     pub_start_velocity_;  //!< @brief topic @publisher for initial velocity
   rclcpp::Publisher<autoware_vehicle_msgs::msg::Engage>::SharedPtr
     pub_autoware_engage_;  //!< @brief topic pubscriber for autoware engage
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
+  rclcpp::Publisher<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr
     pub_max_velocity_;  //!< @brief topic pubscriber for max velocity
   rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr
     pub_lane_change_permission_;  //!< @brief topic pubscriber for approval of lane change
