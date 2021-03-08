@@ -19,7 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "scenario_actions/entity_action_base.hpppp"
+#include "pluginlib/class_list_macros.hpp"
+#include "scenario_actions/entity_action_base.hpp"
 #include "scenario_intersection/intersection_manager.hpp"
 #include "scenario_logger/logger.hpp"
 #include "scenario_utility/scenario_utility.hpp"
