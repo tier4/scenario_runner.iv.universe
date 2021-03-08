@@ -20,6 +20,8 @@ include_directories(
 ament_auto_add_library(action_plugins SHARED
   src/acceleration_action.cpp
   src/change_signal_action.cpp
+  src/enable_action.cpp
+  src/fault_injection_action.cpp
   src/follow_route_action.cpp
   src/lane_change_action.cpp
   src/speed_action.cpp
