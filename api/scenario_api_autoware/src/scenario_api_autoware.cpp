@@ -114,7 +114,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   node_->get_node_timers_interface()->add_timer(timer_control_slow_, nullptr);
 
   /* register publisher */
-  rclcpp::QoS durable_qos{1};
+  rclcpp::QoS durable_qos{10};
   durable_qos.transient_local();
   pub_start_point_ = node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "output/start_point", durable_qos);
