@@ -349,9 +349,9 @@ bool ScenarioAPIAutoware::sendGoalPoint(
   if (wait_autoware_status) {
     //publish recurssively until state changes
     while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE)) {
-      rclcpp::Rate(1.0).sleep();
       posestmp.header.stamp = node_->now();
       pub_goal_point_->publish(posestmp);
+      rclcpp::Rate(0.2).sleep();
       rclcpp::spin_some(node_->get_node_base_interface());
     }
   }
