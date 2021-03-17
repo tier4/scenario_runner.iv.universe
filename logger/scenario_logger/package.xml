@@ -6,7 +6,7 @@
   <description>The scenario_logger package</description>
   <maintainer email="shotahirama@todo.todo">shotahirama</maintainer>
 
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

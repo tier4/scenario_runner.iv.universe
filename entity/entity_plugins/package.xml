@@ -7,7 +7,7 @@
 
   <maintainer email="masaya@todo.todo">masaya</maintainer>
 
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 

@@ -6,7 +6,7 @@
   <description>The scenario_runner_msgs package</description>
   <maintainer email="httperror@404-notfound.jp">Yamasaki Tatsuya</maintainer>
 
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
