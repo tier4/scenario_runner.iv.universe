@@ -7,7 +7,7 @@
 
   <maintainer email="httperror@404-notfound.jp">Tatsuya Yamasaki</maintainer>
 
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
