@@ -34,7 +34,7 @@
 - wait_ready は Autoware/Simulator がゴール位置を受付完了するまで待機するオプションのため、基本的には true として使用すること
 - ただし、一度の Autoware 起動において, 自車に対して二度以上 sendStartPoint を使用する場合は二回目以降 false とすること（Autoware 側の仕様が不完全なため.Autoware が修正し次第対応予定）
 - frame_typeとしては以下のものが指定可能である
-  - "Cener" (default) ... 指定した座標にEgoCarのbase_link/NPCのポリゴン中心が来るようにゴールを設置する
+  - "Center" (default) ... 指定した座標にEgoCarのbase_link/NPCのポリゴン中心が来るようにゴールを設置する
   - "Front"          ... 指定した座標にEgoCar/NPCのポリゴン後端が来るようにゴールを設置する
   - "Rear"           ... 指定した座標にEgoCar/NPCのポリゴン前端が来るようにゴールを設置する
 
@@ -149,7 +149,7 @@
 
 - 自車が指定された Pose に対して一定距離(dist_thresh)、一定角度(delta_yaw_thresh)以内にいるかどうかを判定する
 
-### additonal self vehicle API
+### additional self vehicle API
 
 #### bool willLaneChange() (**temporary implemented(it has bug)**)
 
@@ -166,10 +166,10 @@
 
 ### lane API
 
-#### bool getCurrentLaneID(int& current_id, double max_dist = 3.0, double max_deleta_yaw = M_PI / 4.0)
+#### bool getCurrentLaneID(int& current_id, double max_dist = 3.0, double max_delta_yaw = M_PI / 4.0)
 
 - 現在車両（base_link）が存在するレーンを返す
-- 現在レーンとしてみなされる許容距離(max_dist)、許容角度差(deleta_yaw)が設定可能
+- 現在レーンとしてみなされる許容距離(max_dist)、許容角度差(delta_yaw)が設定可能
 
 #### bool getDistancefromCenterLine(double& dist_from_center_line)
 
@@ -415,7 +415,7 @@
 
 - 指定されたオブジェクトが指定された Pose に対して一定距離(dist_thresh)、一定角度(delta_yaw_thresh)以内にいるかどうかを判定する
 - frame_typeとしては以下のものが指定可能である
-  - "Cener" (default) ... 指定した座標とEgoCarのbase_link/NPCのポリゴン中心を比較する
+  - "Center" (default) ... 指定した座標とEgoCarのbase_link/NPCのポリゴン中心を比較する
   - "Front"          ... 指定した座標とEgoCar/NPCのポリゴン後端を比較する
   - "Rear"           ... 指定した座標とEgoCar/NPCのポリゴン前端を比較する
 

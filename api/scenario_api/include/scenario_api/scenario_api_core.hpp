@@ -177,7 +177,7 @@ public:
     double p_x, double p_y, double o_x, double o_y, double o_z, double o_w, double dist_thresh,
     double delta_yaw_thresh);  //!< @brief in designated area or not
 
-  // additonal self vehicle API
+  // additional self vehicle API
   bool willLaneChange();  // TODO //!< @brief t4b try to change lanes or not
   bool getLeftBlinker();
   bool getRightBlinker();
@@ -185,7 +185,7 @@ public:
 
   // lane API
   bool getCurrentLaneID(
-    int & current_id, double max_dist = 3.0, double max_deleta_yaw = M_PI / 4.0);
+    int & current_id, double max_dist = 3.0, double max_delta_yaw = M_PI / 4.0);
   bool isChangeLaneID();  // future work: // TODO
 
   bool getDistancefromCenterLine(double & dist_from_center_line);
@@ -309,14 +309,14 @@ private:
     const std::shared_ptr<geometry_msgs::msg::TwistStamped> previous_twist_ptr,
     const std::shared_ptr<geometry_msgs::msg::TwistStamped> second_previous_twist_ptr);
 
-  // function for additonal self vehicle API
+  // function for additional self vehicle API
   bool getLeftBlinker(std::shared_ptr<autoware_vehicle_msgs::msg::TurnSignal> turn_signal_ptr);
   bool getRightBlinker(std::shared_ptr<autoware_vehicle_msgs::msg::TurnSignal> turn_signal_ptr);
 
   // function for lane API
   bool getCurrentLaneID(
     int & current_id, const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
-    const lanelet::LaneletMapPtr & lanelet_map_ptr, double max_dist, double max_deleta_yaw);
+    const lanelet::LaneletMapPtr & lanelet_map_ptr, double max_dist, double max_delta_yaw);
   bool getDistancefromCenterLine(
     double & dist_from_center,
     const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,

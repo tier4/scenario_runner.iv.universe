@@ -49,6 +49,6 @@
   <class name="condition_plugins/SpeedCondition"
          type="condition_plugins::SpeedCondition"
          base_class_type="scenario_conditions::ConditionBase">
-    <description>This is a add plugin.</description>
+    <description>This is an add plugin.</description>
   </class>
 </library>

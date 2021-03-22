@@ -172,7 +172,7 @@ int main(int argc, char ** argv)
   obj->resetTrafficLightColor(34806, false);
   obj->setTrafficLightColor(34806, "yellow", false);  // modify
   obj->updateState();
-  //$rostopic echo /perception/traic_light_recognition/traffic_light_states
+  //$rostopic echo /perception/traffic_light_recognition/traffic_light_states
   //result: 34802, 34836->(3,5,7)
   rclcpp::Rate(0.3).sleep();     //3.0s sleep
   /* set traffic light color */  //#############################################################

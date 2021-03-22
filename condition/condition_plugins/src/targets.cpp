@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/accelaration_condition.cpp"
+#include "src/acceleration_condition.cpp"
 #include "src/always_false_condition.cpp"
 #include "src/always_true_condition.cpp"
 #include "src/collision_by_entity_condition.cpp"

@@ -62,7 +62,7 @@ public:
         color_{color ? convert<Color>(color.as<std::string>()) : Color::Blank}
       {
         if (arrows && !arrows.IsNull()) {
-          if (arrows.IsScalar()) {  // NOTE: deperecated behavior
+          if (arrows.IsScalar()) {  // NOTE: deprecated behavior
             const auto value {convert<Arrow>(arrows.as<std::string>())};
 
             if (value != Arrow::Blank) {
@@ -84,7 +84,7 @@ public:
       {
         if (target_ < 0 || color_ == Color::Blank) {
           return simulator.resetTrafficLightColor(target_, false);
-        } else {  // NOTE: Maybe specified illiegal traffic-light-id.
+        } else {  // NOTE: Maybe specified illegal traffic-light-id.
           return simulator.setTrafficLightColor(
             target_, boost::lexical_cast<std::string>(
               color_), false);
@@ -129,7 +129,7 @@ public:
       if (const auto traffic_lights {node["TrafficLight"]}) {
         for (const auto & each : traffic_lights) {
           if (const auto arrow {each["Arrow"]}) {
-            // NOTE: tag 'Arrow' is deperecated
+            // NOTE: tag 'Arrow' is deprecated
             RCLCPP_WARN_STREAM(
               logger, "Tag 'Arrow: <String>' is deprecated. Use 'Arrows: [<String>*]'");
             transitions_.emplace_back(each["Id"], each["Color"], arrow);
