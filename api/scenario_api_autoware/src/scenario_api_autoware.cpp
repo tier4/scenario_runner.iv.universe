@@ -304,7 +304,7 @@ bool ScenarioAPIAutoware::sendStartPoint(
 
   pub_start_point_->publish(posewcs);
 
-  //publish recurssively until self-pose tf is published
+  //publish recursively until self-pose tf is published
   while (!current_pose_ptr_) {
     rclcpp::Rate(2.0).sleep();
     pub_start_point_->publish(posewcs);
@@ -312,7 +312,7 @@ bool ScenarioAPIAutoware::sendStartPoint(
   }
 
   if (wait_autoware_status) {
-    //publish recurssively until state changes
+    //publish recursively until state changes
     while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE)) {
       rclcpp::Rate(2.0).sleep();
       posewcs.header.stamp = node_->now();
@@ -347,7 +347,7 @@ bool ScenarioAPIAutoware::sendGoalPoint(
   pub_goal_point_->publish(posestmp);
 
   if (wait_autoware_status) {
-    //publish recurssively until state changes
+    //publish recursively until state changes
     while (!checkState(autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE)) {
       posestmp.header.stamp = node_->now();
       pub_goal_point_->publish(posestmp);
@@ -604,7 +604,7 @@ bool ScenarioAPIAutoware::shiftEgoPose(
   const geometry_msgs::msg::Pose & pose, const std::string frame_type,
   geometry_msgs::msg::Pose * shift_pose)
 {
-  //shift pose from farame_type to "Center"
+  //shift pose from frame_type to "Center"
 
   if (frame_type == "Center") {
     //no shift
@@ -631,7 +631,7 @@ bool ScenarioAPIAutoware::shiftEgoPose(
   return false;
 }
 
-// additonal self vehicle API
+// additional self vehicle API
 bool ScenarioAPIAutoware::willLaneChange()
 {
   RCLCPP_WARN_SKIPFIRST_THROTTLE(
@@ -661,7 +661,7 @@ bool ScenarioAPIAutoware::approveLaneChange(bool approve_lane_change)
   autoware_planning_msgs::msg::LaneChangeCommand lc_cmd;
   lc_cmd.command = approve_lane_change;
   pub_lane_change_permission_->publish(lc_cmd);
-  return true;  // TODO check successs
+  return true;  // TODO check success
 }
 
 // sensor API

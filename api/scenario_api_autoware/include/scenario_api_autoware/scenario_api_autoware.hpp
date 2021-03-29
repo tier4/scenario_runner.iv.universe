@@ -121,7 +121,7 @@ public:
     const geometry_msgs::msg::Pose & pose, const std::string frame_type,
     geometry_msgs::msg::Pose * shift_pose);
 
-  // additonal self vehicle API
+  // additional self vehicle API
   bool willLaneChange();  // TODO //!< @brief t4b try to change lanes or not
   bool getLeftBlinker();
   bool getRightBlinker();
@@ -179,21 +179,21 @@ private:
 
   /* Publishers */
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
-    pub_start_point_;  //!< @brief topic pubscriber for start point
+    pub_start_point_;  //!< @brief topic publisher for start point
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr
-    pub_goal_point_;  //!< @brief topic pubscriber for goal point
+    pub_goal_point_;  //!< @brief topic publisher for goal point
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr
     pub_start_velocity_;  //!< @brief topic @publisher for initial velocity
   rclcpp::Publisher<autoware_vehicle_msgs::msg::Engage>::SharedPtr
-    pub_autoware_engage_;  //!< @brief topic pubscriber for autoware engage
+    pub_autoware_engage_;  //!< @brief topic publisher for autoware engage
   rclcpp::Publisher<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr
-    pub_max_velocity_;  //!< @brief topic pubscriber for max velocity
+    pub_max_velocity_;  //!< @brief topic publisher for max velocity
   rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr
-    pub_lane_change_permission_;  //!< @brief topic pubscriber for approval of lane change
+    pub_lane_change_permission_;  //!< @brief topic publisher for approval of lane change
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr
-    pub_check_point_;  //!< @brief topic pubscriber for check point
+    pub_check_point_;  //!< @brief topic publisher for check point
   rclcpp::Publisher<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
-    pub_traffic_detection_result_;  //!< @brief topic pubscriber for traffic detection result
+    pub_traffic_detection_result_;  //!< @brief topic publisher for traffic detection result
 
   // TF
   tf2_ros::Buffer tf_buffer_;
@@ -262,14 +262,14 @@ private:
     const std::shared_ptr<geometry_msgs::msg::TwistStamped> second_previous_twist_ptr);
   void updateTotalMoveDistance();
 
-  // function for additonal self vehicle API
+  // function for additional self vehicle API
   bool getLeftBlinker(std::shared_ptr<autoware_vehicle_msgs::msg::TurnSignal> turn_signal_ptr);
   bool getRightBlinker(std::shared_ptr<autoware_vehicle_msgs::msg::TurnSignal> turn_signal_ptr);
 
   // function for lane API
   bool getCurrentLaneID(
     int & current_id, const std::shared_ptr<geometry_msgs::msg::PoseStamped> & current_pose,
-    const lanelet::LaneletMapPtr & lanelet_map_ptr, double max_dist, double max_deleta_yaw);
+    const lanelet::LaneletMapPtr & lanelet_map_ptr, double max_dist, double max_delta_yaw);
   bool getCurrentLeftLaneID(
     int & current_left_id, const std::shared_ptr<lanelet::Lanelet> current_lane);
   bool getDistancefromCenterLine(

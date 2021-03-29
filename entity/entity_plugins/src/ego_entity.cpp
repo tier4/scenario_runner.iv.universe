@@ -64,11 +64,11 @@ try
   LOG_SIMPLE(info() << "Parse 'Story.Init.Entity[" << name_ << "].InitialStates.InitialSpeed");
   if (const auto initial_speed {init_entity_["InitialStates"]["InitialSpeed"]}) {
     if (!api_->sendStartVelocity(initial_speed.as<float>())) {
-      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velocity.");
     }
   } else {
     if (!api_->sendStartVelocity(0)) {
-      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velicity.");
+      SCENARIO_ERROR_THROW(CATEGORY(), "Failed to send start-velocity.");
     }
   }
 

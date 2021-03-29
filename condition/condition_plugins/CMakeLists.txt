@@ -15,7 +15,7 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
-   src/accelaration_condition.cpp
+   src/acceleration_condition.cpp
    src/always_false_condition.cpp
    src/always_true_condition.cpp
    src/collision_by_entity_condition.cpp

@@ -21,7 +21,7 @@ ament_auto_find_build_dependencies(REQUIRED
 ament_auto_add_library(${PROJECT_NAME} SHARED
   src/bicycle_entity.cpp
   src/ego_entity.cpp
-  src/motobike_entity.cpp
+  src/motorbike_entity.cpp
   src/pedestrian_entity.cpp
   src/vehicle_entity.cpp
 )

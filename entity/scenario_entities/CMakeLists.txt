@@ -13,7 +13,7 @@ include_directories(
 )
 
 ament_auto_add_library(scenario_entities SHARED
-  src/entitiy_manager.cpp
+  src/entity_manager.cpp
   src/entity_base.cpp
 )
 

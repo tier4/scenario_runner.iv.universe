@@ -60,7 +60,7 @@ auto to_signal_name = [](int signal) -> std::string
   switch (signal)
   {
     case SIGABRT: return "SIGABRT";
-    case SIGFPE:  return "SIGPE";
+    case SIGFPE:  return "SIGFPE";
     case SIGILL:  return "SIGILL";
     case SIGINT:  return "SIGINT";
     case SIGSEGV: return "SIGSEGV";

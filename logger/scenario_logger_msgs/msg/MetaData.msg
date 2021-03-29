@@ -8,7 +8,7 @@ string end_datetime
 float64 duration
 # commit hash of the autoware
 string autoware_commit_hash
-# commit hash of the plannig simulator
+# commit hash of the planning simulator
 string simulator_commit_hash
 # move distance of the autoware vehicle in this simulation
 float32 move_distance

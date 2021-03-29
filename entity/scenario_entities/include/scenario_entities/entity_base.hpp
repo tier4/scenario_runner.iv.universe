@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
-#define SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
+#ifndef SCENARIO_ENTITIES_ENTITY_BASE_H_INCLUDED
+#define SCENARIO_ENTITIES_ENTITY_BASE_H_INCLUDED
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "scenario_actions/action_manager.hpp"
@@ -76,4 +76,4 @@ protected:
   float speed_;
 };
 }  // namespace scenario_entities
-#endif  // SCENARIO_ENTITIES_ENTITIY_BASE_H_INCLUDED
+#endif  // SCENARIO_ENTITIES_ENTITY_BASE_H_INCLUDED
