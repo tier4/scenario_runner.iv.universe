@@ -7,7 +7,7 @@
     <arg name="vehicle_model" default="lexus"/>
     <arg name="vehicle_param_file" default="$(find-pkg-share $(var vehicle_model)_description)/config/vehicle_info.param.yaml"/>
 
-    <node pkg="scenario_runner" exec="scenario_runner_node" output="screen" />
+    <node pkg="scenario_runner" exec="scenario_runner_node" output="screen" >
 
         <param from="$(var vehicle_param_file)" />
         <param name="/use_sim_time" value="$(var use_sim_time)"/>
