@@ -23,7 +23,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
 : node_(node),
   tf_buffer_(node_->get_clock()),
   tf_listener_(tf_buffer_),
-  vehicle_info_(vehicle_info_util::VehicleInfo::create(*node_)),
+  vehicle_info_(vehicle_info_util::VehicleInfoUtil(*node).getVehicleInfo()),
   is_autoware_ready_initialize(false),
   is_autoware_ready_routing(false),
   total_move_distance_(0.0)
@@ -43,28 +43,28 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
   LOG_SIMPLE(info() << "Parameter 'rosparam/max_velocity' = " << autoware_max_velocity_);
 
   /* Scenario parameters*/
-  vehicle_data_.wheel_radius = vehicle_info_.wheel_radius_m_;
+  vehicle_data_.wheel_radius = vehicle_info_.wheel_radius_m;
   LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_radius' = " << vehicle_data_.wheel_radius);
-  vehicle_data_.wheel_width = vehicle_info_.wheel_width_m_;
+  vehicle_data_.wheel_width = vehicle_info_.wheel_width_m;
   LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_width' = " << vehicle_data_.wheel_width);
-  vehicle_data_.wheel_base = vehicle_info_.wheel_base_m_;
+  vehicle_data_.wheel_base = vehicle_info_.wheel_base_m;
   LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_base' = " << vehicle_data_.wheel_base);
-  vehicle_data_.wheel_tread = vehicle_info_.wheel_tread_m_;
+  vehicle_data_.wheel_tread = vehicle_info_.wheel_tread_m;
   LOG_SIMPLE(info() << "Parameter '/vehicle_info/wheel_tread' = " << vehicle_data_.wheel_tread);
-  vehicle_data_.front_overhang = vehicle_info_.front_overhang_m_;
+  vehicle_data_.front_overhang = vehicle_info_.front_overhang_m;
   LOG_SIMPLE(
     info() << "Parameter '/vehicle_info/front_overhang' = " <<
       vehicle_data_.front_overhang);
-  vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m_;
+  vehicle_data_.rear_overhang = vehicle_info_.rear_overhang_m;
   LOG_SIMPLE(info() << "Parameter '/vehicle_info/rear_overhang' = " << vehicle_data_.rear_overhang);
-  vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m_;
+  vehicle_data_.vehicle_height = vehicle_info_.vehicle_height_m;
   LOG_SIMPLE(
     info() << "Parameter '/vehicle_info/vehicle_height' = " <<
       vehicle_data_.vehicle_height);
-  vehicle_data_.max_longitudinal_offset = vehicle_info_.max_longitudinal_offset_m_;
-  vehicle_data_.min_longitudinal_offset = vehicle_info_.min_longitudinal_offset_m_;
-  vehicle_data_.max_height_offset = vehicle_info_.max_height_offset_m_;
-  vehicle_data_.min_height_offset = vehicle_info_.min_height_offset_m_;
+  vehicle_data_.max_longitudinal_offset = vehicle_info_.max_longitudinal_offset_m;
+  vehicle_data_.min_longitudinal_offset = vehicle_info_.min_longitudinal_offset_m;
+  vehicle_data_.max_height_offset = vehicle_info_.max_height_offset_m;
+  vehicle_data_.min_height_offset = vehicle_info_.min_height_offset_m;
 
   /* register data callback*/
   sub_pcl_ = node_->create_subscription<sensor_msgs::msg::PointCloud2>(

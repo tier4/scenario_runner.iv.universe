@@ -45,7 +45,7 @@
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/transform_listener.h"
-#include "vehicle_info_util/vehicle_info.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
 
 #include "boost/geometry.hpp"
 
