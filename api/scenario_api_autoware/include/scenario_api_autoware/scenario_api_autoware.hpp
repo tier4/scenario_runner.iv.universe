@@ -41,6 +41,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "scenario_api_utils/scenario_api_utils.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "tf2_ros/buffer.h"
 #include "tf2/convert.h"
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
