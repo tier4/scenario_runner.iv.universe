@@ -196,6 +196,9 @@ private:
   rclcpp::Publisher<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
     pub_traffic_detection_result_;  //!< @brief topic publisher for traffic detection result
 
+  const rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
+    pub_pose_with_covariance_;
+
   // TF
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
