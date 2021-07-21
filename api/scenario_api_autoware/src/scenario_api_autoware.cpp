@@ -164,6 +164,31 @@ void ScenarioAPIAutoware::timerCallbackFast()
 {
   getCurrentPoseFromTF();
   pubTrafficLight();
+
+  // const double yaw = yawFromQuat(pose.orientation);
+  // geometry_msgs::msg::PoseWithCovarianceStamped posewcs;
+  // posewcs.header.stamp = node_->now();
+  // posewcs.header.frame_id = "map";
+  //
+  // //get pose with frame_type
+  // geometry_msgs::msg::Pose original_pose;
+  // original_pose.position = pose.position;
+  // original_pose.orientation = quatFromYaw(yaw);
+  // if (!shiftEgoPose(original_pose, frame_type, &posewcs.pose.pose)) {
+  //   return false;
+  // }
+
+
+  if (current_pose_ptr_) {
+    geometry_msgs::msg::PoseWithCovarianceStamped pose_with_covariance;
+    {
+      pose_with_covariance.header = current_pose_ptr_->header;
+      pose_with_covariance.pose.pose = current_pose_ptr_->pose;
+      pose_with_covariance.pose.covariance = {};
+    }
+
+    pub_pose_with_covariance_->publish(pose_with_covariance);
+  }
 }
 
 void ScenarioAPIAutoware::timerCallbackSlow()
