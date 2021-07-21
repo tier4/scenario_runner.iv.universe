@@ -165,20 +165,6 @@ void ScenarioAPIAutoware::timerCallbackFast()
   getCurrentPoseFromTF();
   pubTrafficLight();
 
-  // const double yaw = yawFromQuat(pose.orientation);
-  // geometry_msgs::msg::PoseWithCovarianceStamped posewcs;
-  // posewcs.header.stamp = node_->now();
-  // posewcs.header.frame_id = "map";
-  //
-  // //get pose with frame_type
-  // geometry_msgs::msg::Pose original_pose;
-  // original_pose.position = pose.position;
-  // original_pose.orientation = quatFromYaw(yaw);
-  // if (!shiftEgoPose(original_pose, frame_type, &posewcs.pose.pose)) {
-  //   return false;
-  // }
-
-
   if (current_pose_ptr_) {
     geometry_msgs::msg::PoseWithCovarianceStamped pose_with_covariance;
     {
