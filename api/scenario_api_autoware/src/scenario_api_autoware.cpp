@@ -23,7 +23,7 @@ ScenarioAPIAutoware::ScenarioAPIAutoware(rclcpp::Node::SharedPtr node)
 : node_(node),
   pub_pose_with_covariance_(
     node_->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-      "/localization/pose_twist_fusion_filter/pose_with_covariance",
+      "/localization/pose_with_covariance",
       rclcpp::QoS(10).transient_local())),
   tf_buffer_(node_->get_clock()),
   tf_listener_(tf_buffer_),
