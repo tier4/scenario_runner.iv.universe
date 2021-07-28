@@ -74,6 +74,7 @@ const rclcpp::Time & Logger::begin() const
 
 std::string toIso6801(const rclcpp::Time & stamp)
 {
+  (void)stamp;
   // TODO(kosuke murakami): Convert stamp to YYYY-MM-DDTHH:MM:SS
   return std::string("2000-1-1-0000:00:00");
 }
