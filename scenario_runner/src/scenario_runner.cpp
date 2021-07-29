@@ -28,9 +28,9 @@ namespace scenario_runner
 ScenarioRunner::ScenarioRunner()
 : Node("scenario_runner_node"),
   currently{simulation_is::ongoing},
-  publisher_{create_publisher<scenario_runner_msgs::msg::StringStamped>("~/context", rclcpp::QoS(1).transient_local())},
   simulator_{std::make_shared<ScenarioAPI>()},
-  scenario_path_{declare_parameter("scenario_path").get<std::string>()}
+  publisher_{create_publisher<scenario_runner_msgs::msg::StringStamped>("~/context", rclcpp::QoS(1).transient_local())},
+  scenario_path_{declare_parameter<std::string>("scenario_path")}
 {
   simulator_->init();
   if (not (*simulator_).waitAutowareInitialize())

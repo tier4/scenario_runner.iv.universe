@@ -53,7 +53,7 @@ void ConditionVisualizer::addMarker(std::string name, bool result, bool is_succe
 
   marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
   marker.action = visualization_msgs::msg::Marker::ADD;
-  marker.lifetime = rclcpp::Duration(0);
+  marker.lifetime = rclcpp::Duration::from_seconds(0);
 
   marker.scale.z = 2.0;
 

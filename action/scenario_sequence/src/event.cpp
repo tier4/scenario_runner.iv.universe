@@ -65,6 +65,9 @@ std::ostream & operator<<(std::ostream & os, const state_is & currently)
 
     case state_is::finished:
       return os << "Finished";
+
+    default:
+      return os << "Error";
   }
 }
 

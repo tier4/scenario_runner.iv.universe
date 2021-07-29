@@ -124,12 +124,12 @@ int main(int argc, char * argv[])
   scenario_logger::log.setStartDatetime(runner_ptr->now());
   SCENARIO_LOG_STREAM(CATEGORY("simulation", "progress"), "Logging started.");
 
-  std::string scenario_id{runner_ptr->declare_parameter("scenario_id").get<std::string>()};
+  std::string scenario_id{runner_ptr->declare_parameter<std::string>("scenario_id")};
   scenario_logger::log.setScenarioID(scenario_id);
   boost::filesystem::create_directory("/tmp/scenario_runner_node");
   scenario_logger::slog.open("/tmp/scenario_runner_node/" + scenario_id + ".json", std::ios::trunc);
 
-  std::string log_output_path{runner_ptr->declare_parameter("log_output_path").get<std::string>()};
+  std::string log_output_path{runner_ptr->declare_parameter<std::string>("log_output_path")};
   scenario_logger::log.setLogOutputPath(log_output_path);
 
   LOG_SIMPLE(info() << "Sleep for 10 seconds");
@@ -138,7 +138,7 @@ int main(int argc, char * argv[])
     LOG_SIMPLE(info() << "Sleeping... " << --i);
   }
   LOG_SIMPLE(info() << "Wake-up");
-  const auto & path = runner_ptr->declare_parameter("json_dump_path").get<std::string>();
+  const auto & path = runner_ptr->declare_parameter<std::string>("json_dump_path");
   const auto dump = [&runner_ptr, path](int exit_code) {
       dump_diagnostics(
         path, runner_ptr->current_mileage(),

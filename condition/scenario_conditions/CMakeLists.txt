@@ -8,7 +8,7 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic -Werror)
 endif()
 
 ### Dependencies
@@ -16,7 +16,7 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 ament_auto_add_library(scenario_conditions SHARED
-  src/condition_manager.cpp 
+  src/condition_manager.cpp
   src/condition_visualizer.cpp
 )
 
